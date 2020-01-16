@@ -59,6 +59,8 @@ class WorkspaceWidget(PluginWidget):
         self.workspacewidget.showInstrumentClicked.connect(self._do_show_instrument)
         self.workspacewidget.showAlgorithmHistoryClicked.connect(self._do_show_algorithm_history)
         self.workspacewidget.showDetectorsClicked.connect(self._do_show_detectors)
+        self.workspacewidget.plotAdvancedClicked.connect(partial(self._do_plot_spectrum,
+                                                                 errors=False, overplot=False, advanced=True))
 
         self.workspacewidget.workspaceDoubleClicked.connect(self._action_double_click_workspace)
 
@@ -78,7 +80,7 @@ class WorkspaceWidget(PluginWidget):
 
     # ----------------- Behaviour --------------------
 
-    def _do_plot_spectrum(self, names, errors, overplot):
+    def _do_plot_spectrum(self, names, errors, overplot, advanced=False):
         """
         Plot spectra from the selected workspaces
 
@@ -86,6 +88,8 @@ class WorkspaceWidget(PluginWidget):
         :param errors: If true then error bars will be plotted on the points
         :param overplot: If true then the add to the current figure if one
                          exists and it is a compatible figure
+        :param advanced: If true then the advanced options will be shown in
+                         the spectra selector dialog.
         """
         if overplot:
             compatible, error_msg = can_overplot()
@@ -93,7 +97,7 @@ class WorkspaceWidget(PluginWidget):
                 QMessageBox.warning(self, "", error_msg)
                 return
 
-        plot_from_names(names, errors, overplot)
+        plot_from_names(names, errors, overplot, advanced=advanced)
 
     def _do_plot_bin(self, names, errors, overplot):
         """
