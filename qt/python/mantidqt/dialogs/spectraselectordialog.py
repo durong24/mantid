@@ -288,9 +288,7 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
             selection.plot_type = self._ui.plotType.currentIndex()
 
             if self._advanced:
-                advanced_selections = self._get_advanced_selections()
-                for option in advanced_selections:
-                    setattr(selection, option, advanced_selections[option])
+                selection.log_name = self._ui.advanced_options_widget.ui.log_value_combo_box.currentText()
         else:
             selection = None
         self.selection = selection
@@ -311,9 +309,7 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
             selection.plot_type = self._ui.plotType.currentIndex()
 
             if self._advanced:
-                advanced_selections = self._get_advanced_selections()
-                for option in advanced_selections:
-                    setattr(selection, option, advanced_selections[option])
+                selection.log_name = self._ui.advanced_options_widget.ui.log_value_combo_box.currentText()
         else:
             selection = None
         self.selection = selection
@@ -366,7 +362,6 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
     def _log_value_changed(self, text):
         self.ui.custom_log_line_edit.setEnabled(text == "Custom")
         self.ui.custom_log_line_edit.clear()
-        #self.ui.custom_log_line_edit.setVisible(text == "Custom")
         self.ui.plot_axis_label_line_edit.setText(text)
 
         if text != "Custom":
@@ -378,12 +373,15 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
         else:
             self._validate_custom_logs()
 
+        if self._parent.selection:
+            self._parent.selection.log_name = text
+
     def _toggle_errors(self, enable):
         if self._parent.selection:
             self._parent.selection.errors = enable
 
     def _populate_log_combo_box(self):
-        self.ui.log_value_combo_box.addItem("Workspace index")
+        self.ui.log_value_combo_box.addItem("Workspace name")
 
         usable_logs = {}
         ws = self._parent._workspaces[0]
@@ -477,6 +475,9 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
             if valid_options:
                 self.ui.logs_valid.hide()
                 self.ui.logs_valid.setToolTip("")
+
+                if self._parent.selection:
+                    self._parent.selection.custom_log_values = values
 
             self._parent._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid_options)
 
