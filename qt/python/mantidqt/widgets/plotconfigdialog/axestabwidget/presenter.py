@@ -8,6 +8,7 @@
 
 from __future__ import (absolute_import, unicode_literals)
 
+from mantid.plots import MantidAxes3D
 from mantidqt.widgets.plotconfigdialog import generate_ax_name, get_axes_names_dict
 from mantidqt.widgets.plotconfigdialog.axestabwidget import AxProperties
 from mantidqt.widgets.plotconfigdialog.axestabwidget.view import AxesTabWidgetView
@@ -107,3 +108,8 @@ class AxesTabWidgetPresenter:
         self.view.set_ylabel(ax_props.ylabel)
         self.view.set_yscale(ax_props.yscale)
         self.current_view_props = AxProperties.from_view(self.view)
+
+        # Currently changing the axis scale doesn't work correctly for 3D plots so those options are disabled.
+        enable_scale = not isinstance(self.get_selected_ax(), MantidAxes3D)
+        self.view.yscale_combo_box.setEnabled(enable_scale)
+        self.view.xscale_combo_box.setEnabled(enable_scale)

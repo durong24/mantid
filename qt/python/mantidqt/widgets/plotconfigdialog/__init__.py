@@ -10,6 +10,7 @@ from __future__ import (absolute_import, unicode_literals)
 
 from matplotlib.axes import ErrorbarContainer
 from matplotlib.collections import QuadMesh
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
 def generate_ax_name(ax):
@@ -123,4 +124,4 @@ def get_colorbars_from_fig(fig):
 
 def get_images_from_ax(ax):
     """Returns a list of image objects in the given Axes"""
-    return ax.images + [col for col in ax.collections if isinstance(col, QuadMesh)]
+    return ax.images + [col for col in ax.collections if isinstance(col, QuadMesh) or isinstance(col, Poly3DCollection)]

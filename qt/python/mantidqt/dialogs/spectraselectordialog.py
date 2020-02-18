@@ -11,11 +11,10 @@ from __future__ import (absolute_import, unicode_literals)
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
-from qtpy.QtWidgets import QDialogButtonBox, QMessageBox, QWidget
+from qtpy.QtWidgets import QDialogButtonBox, QMessageBox
 
 from mantid.kernel import logger
 from mantid.api import MatrixWorkspace
-from mantid.simpleapi import AnalysisDataService as ads
 
 from mantidqt.icons import get_icon
 from mantidqt.utils.qt import load_ui
@@ -110,7 +109,9 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
             self.log_name = self._ui.advanced_options_widget.ui.log_value_combo_box.currentText()
             self.axis_name = self._ui.advanced_options_widget.ui.plot_axis_label_line_edit.text()
 
-            if self.log_name == CUSTOM and not self._ui.advanced_options_widget._validate_custom_logs(plot_all=True):
+            if self.log_name == CUSTOM and not self._ui.advanced_options_widget.\
+                    _validate_custom_logs(self._ui.advanced_options_widget.ui.custom_log_line_edit.text(),
+                                          plot_all=True):
                 return
 
         if self._check_number_of_plots(selection):
@@ -215,7 +216,8 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
         ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self._is_input_valid())
 
         if self._advanced:
-            ui.advanced_options_widget._validate_custom_logs()
+            ui.advanced_options_widget._validate_custom_logs(
+                self._ui.advanced_options_widget.ui.custom_log_line_edit.text())
 
     def _on_specnums_changed(self):
         ui = self._ui
@@ -233,7 +235,8 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
         ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self._is_input_valid())
 
         if self._advanced:
-            ui.advanced_options_widget._validate_custom_logs()
+            ui.advanced_options_widget._validate_custom_logs(
+                self._ui.advanced_options_widget.ui.custom_log_line_edit.text())
 
     def _on_plot_type_changed(self, new_index):
         if self._overplot:
@@ -275,7 +278,7 @@ class SpectraSelectionDialog(SpectraSelectionDialogUIBase):
             elif self._ui.wkspIndices.text() != "":
                 self._on_wkspindices_changed()
             else:
-                self._ui.advanced_options_widget._validate_custom_logs()
+                self._ui.advanced_options_widget._validate_custom_logs(self.ui.custom_log_line_edit.text())
 
     def _parse_wksp_indices(self):
         if self._ui.plotType.currentText() == CONTOUR or self._ui.plotType.currentText() == SURFACE:
@@ -347,7 +350,7 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
         self._populate_log_combo_box()
         ui.plot_axis_label_line_edit.setText(ui.log_value_combo_box.currentText())
 
-    def _log_value_changed(self, text):
+    def _log_value_changed(self, text: str) -> None:
         # Don't need to do anything while the combo box is being populated.
         if not self._parent._ui:
             return
@@ -363,21 +366,21 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
             if not self._parent._ui.specNumsValid.isVisible() and not self._parent._ui.wkspIndicesValid.isVisible():
                 self._parent._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
-            self._validate_custom_logs()
+            self._validate_custom_logs(self.ui.custom_log_line_edit.text())
 
         if self._parent.selection:
             self._parent.selection.log_name = text
             self._parent.selection.axis_name = self.ui.plot_axis_label_line_edit.text()
 
-    def _toggle_errors(self, enable):
+    def _toggle_errors(self, enable: bool) -> None:
         if self._parent.selection:
             self._parent.selection.errors = enable
 
-    def _axis_name_changed(self, text):
+    def _axis_name_changed(self, text: str) -> None:
         if self._parent.selection:
             self._parent.selection.axis_name = text
 
-    def _populate_log_combo_box(self):
+    def _populate_log_combo_box(self) -> None:
         self.ui.log_value_combo_box.addItem(WORKSPACE_NAME)
 
         usable_logs = {}
@@ -412,10 +415,10 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
 
         self.ui.log_value_combo_box.addItem(CUSTOM)
 
-    def _validate_custom_logs(self, plot_all=False):
+    def _validate_custom_logs(self, text, plot_all: bool = False) -> None:
         if self.ui.log_value_combo_box.currentText() == CUSTOM:
             valid_options = True
-            values = self.ui.custom_log_line_edit.text().split(',')
+            values = text.split(',')
             first_value = True
             previous_value = 0.0
 
@@ -480,8 +483,6 @@ class AdvancedPlottingOptionsWidget(AdvancedPlottingOptionsWidgetUIBase):
                     self._parent.selection.custom_log_values = values
 
             self._parent._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid_options)
-
-            return valid_options
 
 
 def parse_selection_str(txt, min_val, max_val):
