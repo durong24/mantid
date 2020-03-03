@@ -33,7 +33,7 @@ LoadBankFromDiskTask::LoadBankFromDiskTask(
     DefaultEventLoader &loader, const std::string &entry_name,
     const std::string &entry_type, const std::size_t numEvents,
     const bool oldNeXusFileNames, API::Progress *prog,
-    boost::shared_ptr<std::mutex> ioMutex, Kernel::ThreadScheduler &scheduler,
+    std::shared_ptr<std::mutex> ioMutex, Kernel::ThreadScheduler &scheduler,
     const std::vector<int> &framePeriodNumbers)
     : m_loader(loader), entry_name(entry_name), entry_type(entry_type),
       prog(prog), scheduler(scheduler), m_loadError(false),
@@ -75,8 +75,8 @@ void LoadBankFromDiskTask::loadPulseTimes(::NeXus::File &file) {
   }
 
   // Not found? Need to load and add it
-  thisBankPulseTimes = boost::make_shared<BankPulseTimes>(boost::ref(file),
-                                                          m_framePeriodNumbers);
+  thisBankPulseTimes =
+      std::make_shared<BankPulseTimes>(boost::ref(file), m_framePeriodNumbers);
   m_loader.m_bankPulseTimes.emplace_back(thisBankPulseTimes);
 }
 
@@ -471,12 +471,12 @@ void LoadBankFromDiskTask::run() {
   auto startAt = static_cast<size_t>(m_loadStart[0]);
 
   // convert things to shared_arrays to share between tasks
-  boost::shared_array<uint32_t> event_id_shrd(event_id.release());
-  boost::shared_array<float> event_time_of_flight_shrd(
+  std::shared_ptr<uint32_t[]> event_id_shrd(event_id.release());
+  std::shared_ptr<float[]> event_time_of_flight_shrd(
       event_time_of_flight.release());
-  boost::shared_array<float> event_weight_shrd(event_weight.release());
+  std::shared_ptr<float[]> event_weight_shrd(event_weight.release());
   auto event_index_shrd =
-      boost::make_shared<std::vector<uint64_t>>(std::move(event_index));
+      std::make_shared<std::vector<uint64_t>>(std::move(event_index));
 
   std::shared_ptr<Task> newTask1 = std::make_shared<ProcessBankData>(
       m_loader, entry_name, prog, event_id_shrd, event_time_of_flight_shrd,

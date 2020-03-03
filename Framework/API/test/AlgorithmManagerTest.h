@@ -278,7 +278,7 @@ public:
     for (size_t i = 0; i < 5; i++) {
       // Create without proxy so that I can cast it to an Algorithm and get at
       // getCancel()
-      algs[i] = boost::dynamic_pointer_cast<Algorithm>(
+      algs[i] = std::dynamic_pointer_cast<Algorithm>(
           AlgorithmManager::Instance().create("AlgRunsForever", 1, false));
       TS_ASSERT(!algs[i]->getCancel());
     }

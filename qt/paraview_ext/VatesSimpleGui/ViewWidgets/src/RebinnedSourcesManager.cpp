@@ -81,9 +81,9 @@ void RebinnedSourcesManager::addHandle(const std::string &workspaceName,
   if (outputWorkspace == workspaceName) {
     std::string sourceType;
     Mantid::API::IMDEventWorkspace_sptr eventWorkspace =
-        boost::dynamic_pointer_cast<Mantid::API::IMDEventWorkspace>(workspace);
+        std::dynamic_pointer_cast<Mantid::API::IMDEventWorkspace>(workspace);
     Mantid::API::IMDHistoWorkspace_sptr histoWorkspace =
-        boost::dynamic_pointer_cast<Mantid::API::IMDHistoWorkspace>(workspace);
+        std::dynamic_pointer_cast<Mantid::API::IMDHistoWorkspace>(workspace);
 
     if (eventWorkspace) {
       sourceType = "MDEW Source";
@@ -102,8 +102,7 @@ void RebinnedSourcesManager::addHandle(const std::string &workspaceName,
  * @param wsName The name of the workspace.
  */
 void RebinnedSourcesManager::preDeleteHandle(
-    const std::string &wsName,
-    const boost::shared_ptr<Mantid::API::Workspace>) {
+    const std::string &wsName, const std::shared_ptr<Mantid::API::Workspace>) {
   // Check if the workspace which is to be deleted is a tracked rebinned
   // workspace
   std::vector<pqPipelineSource *> sources =
@@ -126,7 +125,7 @@ void RebinnedSourcesManager::preDeleteHandle(
  */
 void RebinnedSourcesManager::afterReplaceHandle(
     const std::string &workspaceName,
-    const boost::shared_ptr<Mantid::API::Workspace> workspace) {
+    const std::shared_ptr<Mantid::API::Workspace> workspace) {
   addHandle(workspaceName, workspace);
 }
 

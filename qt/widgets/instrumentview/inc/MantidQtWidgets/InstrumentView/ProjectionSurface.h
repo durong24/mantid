@@ -22,7 +22,7 @@
 #include <QMap>
 #include <QStack>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Mantid {
 namespace Geometry {
@@ -243,9 +243,9 @@ public:
   //-----------------------------------
 
   QList<PeakMarker2D *> getMarkersWithID(int detID) const;
-  boost::shared_ptr<Mantid::API::IPeaksWorkspace> getEditPeaksWorkspace() const;
+  std::shared_ptr<Mantid::API::IPeaksWorkspace> getEditPeaksWorkspace() const;
   QStringList getPeaksWorkspaceNames() const;
-  void deletePeaksWorkspace(
+  void deletePeaksWorkspace(const std::shared_ptr<Mantid::API::IPeaksWorkspace> &ws);
       const boost::shared_ptr<Mantid::API::IPeaksWorkspace> &ws);
   void clearPeakOverlays();
   void clearAlignmentPlane();
@@ -392,7 +392,7 @@ private:
   friend class InstrumentWidgetDecoder;
 };
 
-using ProjectionSurface_sptr = boost::shared_ptr<ProjectionSurface>;
+using ProjectionSurface_sptr = std::shared_ptr<ProjectionSurface>;
 
 } // namespace MantidWidgets
 } // namespace MantidQt

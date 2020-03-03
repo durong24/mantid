@@ -27,7 +27,7 @@
 
 #include "MantidParallel/Communicator.h"
 
-#include <boost/weak_ptr.hpp>
+#include <memory>
 
 #include "MantidKernel/StringTokenizer.h"
 #include <Poco/ActiveMethod.h>
@@ -619,7 +619,7 @@ bool Algorithm::executeInternal() {
     // populate history record before execution so we can record child
     // algorithms in it
     AlgorithmHistory algHist;
-    m_history = boost::make_shared<AlgorithmHistory>(algHist);
+    m_history = std::make_shared<AlgorithmHistory>(algHist);
   }
 
   // ----- Process groups -------------
@@ -783,7 +783,7 @@ void Algorithm::store() {
       // check if the workspace is a group, if so remember where it is and add
       // it later
       auto group =
-          boost::dynamic_pointer_cast<WorkspaceGroup>(wsProp->getWorkspace());
+          std::dynamic_pointer_cast<WorkspaceGroup>(wsProp->getWorkspace());
       if (!group) {
         try {
           wsProp->store();
@@ -886,7 +886,7 @@ void Algorithm::setupAsChildAlgorithm(const Algorithm_sptr &alg,
   // It will be used this to pass on cancellation requests
   // It must be protected by a critical block so that Child Algorithms can run
   // in parallel safely.
-  boost::weak_ptr<IAlgorithm> weakPtr(alg);
+  std::weak_ptr<IAlgorithm> weakPtr(alg);
   PARALLEL_CRITICAL(Algorithm_StoreWeakPtr) {
     m_ChildAlgorithms.emplace_back(weakPtr);
   }
@@ -1076,7 +1076,7 @@ void Algorithm::linkHistoryWithLastChild() {
  *  @param parentHist :: the parent algorithm history object the history in.
  */
 void Algorithm::trackAlgorithmHistory(
-    boost::shared_ptr<AlgorithmHistory> parentHist) {
+    std::shared_ptr<AlgorithmHistory> parentHist) {
   enableHistoryRecordingForChild(true);
   m_parentHistory = std::move(parentHist);
 }
@@ -1191,7 +1191,7 @@ bool Algorithm::checkGroups() {
     auto prop = dynamic_cast<Property *>(inputWorkspaceProp);
     auto wsGroupProp = dynamic_cast<WorkspaceProperty<WorkspaceGroup> *>(prop);
     auto ws = inputWorkspaceProp->getWorkspace();
-    auto wsGroup = boost::dynamic_pointer_cast<WorkspaceGroup>(ws);
+    auto wsGroup = std::dynamic_pointer_cast<WorkspaceGroup>(ws);
 
     // Workspace groups are NOT returned by IWP->getWorkspace() most of the
     // time because WorkspaceProperty is templated by <MatrixWorkspace> and
@@ -1313,8 +1313,8 @@ bool Algorithm::doCallProcessGroups(
     // Get how long this algorithm took to run
     const float duration = timer.elapsed();
 
-    m_history = boost::make_shared<AlgorithmHistory>(this, startTime, duration,
-                                                     ++g_execCount);
+    m_history = std::make_shared<AlgorithmHistory>(this, startTime, duration,
+                                                   ++g_execCount);
     if (trackingHistory() && m_history) {
       // find any further outputs created by the execution
       WorkspaceVector outputWorkspaces;
@@ -1359,7 +1359,7 @@ void Algorithm::fillHistory(
     };
 
     for (auto &outWS : outputWorkspaces) {
-      auto outWSGroup = boost::dynamic_pointer_cast<WorkspaceGroup>(outWS);
+      auto outWSGroup = std::dynamic_pointer_cast<WorkspaceGroup>(outWS);
       // Copy the history from the cached input workspaces to the output ones
       for (const auto &inputWS : m_inputWorkspaceHistories) {
         if (outWSGroup) {
@@ -1407,7 +1407,7 @@ bool Algorithm::processGroups() {
   for (auto &pureOutputWorkspaceProp : m_pureOutputWorkspaceProps) {
     auto *prop = dynamic_cast<Property *>(pureOutputWorkspaceProp);
     if (prop && !prop->value().empty()) {
-      auto outWSGrp = boost::make_shared<WorkspaceGroup>();
+      auto outWSGrp = std::make_shared<WorkspaceGroup>();
       outGroups.emplace_back(outWSGrp);
       // Put the GROUP in the ADS
       AnalysisDataService::Instance().addOrReplace(prop->value(), outWSGrp);

@@ -53,7 +53,7 @@ searchForLoader(const std::string &filename,
 
     // Use static cast for speed. Checks have been done at registration to check
     // the types
-    auto alg = boost::static_pointer_cast<FileLoaderType>(
+    auto alg = std::static_pointer_cast<FileLoaderType>(
         factory.create(name, version)); // highest version
     try {
       const int confidence = alg->confidence(descriptor);
@@ -100,7 +100,7 @@ void FileLoaderRegistryImpl::unsubscribe(const std::string &name,
  * @return A string containing the name of an algorithm to load the file
  * @throws Exception::NotFoundError if an algorithm cannot be found
  */
-const boost::shared_ptr<IAlgorithm>
+const std::shared_ptr<IAlgorithm>
 FileLoaderRegistryImpl::chooseLoader(const std::string &filename) const {
   using Kernel::FileDescriptor;
   using Kernel::NexusDescriptor;

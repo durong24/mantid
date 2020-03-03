@@ -40,7 +40,7 @@ private:
     alg->setProperty("OutputWorkspace", name);
     alg->execute();
     // Return the generated MDHistoWorkspace
-    return boost::dynamic_pointer_cast<MatrixWorkspace>(ADS.retrieve(name));
+    return std::dynamic_pointer_cast<MatrixWorkspace>(ADS.retrieve(name));
   }
 
   /// Helper method to run the WeightedMean algorithm on two matrix workspaces
@@ -57,7 +57,7 @@ private:
     alg->setProperty("InputWorkspace2", b);
     alg->setProperty("OutputWorkspace", name);
     alg->execute();
-    return boost::dynamic_pointer_cast<MatrixWorkspace>(ADS.retrieve(name));
+    return std::dynamic_pointer_cast<MatrixWorkspace>(ADS.retrieve(name));
   }
 
   /// Helper method to run input type validation checks.
@@ -138,7 +138,7 @@ public:
 
     AnalysisDataServiceImpl &ADS = Mantid::API::AnalysisDataService::Instance();
     MDHistoWorkspace_sptr c =
-        boost::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(outName));
+        std::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(outName));
 
     TS_ASSERT(c != nullptr);
     // Since A and B are equivalent, the mean Signal in C should be the same as
@@ -196,7 +196,7 @@ public:
     alg->setProperty("OutputWorkspace", name);
     alg->execute();
     // Return the generated MDHistoWorkspace
-    return boost::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(name));
+    return std::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(name));
   }
 
   /// Compare the outputs from this algorithm to the equivalent for
@@ -242,7 +242,7 @@ public:
 
     AnalysisDataServiceImpl &ADS = Mantid::API::AnalysisDataService::Instance();
     MDHistoWorkspace_sptr weighted_mean_md =
-        boost::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(outName));
+        std::dynamic_pointer_cast<MDHistoWorkspace>(ADS.retrieve(outName));
 
     // Check the outputs between both weighted mean algorithms.
     for (size_t j = 0; j < s1.size(); ++j) {

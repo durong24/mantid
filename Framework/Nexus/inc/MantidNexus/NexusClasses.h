@@ -15,9 +15,8 @@
 #include "MantidKernel/TimeSeriesProperty.h"
 #include <nexus/napi.h>
 
-#include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
 #include <map>
+#include <memory>
 //----------------------------------------------------------------------
 // Forward declaration
 //----------------------------------------------------------------------
@@ -252,7 +251,7 @@ public:
     return this->operator[]((i * dim1() + j) * dim2() + k);
   }
   /// Returns a wrapped pointer to the internal buffer
-  boost::shared_array<T> &sharedBuffer() { return m_data; }
+  std::shared_ptr<T[]> &sharedBuffer() { return m_data; }
   /// Returns the size of the data buffer
   int size() const { return m_n; }
   /**  Implementation of the virtual NXDataSet::load(...) method. Internally the
@@ -448,9 +447,9 @@ private:
   void rangeError() const {
     throw std::range_error("Nexus dataset range error");
   }
-  boost::shared_array<T> m_data; ///< The data buffer
-  int m_size[4];                 ///< The sizes of the loaded data
-  int m_n;                       ///< The buffer size
+  std::shared_ptr<T[]> m_data; ///< The data buffer
+  int m_size[4];               ///< The sizes of the loaded data
+  int m_n;                     ///< The buffer size
 };
 
 /// The integer dataset type
@@ -620,9 +619,9 @@ public:
   bool openLocal(const std::string &nxclass = "");
 
 protected:
-  boost::shared_ptr<std::vector<NXClassInfo>>
+  std::shared_ptr<std::vector<NXClassInfo>>
       m_groups; ///< Holds info about the child NXClasses
-  boost::shared_ptr<std::vector<NXInfo>>
+  std::shared_ptr<std::vector<NXInfo>>
       m_datasets;     ///< Holds info about the datasets in this NXClass
   void readAllInfo(); ///< Fills in m_groups and m_datasets.
   void clear();       ///< Deletes content of m_groups and m_datasets

@@ -24,11 +24,11 @@ namespace {
 void setupWorkspaces(int N, double dX) {
   FrameworkManager::Instance();
   Mantid::DataObjects::Workspace2D_sptr ws =
-      boost::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
+      std::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
           WorkspaceFactory::Instance().create("Workspace2D", 1, N, N));
 
   Mantid::DataObjects::Workspace2D_sptr ws1 =
-      boost::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
+      std::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
           WorkspaceFactory::Instance().create("Workspace2D", 1, N + 1, N));
 
   auto &X = ws->mutableX(0);
@@ -79,7 +79,7 @@ void doTestForward(const int N, const double XX, bool performance = false) {
   fft->execute();
 
   if (!performance) {
-    MatrixWorkspace_sptr fWS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+    MatrixWorkspace_sptr fWS = std::dynamic_pointer_cast<MatrixWorkspace>(
         AnalysisDataService::Instance().retrieve("RealFFT_WS_forward"));
 
     const auto &X = fWS->x(0);
@@ -111,10 +111,10 @@ void doTestBackward(const int N, const double dX, bool performance = false) {
   fft->execute();
 
   if (!performance) {
-    MatrixWorkspace_sptr WS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+    MatrixWorkspace_sptr WS = std::dynamic_pointer_cast<MatrixWorkspace>(
         AnalysisDataService::Instance().retrieve("RealFFT_WS"));
 
-    MatrixWorkspace_sptr fWS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+    MatrixWorkspace_sptr fWS = std::dynamic_pointer_cast<MatrixWorkspace>(
         AnalysisDataService::Instance().retrieve("RealFFT_WS_backward"));
 
     const auto &Y0 = WS->y(0);
@@ -139,7 +139,7 @@ void doTestForwardHistogram(const int N, const double XX,
   fft->setPropertyValue("WorkspaceIndex", "0");
   fft->execute();
 
-  MatrixWorkspace_sptr fWS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+  MatrixWorkspace_sptr fWS = std::dynamic_pointer_cast<MatrixWorkspace>(
       AnalysisDataService::Instance().retrieve("RealFFT_WS_forward_hist"));
 
   if (!performance) {
@@ -172,10 +172,10 @@ void doTestBackwardHistogram(const int N, const double dX,
   fft->setPropertyValue("Transform", "Backward");
   fft->execute();
 
-  MatrixWorkspace_sptr WS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+  MatrixWorkspace_sptr WS = std::dynamic_pointer_cast<MatrixWorkspace>(
       AnalysisDataService::Instance().retrieve("RealFFT_WS"));
 
-  MatrixWorkspace_sptr fWS = boost::dynamic_pointer_cast<MatrixWorkspace>(
+  MatrixWorkspace_sptr fWS = std::dynamic_pointer_cast<MatrixWorkspace>(
       AnalysisDataService::Instance().retrieve("RealFFT_WS_backward_hist"));
 
   if (!performance) {

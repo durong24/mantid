@@ -97,7 +97,7 @@ MDHistoWorkspace_sptr makeHistoWorkspace(const std::vector<int> &shape,
     outWs = transpose->getProperty("OutputWorkspace");
   }
 
-  return boost::dynamic_pointer_cast<MDHistoWorkspace>(outWs);
+  return std::dynamic_pointer_cast<MDHistoWorkspace>(outWs);
 }
 } // namespace
 

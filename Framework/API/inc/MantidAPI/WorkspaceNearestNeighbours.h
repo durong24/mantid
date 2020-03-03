@@ -12,7 +12,7 @@
 // Boost graphing
 #ifndef Q_MOC_RUN
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <unordered_map>
 #endif
 

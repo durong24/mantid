@@ -9,7 +9,7 @@
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidCurve.h"
 #include "MantidKernel/Unit.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // Forward definitions
 class MantidUI;
@@ -126,9 +126,9 @@ private:
     }
   }
   /// Handles afterReplace notification
-  void afterReplaceHandle(
-      const std::string &wsName,
-      const boost::shared_ptr<Mantid::API::Workspace> ws) override;
+  void
+  afterReplaceHandle(const std::string &wsName,
+                     const std::shared_ptr<Mantid::API::Workspace> ws) override;
 
   /// Handle an ADS clear notification
   void clearADSHandle() override { emit removeMe(this); }
@@ -143,9 +143,9 @@ private slots:
 
 private:
   /// Make the curve name
-  QString createCurveName(
-      const QString &prefix,
-      const boost::shared_ptr<const Mantid::API::MatrixWorkspace> &ws);
+  QString
+  createCurveName(const QString &prefix,
+                  const std::shared_ptr<const Mantid::API::MatrixWorkspace> &ws);
 
   QString
       m_wsName; ///< Workspace name. If empty the ws isn't in the data service

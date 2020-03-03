@@ -30,7 +30,7 @@ using Functions::BSpline;
 /** Constructor
  */
 SplineSmoothing::SplineSmoothing()
-    : M_START_SMOOTH_POINTS(10), m_cspline(boost::make_shared<BSpline>()),
+    : M_START_SMOOTH_POINTS(10), m_cspline(std::make_shared<BSpline>()),
       m_inputWorkspace(), m_inputWorkspacePointData(),
       m_derivativeWorkspaceGroup(new WorkspaceGroup) {}
 
@@ -63,18 +63,18 @@ void SplineSmoothing::init() {
                       PropertyMode::Optional),
                   "The workspace containing the calculated derivatives");
 
-  auto validator = boost::make_shared<BoundedValidator<int>>();
+  auto validator = std::make_shared<BoundedValidator<int>>();
   validator->setLower(0);
   validator->setUpper(2);
   declareProperty("DerivOrder", 0, validator,
                   "Order to derivatives to calculate.");
 
-  auto errorSizeValidator = boost::make_shared<BoundedValidator<double>>();
+  auto errorSizeValidator = std::make_shared<BoundedValidator<double>>();
   errorSizeValidator->setLower(0.0);
   declareProperty("Error", 0.05, errorSizeValidator,
                   "The amount of error we wish to tolerate in smoothing");
 
-  auto numOfBreaks = boost::make_shared<BoundedValidator<int>>();
+  auto numOfBreaks = std::make_shared<BoundedValidator<int>>();
   numOfBreaks->setLower(0);
   declareProperty("MaxNumberOfBreaks", 0, numOfBreaks,
                   "To set the positions of the break-points, default 0 "
@@ -121,7 +121,7 @@ void SplineSmoothing::exec() {
  * @param index :: index of the spectrum to smooth
  */
 void SplineSmoothing::smoothSpectrum(const int index) {
-  m_cspline = boost::make_shared<BSpline>();
+  m_cspline = std::make_shared<BSpline>();
   m_cspline->setAttributeValue("Uniform", false);
 
   // choose some smoothing points from input workspace
@@ -162,8 +162,7 @@ void SplineSmoothing::performAdditionalFitting(const MatrixWorkspace_sptr &ws,
                                                const int row) {
   // perform additional fitting of the points
   auto fit = createChildAlgorithm("Fit");
-  fit->setProperty("Function",
-                   boost::dynamic_pointer_cast<IFunction>(m_cspline));
+  fit->setProperty("Function", std::dynamic_pointer_cast<IFunction>(m_cspline));
   fit->setProperty("InputWorkspace", ws);
   fit->setProperty("MaxIterations", 5);
   fit->setProperty("WorkspaceIndex", row);
@@ -378,7 +377,7 @@ void SplineSmoothing::selectSmoothingPoints(
     resmooth = false;
 
     // calculate the spline and retrieve smoothed points
-    boost::shared_array<double> ysmooth(new double[xSize]);
+    std::shared_ptr<double[]> ysmooth(new double[xSize]);
     m_cspline->function1D(ysmooth.get(), &xs[0], xSize);
 
     // iterate over smoothing points

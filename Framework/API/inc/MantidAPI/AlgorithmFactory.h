@@ -50,7 +50,7 @@ public:
   // Unhide the base class version (to satisfy the intel compiler)
   using Kernel::DynamicFactory<Algorithm>::create;
   /// Creates an instance of an algorithm
-  boost::shared_ptr<Algorithm> create(const std::string &, const int &) const;
+  std::shared_ptr<Algorithm> create(const std::string &, const int &) const;
 
   /// algorithm factory specific function to subscribe algorithms, calls the
   /// dynamic factory subscribe function internally
@@ -72,7 +72,7 @@ public:
   std::pair<std::string, int>
   subscribe(std::unique_ptr<Kernel::AbstractInstantiator<T>> instantiator,
             const SubscribeAction replaceExisting = ErrorIfExists) {
-    boost::shared_ptr<IAlgorithm> tempAlg = instantiator->createInstance();
+    std::shared_ptr<IAlgorithm> tempAlg = instantiator->createInstance();
     const int version = extractAlgVersion(tempAlg);
     const std::string className = extractAlgName(tempAlg);
     typename VersionMap::const_iterator it = m_vmap.find(className);
@@ -128,14 +128,14 @@ private:
   friend struct Mantid::Kernel::CreateUsingNew<AlgorithmFactoryImpl>;
 
   /// Extract the name of an algorithm
-  const std::string
-  extractAlgName(const boost::shared_ptr<IAlgorithm> &alg) const;
+  const std::string extractAlgName(const std::shared_ptr<IAlgorithm> &alg) const;
+  extractAlgName(const std::shared_ptr<IAlgorithm> &alg) const;
   /// Extract the version of an algorithm
-  int extractAlgVersion(const boost::shared_ptr<IAlgorithm> &alg) const;
+  int extractAlgVersion(const std::shared_ptr<IAlgorithm> &alg) const;
 
   /// Create an algorithm object with the specified name
-  boost::shared_ptr<Algorithm> createAlgorithm(const std::string &name,
-                                               const int version) const;
+  std::shared_ptr<Algorithm> createAlgorithm(const std::string &name,
+                                             const int version) const;
 
   /// Private Constructor for singleton class
   AlgorithmFactoryImpl();

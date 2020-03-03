@@ -22,7 +22,7 @@ GET_POINTER_SPECIALIZATION(AlgorithmProxy)
 
 void export_algorithm_proxy() {
 
-  register_ptr_to_python<boost::shared_ptr<AlgorithmProxy>>();
+  register_ptr_to_python<std::shared_ptr<AlgorithmProxy>>();
 
   // We do not require any additional methods here but some parts of the code
   // specifically check that a proxy has

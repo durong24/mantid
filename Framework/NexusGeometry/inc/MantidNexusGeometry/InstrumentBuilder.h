@@ -40,21 +40,21 @@ public:
   void addTubes(
       const std::string &bankName,
       const std::vector<detail::TubeBuilder> &tubes,
-      const boost::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
+                const std::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
   /// Adds detector to the root (instrument)
   void addDetectorToInstrument(
       const std::string &detName, detid_t detId,
       const Eigen::Vector3d &position,
-      boost::shared_ptr<const Mantid::Geometry::IObject> &shape);
+      std::shared_ptr<const Mantid::Geometry::IObject> &shape);
   /// Adds detector to the last registered bank
-  void addDetectorToLastBank(
-      const std::string &detName, detid_t detId,
-      const Eigen::Vector3d &relativeOffset,
-      boost::shared_ptr<const Mantid::Geometry::IObject> shape);
+  void
+  addDetectorToLastBank(const std::string &detName, detid_t detId,
+                        const Eigen::Vector3d &relativeOffset,
+                        std::shared_ptr<const Mantid::Geometry::IObject> shape);
   /// Adds detector to instrument
   void addMonitor(const std::string &detName, detid_t detId,
                   const Eigen::Vector3d &position,
-                  boost::shared_ptr<const Mantid::Geometry::IObject> &shape);
+                  std::shared_ptr<const Mantid::Geometry::IObject> &shape);
   /// Add sample
   void addSample(const std::string &sampleName,
                  const Eigen::Vector3d &position);
@@ -72,6 +72,7 @@ private:
   /// Add a single tube to the last registed bank
   void doAddTube(
       const std::string &compName, const detail::TubeBuilder &tube,
+                 const std::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
       const boost::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
   /// Sorts detectors
   void sortDetectors() const;

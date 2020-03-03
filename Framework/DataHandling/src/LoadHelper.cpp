@@ -451,7 +451,7 @@ void LoadHelper::dumpNexusAttributes(NXhandle nxfileID,
   int dims[4];
 #endif
   int nbuff = 127;
-  boost::shared_array<char> buff(new char[nbuff + 1]);
+  std::shared_ptr<char[]> buff(new char[nbuff + 1]);
 
 #ifdef NEXUS43
   while (NXgetnextattr(nxfileID, pName, &iLength, &iType) != NX_EOD) {

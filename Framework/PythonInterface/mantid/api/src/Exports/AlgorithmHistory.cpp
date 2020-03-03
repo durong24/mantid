@@ -26,8 +26,7 @@ using namespace boost::python;
  * @param self :: A reference to the AlgorithmHistory that called this method
  * @returns A python list created from the set of child algorithm histories
  */
-boost::python::list
-getChildrenAsList(const boost::shared_ptr<AlgorithmHistory> &self) {
+boost::python::list getChildrenAsList(const std::shared_ptr<AlgorithmHistory> &self) {
   boost::python::list names;
   const auto histories = self->getChildHistories();
   for (const auto &history : histories) {

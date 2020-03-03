@@ -37,7 +37,7 @@ Mantid::API::MatrixWorkspace_sptr createWS(size_t n, double dx,
 
   Mantid::API::FrameworkManager::Instance();
   Mantid::DataObjects::Workspace2D_sptr ws =
-      boost::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
+      std::dynamic_pointer_cast<Mantid::DataObjects::Workspace2D>(
           Mantid::API::WorkspaceFactory::Instance().create("Workspace2D", 1, n,
                                                            n));
 
@@ -117,7 +117,7 @@ public:
     pdfft->execute();
 
     DataObjects::Workspace2D_sptr pdfws =
-        boost::dynamic_pointer_cast<DataObjects::Workspace2D>(
+        std::dynamic_pointer_cast<DataObjects::Workspace2D>(
             API::AnalysisDataService::Instance().retrieve("PDFGofR"));
     const auto &R = pdfws->x(0);
     const auto &GofR = pdfws->y(0);
@@ -153,7 +153,7 @@ public:
     pdfft->execute();
 
     DataObjects::Workspace2D_sptr pdfws =
-        boost::dynamic_pointer_cast<DataObjects::Workspace2D>(
+        std::dynamic_pointer_cast<DataObjects::Workspace2D>(
             API::AnalysisDataService::Instance().retrieve("PDFGofR"));
     const auto &R = pdfws->x(0);
     const auto &GofR = pdfws->y(0);
@@ -190,7 +190,7 @@ public:
     pdfft->execute();
 
     DataObjects::Workspace2D_sptr pdfws =
-        boost::dynamic_pointer_cast<DataObjects::Workspace2D>(
+        std::dynamic_pointer_cast<DataObjects::Workspace2D>(
             API::AnalysisDataService::Instance().retrieve("PDFGofR"));
     const auto GofR = pdfws->y(0);
 

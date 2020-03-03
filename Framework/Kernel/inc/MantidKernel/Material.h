@@ -11,7 +11,7 @@
 //------------------------------------------------------------------------------
 #include "MantidKernel/NeutronAtom.h"
 #include "MantidKernel/PhysicalConstants.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,9 +47,9 @@ class MANTID_KERNEL_DLL Material final {
 public:
   /// Structure to hold the information for a parsed chemical formula
   struct FormulaUnit final {
-    boost::shared_ptr<PhysicalConstants::Atom> atom;
+    std::shared_ptr<PhysicalConstants::Atom> atom;
     double multiplicity;
-    FormulaUnit(const boost::shared_ptr<PhysicalConstants::Atom> &atom,
+    FormulaUnit(const std::shared_ptr<PhysicalConstants::Atom> &atom,
                 const double multiplicity);
     FormulaUnit(const PhysicalConstants::Atom &atom, const double multiplicity);
   };
@@ -206,8 +206,8 @@ private:
 };
 
 /// Typedef for a shared pointer
-using Material_sptr = boost::shared_ptr<Material>;
+using Material_sptr = std::shared_ptr<Material>;
 /// Typedef for a shared pointer to a const object
-using Material_const_sptr = boost::shared_ptr<const Material>;
+using Material_const_sptr = std::shared_ptr<const Material>;
 } // namespace Kernel
 } // namespace Mantid

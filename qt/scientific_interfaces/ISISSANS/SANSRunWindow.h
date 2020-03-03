@@ -149,7 +149,7 @@ private:
   QString readSampleObjectGUIChanges();
   /// Get the component distances
   void componentLOQDistances(
-      const boost::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
+      const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
       double &lms, double &lsda, double &lsdb);
   /// Enable/disable user interaction
   void setProcessingState(const States action);
@@ -169,12 +169,12 @@ private:
   void setGeometryDetails();
   /// Set the SANS2D geometry
   void setSANS2DGeometry(
-      const boost::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
+      const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
       int wscode);
   /// Set LOQ geometry
-  void setLOQGeometry(
-      const boost::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
-      int wscode);
+  void
+  setLOQGeometry(const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
+                 int wscode);
   /// Mark an error on a label
   void markError(QLabel *label);
   /// set the name of the output workspace, empty means there is no output

@@ -39,12 +39,11 @@ signals:
 private:
   /* Base class virtual methods */
 
-  void afterReplaceHandle(
-      const std::string &wsName,
-      const boost::shared_ptr<Mantid::API::Workspace> ws) override;
   void
-  preDeleteHandle(const std::string &wsName,
-                  const boost::shared_ptr<Mantid::API::Workspace>) override;
+  afterReplaceHandle(const std::string &wsName,
+                     const std::shared_ptr<Mantid::API::Workspace> ws) override;
+  void preDeleteHandle(const std::string &wsName,
+                       const std::shared_ptr<Mantid::API::Workspace>) override;
   void clearADSHandle() override;
 
   MantidMatrixFunction *m_function;

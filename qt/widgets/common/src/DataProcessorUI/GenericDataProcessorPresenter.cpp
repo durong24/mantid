@@ -276,9 +276,8 @@ void GenericDataProcessorPresenter::acceptViews(
   for (auto const &name : items) {
     Workspace_sptr ws = ads.retrieve(name);
 
-    if (m_manager->isValidModel(
-            boost::dynamic_pointer_cast<ITableWorkspace>(ws),
-            m_whitelist.size()))
+    if (m_manager->isValidModel(std::dynamic_pointer_cast<ITableWorkspace>(ws),
+                                m_whitelist.size()))
       m_workspaceList.insert(QString::fromStdString(name));
   }
   observeAdd();
@@ -1399,7 +1398,7 @@ void GenericDataProcessorPresenter::saveTable() {
   if (!m_wsName.isEmpty()) {
     AnalysisDataService::Instance().addOrReplace(
         m_wsName.toStdString(),
-        boost::shared_ptr<ITableWorkspace>(
+        std::shared_ptr<ITableWorkspace>(
             m_manager->getTableWorkspace()->clone().release()));
     m_tableDirty = false;
   } else {
@@ -1464,7 +1463,7 @@ void GenericDataProcessorPresenter::openTable() {
   // We create a clone of the table for live editing. The original is not
   // updated unless we explicitly save.
   ITableWorkspace_sptr newTable =
-      boost::shared_ptr<ITableWorkspace>(origTable->clone().release());
+      std::shared_ptr<ITableWorkspace>(origTable->clone().release());
   try {
     m_manager->isValidModel(newTable, m_whitelist.size());
     m_manager->newTable(newTable, m_whitelist);

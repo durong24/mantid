@@ -20,8 +20,6 @@
 #include "MantidKernel/UnitFactory.h"
 #include "MantidKernel/UnitLabelTypes.h"
 
-#include <boost/shared_array.hpp>
-
 #include <gsl/gsl_errno.h>
 
 #include <algorithm>
@@ -56,7 +54,7 @@ void FFT::init() {
                   "The name of the input workspace for the imaginary part. "
                   "Leave blank if same as InputWorkspace");
 
-  auto mustBePositive = boost::make_shared<BoundedValidator<int>>();
+  auto mustBePositive = std::make_shared<BoundedValidator<int>>();
   mustBePositive->setLower(0);
   declareProperty("Real", 0, mustBePositive,
                   "Spectrum number to use as real part for transform");
@@ -65,7 +63,7 @@ void FFT::init() {
 
   std::vector<std::string> fft_dir{"Forward", "Backward"};
   declareProperty("Transform", "Forward",
-                  boost::make_shared<StringListValidator>(fft_dir),
+                  std::make_shared<StringListValidator>(fft_dir),
                   "Direction of the transform: forward or backward");
   declareProperty("Shift", 0.0,
                   "Apply an extra phase equal to this quantity "
@@ -103,7 +101,7 @@ void FFT::exec() {
   const auto &xPoints = m_inWS->points(iReal);
   const auto nPoints = static_cast<int>(xPoints.size());
 
-  boost::shared_array<double> data(new double[2 * nPoints]);
+  std::shared_ptr<double[]> data(new double[2 * nPoints]);
   const std::string transform = getProperty("Transform");
 
   // The number of spectra in the output workspace
@@ -160,7 +158,7 @@ void FFT::exec() {
   setProperty("OutputWorkspace", m_outWS);
 }
 
-void FFT::transformForward(boost::shared_array<double> &data, const int xSize,
+void FFT::transformForward(std::shared_ptr<double[]> &data, const int xSize,
                            const int ySize, const int dys,
                            const bool addPositiveOnly, const bool centerShift,
                            const bool isComplex, const int iReal,
@@ -240,7 +238,7 @@ void FFT::transformForward(boost::shared_array<double> &data, const int xSize,
   }
 }
 
-void FFT::transformBackward(boost::shared_array<double> &data, const int xSize,
+void FFT::transformBackward(std::shared_ptr<double[]> &data, const int xSize,
                             const int ySize, const int dys,
                             const bool centerShift, const bool isComplex,
                             const int iReal, const int iImag, const double df) {
@@ -294,8 +292,8 @@ void FFT::createUnitsLabels(double &df) {
 
   auto inputUnit = m_inWS->getAxis(0)->unit();
   if (inputUnit) {
-    boost::shared_ptr<Kernel::Units::Label> lblUnit =
-        boost::dynamic_pointer_cast<Kernel::Units::Label>(
+    std::shared_ptr<Kernel::Units::Label> lblUnit =
+        std::dynamic_pointer_cast<Kernel::Units::Label>(
             UnitFactory::Instance().create("Label"));
     if (lblUnit) {
 

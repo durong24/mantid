@@ -247,8 +247,8 @@ public:
     IAlgorithm_sptr algCopy =
         AlgorithmManager::Instance().create("ToyAlgorithmProxy");
 
-    auto algProxy = boost::dynamic_pointer_cast<AlgorithmProxy>(alg);
-    auto algCopyProxy = boost::dynamic_pointer_cast<AlgorithmProxy>(algCopy);
+    auto algProxy = std::dynamic_pointer_cast<AlgorithmProxy>(alg);
+    auto algCopyProxy = std::dynamic_pointer_cast<AlgorithmProxy>(algCopy);
     algCopyProxy->copyPropertiesFrom(*algProxy);
 
     int val = boost::lexical_cast<int>(algCopy->getPropertyValue("prop2"));

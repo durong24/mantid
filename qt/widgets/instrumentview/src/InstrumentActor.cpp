@@ -141,7 +141,7 @@ InstrumentActor::~InstrumentActor() { saveSettings(); }
  * value is ignored.
  */
 void InstrumentActor::setUpWorkspace(
-    const boost::shared_ptr<const Mantid::API::MatrixWorkspace>
+    const std::shared_ptr<const Mantid::API::MatrixWorkspace> &sharedWorkspace,
         &sharedWorkspace,
     double scaleMin, double scaleMax) {
   m_WkspBinMinValue = DBL_MAX;
@@ -277,7 +277,7 @@ void InstrumentActor::invertMaskWorkspace() const {
   invertAlg->setPropertyValue("OperationType", "NOT");
   invertAlg->execute();
 
-  m_maskWorkspace = boost::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
+  m_maskWorkspace = std::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
       Mantid::API::AnalysisDataService::Instance().retrieve(maskName));
   Mantid::API::AnalysisDataService::Instance().remove(maskName);
 }
@@ -291,7 +291,7 @@ IMaskWorkspace_sptr InstrumentActor::getMaskWorkspace() const {
   if (!m_maskWorkspace) {
     initMaskHelper();
   }
-  return boost::dynamic_pointer_cast<IMaskWorkspace>(m_maskWorkspace);
+  return std::dynamic_pointer_cast<IMaskWorkspace>(m_maskWorkspace);
 }
 
 /**
@@ -302,7 +302,7 @@ IMaskWorkspace_sptr InstrumentActor::getMaskWorkspace() const {
 IMaskWorkspace_sptr InstrumentActor::getMaskWorkspaceIfExists() const {
   if (!m_maskWorkspace)
     return IMaskWorkspace_sptr();
-  return boost::dynamic_pointer_cast<IMaskWorkspace>(m_maskWorkspace);
+  return std::dynamic_pointer_cast<IMaskWorkspace>(m_maskWorkspace);
 }
 
 /**
@@ -611,7 +611,7 @@ void InstrumentActor::sumDetectorsRagged(const std::vector<size_t> &dets,
     alg->setPropertyValue("Params", params);
     alg->execute();
 
-    ws = boost::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
+    ws = std::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
         Mantid::API::AnalysisDataService::Instance().retrieve(outName));
     Mantid::API::AnalysisDataService::Instance().remove(outName);
 
@@ -795,7 +795,7 @@ Mantid::API::MatrixWorkspace_sptr InstrumentActor::extractCurrentMask() const {
   alg->execute();
 
   Mantid::API::MatrixWorkspace_sptr maskWorkspace =
-      boost::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
+      std::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(
           Mantid::API::AnalysisDataService::Instance().retrieve(maskName));
   Mantid::API::AnalysisDataService::Instance().remove(maskName);
   return maskWorkspace;
@@ -1143,7 +1143,7 @@ QString InstrumentActor::getParameterInfo(size_t index) const {
 
   // walk out from the selected component
   const Mantid::Geometry::IComponent *paramComp = comp.get();
-  boost::shared_ptr<const Mantid::Geometry::IComponent> parentComp;
+  std::shared_ptr<const Mantid::Geometry::IComponent> parentComp;
   while (paramComp) {
     auto id = paramComp->getComponentID();
     auto &compParamNames = mapCmptToNameVector[id];

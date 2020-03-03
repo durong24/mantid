@@ -258,7 +258,7 @@ void AlgorithmProxy::createConcreteAlg(bool initOnly) {
     // the cached algorithm exists and is not going to be executed,
     // use that one
   } else {
-    m_alg = boost::dynamic_pointer_cast<Algorithm>(
+    m_alg = std::dynamic_pointer_cast<Algorithm>(
         AlgorithmManager::Instance().createUnmanaged(name(), version()));
     m_alg->initializeFromProxy(*this);
     if (!initOnly) {

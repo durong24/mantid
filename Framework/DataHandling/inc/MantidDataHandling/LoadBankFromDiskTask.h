@@ -30,7 +30,7 @@ public:
                        const std::string &entry_type,
                        const std::size_t numEvents,
                        const bool oldNeXusFileNames, API::Progress *prog,
-                       boost::shared_ptr<std::mutex> ioMutex,
+                       std::shared_ptr<std::mutex> ioMutex,
                        Kernel::ThreadScheduler &scheduler,
                        const std::vector<int> &framePeriodNumbers);
 
@@ -58,7 +58,7 @@ private:
   /// ThreadScheduler running this task
   Kernel::ThreadScheduler &scheduler;
   /// Object with the pulse times for this bank
-  boost::shared_ptr<BankPulseTimes> thisBankPulseTimes;
+  std::shared_ptr<BankPulseTimes> thisBankPulseTimes;
   /// Did we get an error in loading
   bool m_loadError;
   /// Old names in the file?

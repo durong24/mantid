@@ -38,7 +38,7 @@ auto FUNCTION_CURVE_COLOR = Qt::magenta;
 /// @param endX :: An upper bound of the evaluation interval.
 /// @param nX :: A number of values to evaluate.
 MDFFunctionPlotData::MDFFunctionPlotData(
-    boost::shared_ptr<Mantid::API::IFunction> fun, double startX, double endX,
+    std::shared_ptr<Mantid::API::IFunction> fun, double startX, double endX,
     size_t nX)
     : m_function(std::move(fun)), m_functionCurve(new QwtPlotCurve()) {
   setDomain(startX, endX, nX);

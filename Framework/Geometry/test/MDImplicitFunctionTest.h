@@ -7,8 +7,8 @@
 #pragma once
 
 #include "MantidGeometry/MDGeometry/MDImplicitFunction.h"
-#include <boost/shared_array.hpp>
 #include <cxxtest/TestSuite.h>
+#include <memory>
 
 using namespace Mantid::Geometry;
 using namespace Mantid;
@@ -103,10 +103,10 @@ public:
    * @param vertexes :: returns the vertex array
    * @return also a bare-array version of the same thing
    */
-  boost::shared_array<coord_t>
+  std::shared_ptr<coord_t[]>
   make2DVertexSquare(std::vector<std::vector<coord_t>> &vertexes, double x1,
                      double y1, double x2, double y2) {
-    auto out = boost::shared_array<coord_t>(new coord_t[8]);
+    auto out = std::shared_ptr<coord_t[]>(new coord_t[8]);
     vertexes.clear();
     add2DVertex(vertexes, x1, y1);
     out[0] = static_cast<coord_t>(x1);
@@ -155,7 +155,7 @@ public:
 
     // 3 ways to do the same thing
     std::vector<std::vector<coord_t>> vertexes;
-    boost::shared_array<coord_t> bareVertexes;
+    std::shared_ptr<coord_t[]> bareVertexes;
 
     bareVertexes = make2DVertexSquare(vertexes, 1.2, 0.2, 1.8, 0.8);
     TSM_ASSERT("Box that is to the right; not touching",

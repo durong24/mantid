@@ -12,7 +12,7 @@
 
 /// Constructor
 FitParameterTie::FitParameterTie(
-    boost::shared_ptr<Mantid::API::CompositeFunction> cf)
+    std::shared_ptr<Mantid::API::CompositeFunction> cf)
     : m_compositeFunction(std::move(cf)), m_prop(nullptr) {}
 
 /// Destructor

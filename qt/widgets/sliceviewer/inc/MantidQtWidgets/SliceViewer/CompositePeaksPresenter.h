@@ -14,8 +14,7 @@
 #include "MantidQtWidgets/SliceViewer/ZoomableOnDemand.h"
 #include "MantidQtWidgets/SliceViewer/ZoomablePeaksView.h"
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -79,7 +78,7 @@ public:
   }
   std::string getTransformName() const override;
   bool isHidden() const override { return m_default->isHidden(); }
-  void reInitialize(boost::shared_ptr<Mantid::API::IPeaksWorkspace> /*peaksWS*/)
+  void reInitialize(std::shared_ptr<Mantid::API::IPeaksWorkspace> /*peaksWS*/)
       override { /*Do nothing*/
   }
   bool deletePeaksIn(PeakBoundingBox box) override;
@@ -108,36 +107,35 @@ public:
   /// Enter peak edit mode.
   void peakEditMode(EditMode mode) override;
   void setForegroundColor(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
+  setForegroundColor(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
       const PeakViewColor & /*color*/);
   /// Change the background representation for the peaks of this workspace
   void setBackgroundColor(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
+  setBackgroundColor(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
       const PeakViewColor & /*color*/);
   /// Get the foreground colour corresponding to the workspace
   PeakViewColor getForegroundPeakViewColor(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
   /// Get the background colour corresponding to the workspace
   PeakViewColor getBackgroundPeakViewColor(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
   /// Determine if the background is shown or not.
   bool getShowBackground(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
   /// Get a copy of the palette in its current state.
   PeakPalette<PeakViewColor> getPalette() const;
   /// Setter for indicating whether the background radius will be shown.
   void setBackgroundRadiusShown(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
-      const bool shown);
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws, const bool shown);
   /// Remove the workspace and corresponding presenter.
-  void
+  void remove(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS);
   remove(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS);
   /// Hide these peaks in the plot.
-  void
+  void setShown(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
   setShown(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
            const bool shown);
   /// zoom in on a peak.
-  void zoomToPeak(
+  void zoomToPeak(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
       const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
       const int peakIndex);
   /// Get the named peaks presenter.
@@ -146,7 +144,7 @@ public:
   void registerOwningPresenter(UpdateableOnDemand *owner) override;
   /// Is the presenter hidden.
   bool getIsHidden(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace>
-                       &peaksWS) const;
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS) const;
   /// Perform update on demand
   void performUpdate() override;
   /// Zoom to the rectangle
@@ -161,20 +159,19 @@ public:
   /// Make notification that some workspace has been changed.
   void notifyWorkspaceChanged(
       const std::string &wsName,
-      boost::shared_ptr<Mantid::API::IPeaksWorkspace> &changedPeaksWS);
+      std::shared_ptr<Mantid::API::IPeaksWorkspace> &changedPeaksWS);
   /// Determine if the presenter contents are different.
   bool contentsDifferent(PeaksPresenter const *other) const override;
   /// Enter the requested edit mode for the peaks workspace.
   void editCommand(
       EditMode editMode,
-      const boost::weak_ptr<const Mantid::API::IPeaksWorkspace> &target);
+                   const std::weak_ptr<const Mantid::API::IPeaksWorkspace> target);
 
 private:
   /// Updateable on demand method.
-  void
-  updatePeaksWorkspace(const std::string &toName,
-                       boost::shared_ptr<const Mantid::API::IPeaksWorkspace>
-                           toWorkspace) override;
+  void updatePeaksWorkspace(
+      const std::string &toName,
+      std::shared_ptr<const Mantid::API::IPeaksWorkspace> toWorkspace) override;
   /// Alias for container of subjects type.
   using SubjectContainer = std::vector<PeaksPresenter_sptr>;
   /// Subject presenters.
@@ -183,10 +180,10 @@ private:
   bool useDefault() const { return m_subjects.size() == 0; }
   /// Get the presenter for a given workspace.
   SubjectContainer::iterator getPresenterIteratorFromWorkspace(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws);
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws);
   /// Get the presenter for a given workspace.
   SubjectContainer::const_iterator getPresenterIteratorFromWorkspace(
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws) const;
   /// Get the presenter from a workspace name.
   SubjectContainer::iterator getPresenterIteratorFromName(const QString &name);
   /// Color palette

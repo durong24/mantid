@@ -66,7 +66,7 @@ void NexusTester::init() {
   std::vector<std::string> types{"Zeros", "Incrementing Numbers",
                                  "Random Numbers"};
   declareProperty("FakeData", "Incrementing Numbers",
-                  boost::make_shared<StringListValidator>(types),
+                  std::make_shared<StringListValidator>(types),
                   "For writing: type of fake data to generate.");
 
   declareProperty(

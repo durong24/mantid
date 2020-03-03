@@ -26,7 +26,7 @@
 #include "Poco/SAX/SAXException.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/make_shared.hpp>
+#include <memory>
 #include <sstream>
 
 using namespace Poco::XML;
@@ -228,7 +228,7 @@ void SampleEnvironmentSpecParser::parseAndAddContainers(
 Geometry::Container_const_sptr
 SampleEnvironmentSpecParser::parseContainer(Element *element) const {
   using Mantid::Geometry::Container;
-  auto can = boost::make_shared<Container>(parseComponent(element));
+  auto can = std::make_shared<Container>(parseComponent(element));
   auto sampleGeometry = element->getChildElement(SAMPLEGEOMETRY_TAG);
   auto sampleSTLFile = element->getChildElement(SAMPLESTLFILE_TAG);
 
@@ -303,7 +303,7 @@ std::vector<double> SampleEnvironmentSpecParser::parseTranslationVector(
  * @param stlfile A pointer to an XML \<stlfile\> element
  * @return A new Object instance of the given type
  */
-boost::shared_ptr<Geometry::MeshObject>
+std::shared_ptr<Geometry::MeshObject>
 SampleEnvironmentSpecParser::loadMeshFromSTL(Element *stlFileElement) const {
   std::string filename = stlFileElement->getAttribute("filename");
   if (!filename.empty()) {
@@ -348,7 +348,7 @@ SampleEnvironmentSpecParser::loadMeshFromSTL(Element *stlFileElement) const {
       std::unique_ptr<LoadStl> reader =
           LoadStlFactory::createReader(stlFileName.toString(), scaleType);
 
-      boost::shared_ptr<Geometry::MeshObject> comp = reader->readStl();
+      std::shared_ptr<Geometry::MeshObject> comp = reader->readStl();
 
       Element *rotation = stlFileElement->getChildElement("rotation");
       if (rotation) {
@@ -385,7 +385,7 @@ SampleEnvironmentSpecParser::loadMeshFromSTL(Element *stlFileElement) const {
  * @param element A pointer to an XML \<container\> element
  * @return A new Object instance of the given type
  */
-boost::shared_ptr<Geometry::IObject>
+std::shared_ptr<Geometry::IObject>
 SampleEnvironmentSpecParser::parseComponent(Element *element) const {
   Element *geometry = element->getChildElement(COMPONENTGEOMETRY_TAG);
   Element *stlfile = element->getChildElement(COMPONENTSTLFILE_TAG);
@@ -402,7 +402,7 @@ SampleEnvironmentSpecParser::parseComponent(Element *element) const {
                              COMPONENTSTLFILE_TAG + " child tag.");
   }
 
-  boost::shared_ptr<Geometry::IObject> comp;
+  std::shared_ptr<Geometry::IObject> comp;
   if (stlfile) {
     comp = loadMeshFromSTL(stlfile);
   } else {

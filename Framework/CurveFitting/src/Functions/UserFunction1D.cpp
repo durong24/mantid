@@ -49,7 +49,7 @@ double *UserFunction1D::AddVariable(const char *varName, void *palg) {
  */
 void UserFunction1D::declareAdditionalProperties() {
   declareProperty("Function", "",
-                  boost::make_shared<MandatoryValidator<std::string>>(),
+                  std::make_shared<MandatoryValidator<std::string>>(),
                   "The fit function");
   declareProperty("InitialParameters", "",
                   "The comma separated list of initial values of the fit "

@@ -226,10 +226,10 @@ void UnwrappedSurface::setColor(size_t index, bool picking) const {
   }
 }
 
-bool hasParent(
+bool hasParent(const std::shared_ptr<const Mantid::Geometry::IComponent> &comp,
     const boost::shared_ptr<const Mantid::Geometry::IComponent> &comp,
     Mantid::Geometry::ComponentID id) {
-  boost::shared_ptr<const Mantid::Geometry::IComponent> parent =
+  std::shared_ptr<const Mantid::Geometry::IComponent> parent =
       comp->getParent();
   if (!parent)
     return false;
@@ -363,7 +363,7 @@ RectF UnwrappedSurface::getSurfaceBounds() const { return m_viewRect; }
  * @param pws :: A shared pointer to the workspace.
  */
 void UnwrappedSurface::setPeaksWorkspace(
-    const boost::shared_ptr<Mantid::API::IPeaksWorkspace> &pws) {
+    const std::shared_ptr<Mantid::API::IPeaksWorkspace> &pws) {
   if (!pws) {
     return;
   }
@@ -706,7 +706,7 @@ UnwrappedSurface::retrievePeaksWorkspace(const std::string &name) const {
     return nullptr;
   }
 
-  return boost::dynamic_pointer_cast<IPeaksWorkspace>(ws);
+  return std::dynamic_pointer_cast<IPeaksWorkspace>(ws);
 }
 
 /** Save the state of the unwrapped surface to a Mantid project file

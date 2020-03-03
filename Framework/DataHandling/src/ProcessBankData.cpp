@@ -17,11 +17,11 @@ namespace DataHandling {
 
 ProcessBankData::ProcessBankData(
     DefaultEventLoader &m_loader, std::string entry_name, API::Progress *prog,
-    boost::shared_array<uint32_t> event_id,
-    boost::shared_array<float> event_time_of_flight, size_t numEvents,
-    size_t startAt, boost::shared_ptr<std::vector<uint64_t>> event_index,
-    boost::shared_ptr<BankPulseTimes> thisBankPulseTimes, bool have_weight,
-    boost::shared_array<float> event_weight, detid_t min_event_id,
+    std::shared_ptr<uint32_t[]> event_id,
+    std::shared_ptr<float[]> event_time_of_flight, size_t numEvents,
+    size_t startAt, std::shared_ptr<std::vector<uint64_t>> event_index,
+    std::shared_ptr<BankPulseTimes> thisBankPulseTimes, bool have_weight,
+    std::shared_ptr<float[]> event_weight, detid_t min_event_id,
     detid_t max_event_id)
     : Task(), m_loader(m_loader), entry_name(std::move(entry_name)),
       pixelID_to_wi_vector(m_loader.pixelID_to_wi_vector),
@@ -42,7 +42,7 @@ namespace {
 // one so we only need to search forward
 inline size_t
 getPulseIndex(const size_t event_index, const size_t last_pulse_index,
-              const boost::shared_ptr<std::vector<uint64_t>> &event_index_vec) {
+              const std::shared_ptr<std::vector<uint64_t>> &event_index_vec) {
   if (last_pulse_index + 1 >= event_index_vec->size())
     return last_pulse_index;
 

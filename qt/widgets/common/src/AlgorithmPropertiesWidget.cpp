@@ -124,7 +124,7 @@ void AlgorithmPropertiesWidget::setAlgorithmName(QString name) {
   try {
     Algorithm_sptr alg =
         AlgorithmManager::Instance().createUnmanaged(m_algoName.toStdString());
-    auto algProxy = boost::make_shared<AlgorithmProxy>(alg);
+    auto algProxy = std::make_shared<AlgorithmProxy>(alg);
     algProxy->initialize();
 
     // Set the algorithm ptr. This will redo the layout

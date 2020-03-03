@@ -11,7 +11,6 @@
 //----------------------------------------------------------------------
 #include "MantidCurveFitting/Algorithms/Fit1D.h"
 #include "MantidGeometry/muParser_Silent.h"
-#include <boost/shared_array.hpp>
 
 namespace Mantid {
 namespace CurveFitting {
@@ -96,13 +95,13 @@ private:
   /// True indicates that input formula contains 'x' variable
   bool m_x_set;
   /// Pointer to muParser variables' buffer
-  boost::shared_array<double> m_parameters;
+  std::shared_ptr<double[]> m_parameters;
   /// Number of actual parameters
   int m_nPars;
   /// Temporary data storage
-  boost::shared_array<double> m_tmp;
+  std::shared_ptr<double[]> m_tmp;
   /// Temporary data storage
-  boost::shared_array<double> m_tmp1;
+  std::shared_ptr<double[]> m_tmp1;
 };
 
 } // namespace Functions

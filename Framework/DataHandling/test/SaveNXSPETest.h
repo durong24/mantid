@@ -19,7 +19,7 @@
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 
 #include "boost/tuple/tuple.hpp"
-#include <boost/shared_array.hpp>
+#include <memory>
 
 #include <hdf5.h>
 #include <hdf5_hl.h>
@@ -172,8 +172,8 @@ private:
   }
 
   using DataHolder =
-      boost::tuple<boost::shared_array<hsize_t>, boost::shared_array<double>,
-                   boost::shared_array<double>>;
+      boost::tuple<std::shared_ptr<hsize_t[]>, std::shared_ptr<double[]>,
+                   std::shared_ptr<double[]>>;
 
   DataHolder saveAndReloadWorkspace(const MatrixWorkspace_sptr &inputWS) {
     SaveNXSPE saver;
@@ -192,9 +192,9 @@ private:
 
     TS_ASSERT(Poco::File(outputFile).exists());
     if (!Poco::File(outputFile).exists()) {
-      return boost::make_tuple(boost::shared_array<hsize_t>(),
-                               boost::shared_array<double>(),
-                               boost::shared_array<double>());
+      return boost::make_tuple(std::shared_ptr<hsize_t[]>(),
+                               std::shared_ptr<double[]>(),
+                               std::shared_ptr<double[]>());
     }
 
     auto h5file = H5Fopen(outputFile.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -204,7 +204,7 @@ private:
     TS_ASSERT_EQUALS(0, status);
     TS_ASSERT_EQUALS(2, rank);
 
-    boost::shared_array<hsize_t> dims(new hsize_t[rank]);
+    std::shared_ptr<hsize_t[]> dims(new hsize_t[rank]);
     H5T_class_t classId(H5T_NO_CLASS);
     size_t typeSize(0);
     status =
@@ -214,7 +214,7 @@ private:
     TS_ASSERT_EQUALS(8, typeSize);
 
     size_t bufferSize(dims[0] * dims[1]);
-    boost::shared_array<double> signal(new double[bufferSize]),
+    std::shared_ptr<double[]> signal(new double[bufferSize]),
         error(new double[bufferSize]);
     status = H5LTread_dataset_double(h5file, dset, signal.get());
     TS_ASSERT_EQUALS(0, status);

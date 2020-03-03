@@ -31,7 +31,7 @@
 
 #include "PlotCurve.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace Mantid {
 namespace API {
@@ -84,7 +84,7 @@ public:
 
   void loadData(int points = 0);
 
-  void loadMantidData(
+  void loadMantidData(const std::shared_ptr<const Mantid::API::MatrixWorkspace> &ws,
       const boost::shared_ptr<const Mantid::API::MatrixWorkspace> &ws,
       size_t wi, int peakRadius = 0);
 
