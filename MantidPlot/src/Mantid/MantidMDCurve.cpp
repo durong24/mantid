@@ -210,7 +210,7 @@ QString MantidMDCurve::saveToString() {
 
 void MantidMDCurve::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   (void)ws;
 
   invalidateBoundingRect();

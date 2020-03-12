@@ -98,7 +98,7 @@ public:
   std::string setValueFromJson(const Json::Value &value) override;
 
   std::string
-  setDataItem(const std::shared_ptr<Kernel::DataItem> value) override;
+  setDataItem(const std::shared_ptr<Kernel::DataItem> &value) override;
 
   std::string isValid() const override;
 

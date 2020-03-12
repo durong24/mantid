@@ -158,12 +158,12 @@ public:
   /// A better solution is needed
   void attachMultilayer(MultiLayer *);
 
-  void
-  afterReplaceHandle(const std::string &wsName,
-                     const std::shared_ptr<Mantid::API::Workspace> ws) override;
+  void afterReplaceHandle(
+      const std::string &wsName,
+      const std::shared_ptr<Mantid::API::Workspace> &ws) override;
   void
   preDeleteHandle(const std::string &wsName,
-                  const std::shared_ptr<Mantid::API::Workspace> ws) override;
+                  const std::shared_ptr<Mantid::API::Workspace> &ws) override;
   void clearADSHandle() override;
 
 signals:

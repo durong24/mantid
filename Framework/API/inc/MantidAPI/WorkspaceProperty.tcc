@@ -208,7 +208,7 @@ WorkspaceProperty<TYPE>::setValueFromJson(const Json::Value &value) {
  */
 template <typename TYPE>
 std::string WorkspaceProperty<TYPE>::setDataItem(
-    const std::shared_ptr<Kernel::DataItem> value) {
+    const std::shared_ptr<Kernel::DataItem> &value) {
   std::shared_ptr<TYPE> typed = std::dynamic_pointer_cast<TYPE>(value);
   if (typed) {
     if (this->direction() == Kernel::Direction::Input) {

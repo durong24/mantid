@@ -36,7 +36,7 @@ public:
   virtual ~SpectrumDataSource();
 
   virtual bool hasData(const std::string &wsName,
-                       const std::shared_ptr<Mantid::API::Workspace> ws) = 0;
+                       const std::shared_ptr<Mantid::API::Workspace> &ws) = 0;
 
   /// Get the smallest 'x' value covered by the data
   virtual double getXMin();

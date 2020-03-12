@@ -347,7 +347,7 @@ void MantidMatrixCurve::dataReset(const QString &wsName) {
 
 void MantidMatrixCurve::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   (void)ws;
 
   invalidateBoundingRect();

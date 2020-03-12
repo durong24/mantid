@@ -317,10 +317,10 @@ private:
   /// ADS notification handlers
   void preDeleteHandle(
       const std::string &ws_name,
-      const std::shared_ptr<Mantid::API::Workspace> workspace_ptr) override;
+      const std::shared_ptr<Mantid::API::Workspace> &workspace_ptr) override;
   void afterReplaceHandle(
       const std::string &wsName,
-      const std::shared_ptr<Mantid::API::Workspace> workspace_ptr) override;
+      const std::shared_ptr<Mantid::API::Workspace> &workspace_ptr) override;
   void renameHandle(const std::string &oldName,
                     const std::string &newName) override;
   void clearADSHandle() override;

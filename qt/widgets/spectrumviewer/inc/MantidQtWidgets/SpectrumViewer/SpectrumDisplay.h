@@ -48,7 +48,7 @@ public:
   ~SpectrumDisplay() override;
 
   virtual bool hasData(const std::string &wsName,
-                       const std::shared_ptr<Mantid::API::Workspace> ws);
+                       const std::shared_ptr<Mantid::API::Workspace> &ws);
 
   /// Set some properties of the SpectrumPlotItem object
   void setupSpectrumPlotItem();

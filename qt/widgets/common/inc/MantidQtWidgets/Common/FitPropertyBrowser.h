@@ -271,7 +271,7 @@ public:
   void renameHandle(const std::string &oldName,
                     const std::string &newName) override;
   void addHandle(const std::string &wsName,
-                 const std::shared_ptr<Mantid::API::Workspace> ws) override;
+                 const std::shared_ptr<Mantid::API::Workspace> &ws) override;
 
   /// Called when the Fit is finished
   void finishHandle(const Mantid::API::IAlgorithm *alg) override;

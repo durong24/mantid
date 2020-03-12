@@ -1530,7 +1530,7 @@ void MdViewerWidget::updateAppState() {
  */
 void MdViewerWidget::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   UNUSED_ARG(ws);
   pqPipelineSource *src = this->currentView->hasWorkspace(wsName.c_str());
   if (src) {
@@ -1559,7 +1559,7 @@ void MdViewerWidget::afterReplaceHandle(
  * @param ws : Pointer to workspace being deleted
  */
 void MdViewerWidget::preDeleteHandle(const std::string &wsName,
-                                     const std::shared_ptr<Workspace> ws) {
+                                     const std::shared_ptr<Workspace> &ws) {
   UNUSED_ARG(ws);
 
   pqPipelineSource *src = this->currentView->hasWorkspace(wsName.c_str());

@@ -69,7 +69,7 @@ RebinnedSourcesManager::~RebinnedSourcesManager() {}
  * @param workspace A pointer to the added workspace.
  */
 void RebinnedSourcesManager::addHandle(const std::string &workspaceName,
-                                       Mantid::API::Workspace_sptr workspace) {
+                                       Mantid::API::Workspace_sptr &workspace) {
   // Check if the workspace which has experienced a change is being tracked in
   // our buffer
   if (m_newWorkspacePairBuffer.empty()) {
@@ -102,7 +102,8 @@ void RebinnedSourcesManager::addHandle(const std::string &workspaceName,
  * @param wsName The name of the workspace.
  */
 void RebinnedSourcesManager::preDeleteHandle(
-    const std::string &wsName, const std::shared_ptr<Mantid::API::Workspace>) {
+    const std::string &wsName,
+    const std::shared_ptr<Mantid::API::Workspace> &) {
   // Check if the workspace which is to be deleted is a tracked rebinned
   // workspace
   std::vector<pqPipelineSource *> sources =
@@ -125,7 +126,7 @@ void RebinnedSourcesManager::preDeleteHandle(
  */
 void RebinnedSourcesManager::afterReplaceHandle(
     const std::string &workspaceName,
-    const std::shared_ptr<Mantid::API::Workspace> workspace) {
+    const std::shared_ptr<Mantid::API::Workspace> &workspace) {
   addHandle(workspaceName, workspace);
 }
 

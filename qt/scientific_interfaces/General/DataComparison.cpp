@@ -671,7 +671,7 @@ void DataComparison::resetView() {
  */
 void DataComparison::preDeleteHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   UNUSED_ARG(ws);
   QString oldWsName = QString::fromStdString(wsName);
 
@@ -734,7 +734,7 @@ void DataComparison::renameHandle(const std::string &oldName,
  */
 void DataComparison::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   UNUSED_ARG(wsName);
   UNUSED_ARG(ws);
 

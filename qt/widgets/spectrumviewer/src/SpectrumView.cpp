@@ -202,7 +202,7 @@ void SpectrumView::closeWindow() { close(); }
  */
 void SpectrumView::preDeleteHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   if (m_spectrumDisplay.front()->hasData(wsName, ws)) {
     emit needToClose();
   }
@@ -217,7 +217,7 @@ void SpectrumView::preDeleteHandle(
  */
 void SpectrumView::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   // We would only ever be replacing a workspace here
   replaceExistingWorkspace(
       wsName, std::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(ws));

@@ -29,7 +29,7 @@ private:
   XMLInstrumentParameter_sptr make_logfile_object(const std::string &filterBy) {
     const std::string logfileID = "1";
     const std::string value;
-    const std::shared_ptr<Kernel::Interpolation> interpolation =
+    const std::shared_ptr<Kernel::Interpolation> &interpolation =
         std::make_shared<Interpolation>();
     const std::string formula;
     const std::string formulaUnit;

@@ -128,7 +128,7 @@ private:
   friend struct Mantid::Kernel::CreateUsingNew<AlgorithmFactoryImpl>;
 
   /// Extract the name of an algorithm
-  const std::string extractAlgName(const std::shared_ptr<IAlgorithm> &alg) const;
+  const std::string
   extractAlgName(const std::shared_ptr<IAlgorithm> &alg) const;
   /// Extract the version of an algorithm
   int extractAlgVersion(const std::shared_ptr<IAlgorithm> &alg) const;

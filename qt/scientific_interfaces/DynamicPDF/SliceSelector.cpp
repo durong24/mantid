@@ -90,7 +90,7 @@ SliceSelector::~SliceSelector() {
  */
 void SliceSelector::preDeleteHandle(
     const std::string &workspaceName,
-    const std::shared_ptr<Mantid::API::Workspace> workspace) {
+    const std::shared_ptr<Mantid::API::Workspace> &workspace) {
   UNUSED_ARG(workspaceName);
   Mantid::API::MatrixWorkspace_sptr ws =
       std::dynamic_pointer_cast<Mantid::API::MatrixWorkspace>(workspace);

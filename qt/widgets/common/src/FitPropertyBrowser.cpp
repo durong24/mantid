@@ -1818,7 +1818,7 @@ void FitPropertyBrowser::setADSObserveEnabled(bool enabled) {
 /// workspace was added
 void FitPropertyBrowser::addHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   auto const qName = QString::fromStdString(wsName);
   if (!isWorkspaceValid(ws) ||
       (!m_allowedSpectra.isEmpty() && !m_allowedSpectra.contains(qName) &&

@@ -38,7 +38,7 @@ public:
   /// Set a new function from a string
   void setFunction(const QString &name);
   /// Set a new function from a pointer
-  void setFunction(std::shared_ptr<Mantid::API::IFunction> function);
+  void setFunction(const std::shared_ptr<Mantid::API::IFunction> &function);
 
 private:
   /// Pointer to the function

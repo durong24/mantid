@@ -80,9 +80,9 @@ public:
   /// Handles delete notification
   void postDeleteHandle(const std::string &wsName) override;
   /// Handles afterReplace notification
-  void
-  afterReplaceHandle(const std::string &wsName,
-                     const std::shared_ptr<Mantid::API::Workspace> ws) override;
+  void afterReplaceHandle(
+      const std::string &wsName,
+      const std::shared_ptr<Mantid::API::Workspace> &ws) override;
   /// Handle an ADS clear notification
   void clearADSHandle() override;
 

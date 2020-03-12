@@ -76,7 +76,7 @@ SpectrumDisplay::~SpectrumDisplay() { delete m_spectrumPlotItem; }
 
 bool SpectrumDisplay::hasData(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   return m_dataSource->hasData(wsName, ws);
 }
 

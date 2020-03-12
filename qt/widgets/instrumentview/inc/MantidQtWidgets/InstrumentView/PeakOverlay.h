@@ -154,7 +154,7 @@ signals:
 private:
   /// A WorkspaceObserver handle implemented.
   void afterReplaceHandle(const std::string &wsName,
-                          const Mantid::API::Workspace_sptr ws) override;
+                          const Mantid::API::Workspace_sptr &ws) override;
 
   PeakMarker2D::Style getCurrentStyle() const;
   void recreateMarkers(const PeakMarker2D::Style &style);

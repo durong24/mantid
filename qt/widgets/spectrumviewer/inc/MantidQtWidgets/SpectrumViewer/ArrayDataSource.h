@@ -35,7 +35,7 @@ public:
   ~ArrayDataSource() override;
 
   bool hasData(const std::string &wsName,
-               const std::shared_ptr<Mantid::API::Workspace> ws) override;
+               const std::shared_ptr<Mantid::API::Workspace> &ws) override;
 
   /// Get DataArray covering full range of data in x, and y directions
   DataArray_const_sptr getDataArray(bool is_log_x) override;

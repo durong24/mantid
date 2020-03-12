@@ -78,7 +78,7 @@ MatrixWSDataSource::~MatrixWSDataSource() {}
 
 bool MatrixWSDataSource::hasData(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   if (m_matWs->getName() == wsName)
     return true;
 

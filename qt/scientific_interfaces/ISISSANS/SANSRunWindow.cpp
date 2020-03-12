@@ -1934,7 +1934,8 @@ void SANSRunWindow::setSANS2DGeometry(
  * @param wscode :: ?????
  */
 void SANSRunWindow::setLOQGeometry(
-    const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace, int wscode) {
+    const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
+    int wscode) {
   double dist_ms(0.0), dist_mdb(0.0), dist_hab(0.0);
   // Sample
   componentLOQDistances(std::move(workspace), dist_ms, dist_mdb, dist_hab);

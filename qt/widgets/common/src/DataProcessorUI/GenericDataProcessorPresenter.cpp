@@ -1515,7 +1515,7 @@ void GenericDataProcessorPresenter::exportTable() {
 Handle ADS add events
 */
 void GenericDataProcessorPresenter::addHandle(
-    const std::string &name, Mantid::API::Workspace_sptr workspace) {
+    const std::string &name, const Mantid::API::Workspace_sptr &workspace) {
   if (Mantid::API::AnalysisDataService::Instance().isHiddenDataServiceObject(
           name))
     return;
@@ -1569,7 +1569,7 @@ void GenericDataProcessorPresenter::renameHandle(const std::string &oldName,
 Handle ADS replace events
 */
 void GenericDataProcessorPresenter::afterReplaceHandle(
-    const std::string &name, Mantid::API::Workspace_sptr workspace) {
+    const std::string &name, const Mantid::API::Workspace_sptr &workspace) {
   auto qName = QString::fromStdString(name);
   // Erase it
   m_workspaceList.remove(qName);

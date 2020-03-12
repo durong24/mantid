@@ -383,7 +383,7 @@ PeakMarker2D::Style PeakOverlay::getCurrentStyle() const {
  * @param ws :: The shared pointer to the modified workspace.
  */
 void PeakOverlay::afterReplaceHandle(const std::string &wsName,
-                                     const Mantid::API::Workspace_sptr ws) {
+                                     const Mantid::API::Workspace_sptr &ws) {
   Q_UNUSED(wsName);
   auto peaksWS = std::dynamic_pointer_cast<Mantid::API::IPeaksWorkspace>(ws);
   if (peaksWS && peaksWS == m_peaksWorkspace && m_surface) {

@@ -146,7 +146,7 @@ void ContourPreviewPlot::handleSetTransparentZeros(bool const &transparent) {
  */
 void ContourPreviewPlot::preDeleteHandle(
     std::string const &workspaceName,
-    std::shared_ptr<Workspace> const workspace) {
+    std::shared_ptr<Workspace> const &workspace) {
   UNUSED_ARG(workspaceName);
   auto const deletedWorkspace = convertToMatrixWorkspace(workspace);
   if (deletedWorkspace && deletedWorkspace == m_workspace)

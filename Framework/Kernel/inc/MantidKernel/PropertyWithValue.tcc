@@ -249,7 +249,7 @@ PropertyWithValue<TYPE>::setValueFromJson(const Json::Value &value) {
  */
 template <typename TYPE>
 std::string
-PropertyWithValue<TYPE>::setDataItem(const std::shared_ptr<DataItem> data) {
+PropertyWithValue<TYPE>::setDataItem(const std::shared_ptr<DataItem> &data) {
   // Pass of the helper function that is able to distinguish whether
   // the TYPE of the PropertyWithValue can be converted to a
   // shared_ptr<DataItem>

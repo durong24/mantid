@@ -72,7 +72,7 @@ public:
         : Poco::Notification(), m_name(name) {}
 
     /// Returns the name of the object
-    std::string objectName() const { return m_name; }
+    const std::string &objectName() const { return m_name; }
 
   private:
     std::string m_name; ///< object's name
@@ -84,11 +84,11 @@ public:
   public:
     /// Constructor
     DataServiceNotification(const std::string &name,
-                            const std::shared_ptr<T> obj)
+                            const std::shared_ptr<T> &obj)
         : NamedObjectNotification(name), m_object(obj) {}
     /// Returns the const pointer to the object concerned or 0 if it is a
     /// general notification
-    const std::shared_ptr<T> object() const { return m_object; }
+    const std::shared_ptr<T> &object() const { return m_object; }
 
   private:
     std::shared_ptr<T> m_object; ///< shared pointer to the object
@@ -98,7 +98,7 @@ public:
   /// name() and object() return name and pointer to the new object.
   class AddNotification : public DataServiceNotification {
   public:
-    AddNotification(const std::string &name, const std::shared_ptr<T> obj)
+    AddNotification(const std::string &name, const std::shared_ptr<T> &obj)
         : DataServiceNotification(name, obj) {} ///< Constructor
   };
 
@@ -116,14 +116,14 @@ public:
        receives the notification.
     */
     BeforeReplaceNotification(const std::string &name,
-                              const std::shared_ptr<T> obj,
-                              const std::shared_ptr<T> newObj)
+                              const std::shared_ptr<T> &obj,
+                              const std::shared_ptr<T> &newObj)
         : DataServiceNotification(name, obj), m_newObject(newObj),
           m_oldObject(obj) {}
-    const std::shared_ptr<T> newObject() const {
+    const std::shared_ptr<T> &newObject() const {
       return m_newObject;
     } ///< Returns the pointer to the new object.
-    const std::shared_ptr<T> oldObject() const { return m_oldObject; }
+    const std::shared_ptr<T> &oldObject() const { return m_oldObject; }
 
   private:
     std::shared_ptr<T> m_newObject; ///< shared pointer to the object
@@ -141,7 +141,7 @@ public:
      * notification.
      */
     AfterReplaceNotification(const std::string &name,
-                             const std::shared_ptr<T> newObj)
+                             const std::shared_ptr<T> &newObj)
         : DataServiceNotification(name, newObj) {}
   };
 
@@ -152,7 +152,8 @@ public:
   class PreDeleteNotification : public DataServiceNotification {
   public:
     /// Constructor
-    PreDeleteNotification(const std::string &name, const std::shared_ptr<T> obj)
+    PreDeleteNotification(const std::string &name,
+                          const std::shared_ptr<T> &obj)
         : DataServiceNotification(name, obj) {}
   };
 

@@ -66,7 +66,7 @@ public:
 protected:
   void preDeleteHandle(
       std::string const &workspaceName,
-      std::shared_ptr<Mantid::API::Workspace> const workspace) override;
+      std::shared_ptr<Mantid::API::Workspace> const &workspace) override;
 
 private slots:
   void handleSetTransparentZeros(bool const &transparent);

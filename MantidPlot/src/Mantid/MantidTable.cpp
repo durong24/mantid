@@ -264,7 +264,7 @@ void MantidTable::closeTable() {
 //------------------------------------------------------------------------------------------------
 void MantidTable::preDeleteHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   Mantid::API::ITableWorkspace *ws_ptr =
       dynamic_cast<Mantid::API::ITableWorkspace *>(ws.get());
   if (!ws_ptr)
@@ -277,7 +277,7 @@ void MantidTable::preDeleteHandle(
 //------------------------------------------------------------------------------------------------
 void MantidTable::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   Mantid::API::ITableWorkspace_sptr new_ws =
       std::dynamic_pointer_cast<Mantid::API::ITableWorkspace>(ws);
   if (!new_ws)

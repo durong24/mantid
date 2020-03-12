@@ -90,10 +90,10 @@ protected:
   void resizeEvent(QResizeEvent *event) override;
   void
   preDeleteHandle(const std::string &wsName,
-                  const std::shared_ptr<Mantid::API::Workspace> ws) override;
-  void
-  afterReplaceHandle(const std::string &wsName,
-                     const std::shared_ptr<Mantid::API::Workspace> ws) override;
+                  const std::shared_ptr<Mantid::API::Workspace> &ws) override;
+  void afterReplaceHandle(
+      const std::string &wsName,
+      const std::shared_ptr<Mantid::API::Workspace> &ws) override;
 
   void dragMoveEvent(QDragMoveEvent *de) override;
   void dragEnterEvent(QDragEnterEvent *de) override;

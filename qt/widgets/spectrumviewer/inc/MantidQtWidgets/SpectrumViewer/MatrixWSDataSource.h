@@ -46,7 +46,7 @@ public:
   ~MatrixWSDataSource() override;
 
   bool hasData(const std::string &wsName,
-               const std::shared_ptr<Mantid::API::Workspace> ws) override;
+               const std::shared_ptr<Mantid::API::Workspace> &ws) override;
 
   /// Get the smallest 'x' value covered by the data
   double getXMin() override;

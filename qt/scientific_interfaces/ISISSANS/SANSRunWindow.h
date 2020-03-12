@@ -172,9 +172,9 @@ private:
       const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
       int wscode);
   /// Set LOQ geometry
-  void
-  setLOQGeometry(const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
-                 int wscode);
+  void setLOQGeometry(
+      const std::shared_ptr<const Mantid::API::MatrixWorkspace> &workspace,
+      int wscode);
   /// Mark an error on a label
   void markError(QLabel *label);
   /// set the name of the output workspace, empty means there is no output

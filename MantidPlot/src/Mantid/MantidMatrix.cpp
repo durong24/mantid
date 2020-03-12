@@ -968,7 +968,7 @@ void MantidMatrix::repaintAll() {
 
 void MantidMatrix::afterReplaceHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   if (!ws)
     return;
   if (wsName != m_strName) {
@@ -1131,7 +1131,7 @@ void MantidMatrix::setMatrixProperties() {
 
 void MantidMatrix::preDeleteHandle(
     const std::string &wsName,
-    const std::shared_ptr<Mantid::API::Workspace> ws) {
+    const std::shared_ptr<Mantid::API::Workspace> &ws) {
   (void)wsName; // Avoid unused warning
   if (m_workspace.get() == ws.get()) {
     emit needToClose();

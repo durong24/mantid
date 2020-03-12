@@ -52,7 +52,7 @@ public:
 protected:
   void preDeleteHandle(
       const std::string &workspaceName,
-      const std::shared_ptr<Mantid::API::Workspace> workspace) override;
+      const std::shared_ptr<Mantid::API::Workspace> &workspace) override;
 
 signals:
   void signalWorkspaceUpdated();
