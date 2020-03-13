@@ -33,6 +33,9 @@ class SeqFittingTabView(QtWidgets.QWidget, ui_seq_fitting_tab):
 
         self.setup_default_fit_results_table()
 
+        self.plot_fit_results_checkbox.setChecked(False)
+
+
     def warning_popup(self, message):
         warning(message, parent=self)
 
@@ -162,3 +165,6 @@ class SeqFittingTabView(QtWidgets.QWidget, ui_seq_fitting_tab):
 
     def setup_slot_for_table_parameter_changed(self, slot):
         self.fit_results_table.cellChanged.connect(slot)
+
+    def setup_slot_for_table_selection_changed(self, slot):
+        self.fit_results_table.cellClicked.connect(slot)

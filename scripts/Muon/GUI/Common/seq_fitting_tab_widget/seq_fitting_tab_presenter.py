@@ -5,7 +5,7 @@
 #   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 # SPDX - License - Identifier: GPL - 3.0 +
 from __future__ import (absolute_import, division, unicode_literals)
-from mantidqt.utils.observer_pattern import GenericObserver, GenericObserverWithArgPassing
+from mantidqt.utils.observer_pattern import GenericObserver, GenericObserverWithArgPassing, GenericObservable
 from Muon.GUI.Common.thread_model_wrapper import ThreadModelWrapperWithOutput
 from Muon.GUI.Common import thread_model
 import functools
@@ -29,6 +29,7 @@ class SeqFittingTabPresenter(object):
         self.fit_function_updated_observer = GenericObserver(self.handle_fit_function_updated)
         self.fit_parameter_updated_observer = GenericObserver(self.handle_fit_function_parameter_changed)
         self.fit_parameter_changed_in_view = GenericObserverWithArgPassing(self.handle_updated_fit_parameter_in_table)
+        self.selected_sequential_fit_notifier = GenericObservable()
 
     def create_thread(self, callback):
         self.fitting_calculation_model = ThreadModelWrapperWithOutput(callback)
@@ -154,6 +155,11 @@ class SeqFittingTabPresenter(object):
         workspaces = self.get_workspaces_for_entry_in_fit_table(row)
         params = self.view.get_entry_fit_parameter_values(row)
         self.model.update_ws_fit_function_parameters(workspaces, params)
+
+    def handle_fit_selected_in_table(self, row, column):
+        # print workspaces that are part of the fit
+        workspace_names = self.get_workspaces_for_entry_in_fit_table(row)
+        self.selected_sequential_fit_notifier.notify_subscribers(workspace_names)
 
     def get_workspaces_for_entry_in_fit_table(self, entry):
         runs, group_and_pairs = self.view.get_workspace_info_from_fit_table_row(entry)
