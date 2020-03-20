@@ -7,7 +7,6 @@
 from __future__ import (absolute_import, division, print_function)
 
 from qtpy import QtWidgets, QtCore, QtGui
-from qtpy.QtCore import QEvent
 from mantidqt.utils.qt import load_ui
 from Muon.GUI.Common.message_box import warning
 from Muon.GUI.Common.seq_fitting_tab_widget.SequentialTableWidget import SequentialTableWidget, TableParameterWidget
