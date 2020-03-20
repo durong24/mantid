@@ -326,7 +326,7 @@ class PlotWidgetPresenter(HomeTabSubWidget):
 
             label = self.get_workspace_legend_label(workspace_name)
             ax = self.get_workspace_plot_axis(workspace_name)
-            fit_function = fit.fit_function_name
+            fit_function = self.context.fitting_context.fit_function_names()[0]
 
             self._model.add_workspace_to_plotted_fit_workspaces(workspace_name)
 
@@ -450,7 +450,9 @@ class PlotWidgetPresenter(HomeTabSubWidget):
 
             label = self.get_workspace_legend_label(workspace_name)
             ax = self.get_workspace_plot_axis(workspace_name)
-            fit_function = ""
+            # Get fit function name, as we are only ever storing 1 fit in this context
+            # we can take the first entry
+            fit_function = self.context.fitting_context.fit_function_names()[0]
 
             self._model.add_workspace_to_plotted_fit_workspaces(workspace_name)
 
@@ -475,7 +477,7 @@ class PlotWidgetPresenter(HomeTabSubWidget):
         self._view.force_redraw()
 
     def handle_plot_single_sequential_fit(self, selected_workspaces):
-        if not selected_workspaces: # check selected_workspaces is empty
+        if not selected_workspaces:  # check selected_workspaces is empty
             return
 
         errors = self._view.plot_options.get_errors()
@@ -513,8 +515,9 @@ class PlotWidgetPresenter(HomeTabSubWidget):
 
             label = self.get_workspace_legend_label(workspace_name)
             ax = self.get_workspace_plot_axis(workspace_name)
-            fit_function = fit.fit_function_name
-
+            # Get fit function name, as we are only ever storing 1 fit in this context
+            # we can take the first entry
+            fit_function = self.context.fitting_context.fit_function_names()[0]
             self._model.add_workspace_to_plotted_fit_workspaces(workspace_name)
 
             # handle tf asymmetry fits
