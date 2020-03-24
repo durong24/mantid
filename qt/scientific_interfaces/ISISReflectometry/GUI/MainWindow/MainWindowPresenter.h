@@ -97,6 +97,8 @@ private:
   std::unique_ptr<IOptionsDialogPresenter> m_optionsDialogPresenter;
   std::unique_ptr<IBatchPresenterFactory> m_batchPresenterFactory;
 
+  bool isBatchUnsaved(int batchIndex) const override;
+  bool isAnyBatchUnsaved() override;
   bool isWarnDiscardChangesChecked() const override;
   bool isRoundChecked() const override;
   int &getRoundPrecision() const override;
@@ -104,8 +106,6 @@ private:
   bool isWarnProcessAllChecked() const override;
   bool isWarnProcessPartialGroupChecked() const override;
   bool isCloseBatchPrevented(int batchIndex) const override;
-  bool isBatchUnsaved(int batchIndex) const override;
-  bool isAnyBatchUnsaved() override;
   void optionsChanged() const;
   void showHelp();
   void addNewBatch(IBatchView *batchView);
