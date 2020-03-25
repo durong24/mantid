@@ -20,7 +20,7 @@ if(CXXTEST_FOUND)
       ../../TestHelpers/src/ReflectometryHelper.cpp)
   cxxtest_add_test(ReflectometryTest ${TEST_FILES})
   target_link_libraries(ReflectometryTest
-                        LINK_PRIVATE
+                        PRIVATE
                         ${TCMALLOC_LIBRARIES_LINKTIME}
                         ${MANTIDLIBS}
                         Algorithms
@@ -29,7 +29,6 @@ if(CXXTEST_FOUND)
                         Nexus
                         gmock
 )
-  add_dependencies(ReflectometryTest Crystal CurveFitting)
   add_dependencies(FrameworkTests ReflectometryTest)
   # Test data
   add_dependencies(ReflectometryTest StandardTestData)
@@ -37,3 +36,5 @@ if(CXXTEST_FOUND)
   # Add to the 'ReflectometryTest' group in VS
   set_property(TARGET ReflectometryTest PROPERTY FOLDER "UnitTests")
 endif()
+
+pyunittest_add_test(${CMAKE_CURRENT_SOURCE_DIR} Reflectometry.Python ${TEST_PY_FILES})

@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/JoinISISPolarizationEfficiencies.h"
+#include "MantidReflectometry/JoinISISPolarizationEfficiencies.h"
 
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/TextAxis.h"
@@ -22,7 +22,7 @@ using namespace Mantid::HistogramData;
 using namespace Mantid::Kernel;
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(JoinISISPolarizationEfficiencies)
@@ -234,5 +234,5 @@ JoinISISPolarizationEfficiencies::interpolateHistogramWorkspace(
   return interpolatedWS;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

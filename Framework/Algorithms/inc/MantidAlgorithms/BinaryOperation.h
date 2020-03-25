@@ -16,6 +16,7 @@
 #include "MantidDataObjects/EventWorkspace.h"
 #include "MantidHistogramData/Histogram.h"
 
+
 namespace Mantid {
 namespace Algorithms {
 
@@ -49,12 +50,6 @@ public:
    * Value at that index: workspace index of the rhs to apply to the WI in the
    * lhs. -1 if not found.
    */
-  using BinaryOperationTable = std::vector<int64_t>;
-  using BinaryOperationTable_sptr = boost::shared_ptr<BinaryOperationTable>;
-
-  static BinaryOperationTable_sptr
-  buildBinaryOperationTable(const API::MatrixWorkspace_const_sptr &lhs,
-                            const API::MatrixWorkspace_const_sptr &rhs);
 
 protected:
   Parallel::ExecutionMode getParallelExecutionMode(

@@ -12,10 +12,10 @@
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/DeprecatedAlgorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 /**
 Saves a file in three column format  from a 2D workspace
 (Workspace2D class). SaveReflThreeColumnAscii is an algorithm but inherits from
@@ -25,7 +25,7 @@ exec() methods.
 Output is tab delimited Ascii point data without dq/q and with extra header
 information.
 */
-class DLLExport SaveReflThreeColumnAscii : public DataHandling::AsciiPointBase,
+class MANTID_REFLECTOMETRY_DLL SaveReflThreeColumnAscii : public API::AsciiPointBase,
                                            public API::DeprecatedAlgorithm {
 public:
   /// Algorithm's name for identification overriding a virtual method
@@ -54,5 +54,5 @@ private:
   /// write any extra information required
   void extraHeaders(std::ofstream &file) override;
 };
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

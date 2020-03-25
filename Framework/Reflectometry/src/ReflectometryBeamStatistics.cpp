@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryBeamStatistics.h"
+#include "MantidReflectometry/ReflectometryBeamStatistics.h"
 
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
@@ -37,7 +37,7 @@ constexpr double FWHM_GAUSSIAN_EQUIVALENT{0.68};
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(ReflectometryBeamStatistics)
@@ -465,5 +465,5 @@ void ReflectometryBeamStatistics::statisticsToLogs(
                   statistics.secondSlitAngularSpread, radians, overwrite);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

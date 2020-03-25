@@ -4,12 +4,12 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidMDAlgorithms/ReflectometryTransformKiKf.h"
+#include "MantidReflectometry/ReflectometryTransformKiKf.h"
 
 using namespace Mantid::DataObjects;
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 
 /*
   Constructor
@@ -33,5 +33,5 @@ ReflectometryTransformKiKf::ReflectometryTransformKiKf(
   m_calculator->setThetaIncident(incidentTheta);
 }
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

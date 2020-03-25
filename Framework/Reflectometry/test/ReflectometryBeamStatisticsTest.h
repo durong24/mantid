@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/ReflectometryBeamStatistics.h"
+#include "MantidReflectometry/ReflectometryBeamStatistics.h"
 
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -52,7 +52,7 @@ public:
   }
 
   void test_Init() {
-    Algorithms::ReflectometryBeamStatistics alg;
+    Reflectometry::ReflectometryBeamStatistics alg;
     TS_ASSERT_THROWS_NOTHING(alg.initialize())
     TS_ASSERT(alg.isInitialized())
   }
@@ -63,7 +63,7 @@ public:
                                                FGD_LAST};
     auto directWS = makeWS(0.);
     const std::vector<int> directForeground{FGD_FIRST, BEAM_CENTRE, FGD_LAST};
-    Algorithms::ReflectometryBeamStatistics alg;
+    Reflectometry::ReflectometryBeamStatistics alg;
     alg.setChild(true);
     alg.setRethrows(true);
     TS_ASSERT_THROWS_NOTHING(alg.initialize())
@@ -171,7 +171,7 @@ private:
                                                FGD_LAST};
     auto directWS = makeWS(0.);
     const std::vector<int> directForeground{FGD_FIRST, BEAM_CENTRE, FGD_LAST};
-    Algorithms::ReflectometryBeamStatistics alg;
+    Reflectometry::ReflectometryBeamStatistics alg;
     alg.setChild(true);
     alg.setRethrows(true);
     TS_ASSERT_THROWS_NOTHING(alg.initialize())

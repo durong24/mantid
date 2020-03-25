@@ -4,11 +4,11 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidMDAlgorithms/ReflectometryTransformP.h"
+#include "MantidReflectometry/ReflectometryTransformP.h"
 using namespace Mantid::DataObjects;
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 /*
 Constructor
 @param pSumMin: p sum min value (extent)
@@ -32,5 +32,5 @@ ReflectometryTransformP::ReflectometryTransformP(
   m_calculator->setThetaIncident(incidentTheta);
 }
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

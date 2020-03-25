@@ -12,7 +12,7 @@
 #include "MantidDataObjects/ReflectometryTransform.h"
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 /** ReflectometryTransformKiKf : Type to transform from R vs Wavelength
   workspace to a 2D MDEW with dimensions of Ki and Kf.
 
@@ -37,5 +37,5 @@ public:
   operator=(const ReflectometryTransformKiKf &) = delete;
 };
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

@@ -10,13 +10,14 @@
 #include "MantidAPI/MatrixWorkspace_fwd.h"
 #include "MantidDataHandling/LoadHelper.h"
 #include "MantidNexus/NexusClasses.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 /*! LoadILLReflectometry : Loads an ILL reflectometry Nexus data file.
  */
-class DLLExport LoadILLReflectometry
+class MANTID_REFLECTOMETRY_DLL LoadILLReflectometry
     : public API::IFileLoader<Kernel::NexusDescriptor> {
 public:
   LoadILLReflectometry() = default;
@@ -96,5 +97,5 @@ private:
   Mantid::DataHandling::LoadHelper m_loader;
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

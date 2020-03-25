@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/LoadILLPolarizationFactors.h"
+#include "MantidReflectometry/LoadILLPolarizationFactors.h"
 
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/IncreasingAxisValidator.h"
@@ -225,7 +225,7 @@ void setUnits(Mantid::API::MatrixWorkspace &ws) {
 } // namespace
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 using Mantid::API::WorkspaceProperty;
 using Mantid::Kernel::Direction;
@@ -343,5 +343,5 @@ LoadILLPolarizationFactors::validateInputs() {
   return issues;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

@@ -7,16 +7,16 @@
 #pragma once
 
 #include "MantidAPI/MatrixWorkspace_fwd.h"
-#include "MantidAlgorithms/DllConfig.h"
-#include "MantidAlgorithms/SpecularReflectionAlgorithm.h"
+#include "MantidReflectometry/DllConfig.h"
+#include "MantidReflectometry/SpecularReflectionAlgorithm.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** SpecularReflectionPositionCorrect : Algorithm to perform vertical position
  corrections based on the specular reflection condition.
  */
-class MANTID_ALGORITHMS_DLL SpecularReflectionPositionCorrect
+class MANTID_REFLECTOMETRY_DLL SpecularReflectionPositionCorrect
     : public SpecularReflectionAlgorithm {
 public:
   const std::string name() const override;
@@ -47,5 +47,5 @@ private:
                      const Mantid::Kernel::V3D &detectorPosition);
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

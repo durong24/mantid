@@ -9,13 +9,13 @@
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/SpectrumInfo.h"
-#include "MantidAlgorithms/SpecularReflectionPositionCorrect2.h"
+#include "MantidReflectometry/SpecularReflectionPositionCorrect2.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidGeometry/Instrument/ReferenceFrame.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 #include <cxxtest/TestSuite.h>
 
-using Mantid::Algorithms::SpecularReflectionPositionCorrect2;
+using Mantid::Reflectometry::SpecularReflectionPositionCorrect2;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
 using namespace Mantid::Geometry;

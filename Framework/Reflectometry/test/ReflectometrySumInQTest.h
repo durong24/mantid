@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/ReflectometrySumInQ.h"
+#include "MantidReflectometry/ReflectometrySumInQ.h"
 
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/SpectrumInfo.h"
@@ -16,7 +16,7 @@
 #include "MantidHistogramData/HistogramIterator.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 
-using Mantid::Algorithms::ReflectometrySumInQ;
+using Mantid::Reflectometry::ReflectometrySumInQ;
 using Mantid::Geometry::deg2rad;
 
 class ReflectometrySumInQTest : public CxxTest::TestSuite {

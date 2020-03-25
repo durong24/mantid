@@ -4,11 +4,11 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidReflectometry/SaveANSTOAscii.h"
+#pragma once
 
-namespace Mantid {
-namespace Reflectometry {
-// Register the algorithm into the algorithm factory
-DECLARE_ALGORITHM(SaveANSTOAscii)
-} // namespace Reflectometry
-} // namespace Mantid
+#include "MantidAPI/Algorithm.h"
+#include "MantidReflectometry/DllConfig.h"
+#include "MantidKernel/Exception.h"
+
+// Boost
+#include <boost/shared_ptr.hpp>

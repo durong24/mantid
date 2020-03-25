@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidDataHandling/JoinISISPolarizationEfficiencies.h"
+#include "MantidReflectometry/JoinISISPolarizationEfficiencies.h"
 
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -22,7 +22,7 @@
 #include <array>
 #include <numeric>
 
-using Mantid::DataHandling::JoinISISPolarizationEfficiencies;
+using Mantid::Reflectometry::JoinISISPolarizationEfficiencies;
 using namespace Mantid::API;
 using namespace Mantid::DataObjects;
 using namespace Mantid::HistogramData;

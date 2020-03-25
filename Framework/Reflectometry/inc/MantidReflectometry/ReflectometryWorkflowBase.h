@@ -7,7 +7,7 @@
 #pragma once
 
 #include "MantidAPI/DataProcessorAlgorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidGeometry/Instrument.h"
 
 #include <boost/optional.hpp>
@@ -19,13 +19,13 @@ namespace Mantid {
 namespace HistogramData {
 class HistogramX;
 }
-namespace Algorithms {
+namespace Reflectometry {
 
 /** ReflectometryWorkflowBase : Abstract workflow algortithm base class
  containing common implementation functionality usable
  *  by concrete reflectometry workflow algorithms.
  */
-class MANTID_ALGORITHMS_DLL ReflectometryWorkflowBase
+class MANTID_REFLECTOMETRY_DLL ReflectometryWorkflowBase
     : public API::DataProcessorAlgorithm {
 public:
   // Class typedefs
@@ -109,5 +109,5 @@ private:
   API::MatrixWorkspace_sptr
   makeUnityWorkspace(const HistogramData::HistogramX &x);
 };
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

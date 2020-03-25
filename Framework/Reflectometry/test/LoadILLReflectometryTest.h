@@ -14,14 +14,14 @@
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/SpectrumInfo.h"
-#include "MantidDataHandling/LoadILLReflectometry.h"
+#include "MantidReflectometry/LoadILLReflectometry.h"
 #include "MantidDataObjects/TableWorkspace.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidGeometry/Instrument/RectangularDetector.h"
 #include "MantidKernel/Unit.h"
 
 using namespace Mantid::API;
-using Mantid::DataHandling::LoadILLReflectometry;
+using Mantid::Reflectometry::LoadILLReflectometry;
 using Mantid::Kernel::V3D;
 
 class LoadILLReflectometryTest : public CxxTest::TestSuite {

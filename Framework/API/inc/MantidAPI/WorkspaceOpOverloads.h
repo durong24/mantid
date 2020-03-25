@@ -20,6 +20,13 @@ DLLExport ResultType executeBinaryOperation(
     const std::string &algorithmName, const LHSType lhs, const RHSType rhs,
     bool lhsAsOutput = false, bool child = true, const std::string &name = "",
     bool rethrow = false);
+
+using BinaryOperationTable = std::vector<int64_t>;
+using BinaryOperationTable_sptr = boost::shared_ptr<BinaryOperationTable>;
+
+BinaryOperationTable_sptr
+buildBinaryOperationTable(const API::MatrixWorkspace_const_sptr &lhs,
+                          const API::MatrixWorkspace_const_sptr &rhs);
 } // namespace OperatorOverloads
 
 bool MANTID_API_DLL equals(const MatrixWorkspace_sptr lhs,

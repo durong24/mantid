@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryBackgroundSubtraction.h"
+#include "MantidReflectometry/ReflectometryBackgroundSubtraction.h"
 #include "MantidAPI/Algorithm.tcc"
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidDataObjects/EventWorkspace.h"
@@ -18,7 +18,7 @@ using namespace Mantid::API;
 using namespace Mantid::Kernel;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(ReflectometryBackgroundSubtraction)
@@ -349,5 +349,5 @@ ReflectometryBackgroundSubtraction::validateInputs() {
   }
   return errors;
 }
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

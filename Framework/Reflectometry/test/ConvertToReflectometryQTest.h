@@ -16,7 +16,7 @@
 #include "MantidGeometry/Instrument/ReferenceFrame.h"
 #include "MantidKernel/PropertyWithValue.h"
 #include "MantidKernel/Unit.h"
-#include "MantidMDAlgorithms/ConvertToReflectometryQ.h"
+#include "MantidReflectometry/ConvertToReflectometryQ.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 
 #include "MantidGeometry/MDGeometry/GeneralFrame.h"
@@ -28,7 +28,7 @@ using namespace Mantid::API;
 using namespace Mantid::DataObjects;
 using namespace Mantid::Geometry;
 using namespace Mantid::Kernel;
-using namespace Mantid::MDAlgorithms;
+using namespace Mantid::Reflectometry;
 
 class ConvertToReflectometryQTest : public CxxTest::TestSuite {
 private:

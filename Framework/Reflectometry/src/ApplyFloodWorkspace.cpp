@@ -4,16 +4,14 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ApplyFloodWorkspace.h"
+#include "MantidReflectometry/ApplyFloodWorkspace.h"
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/IEventWorkspace.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/WorkspaceFactory.h"
-#include "MantidAlgorithms/BinaryOperation.h"
 #include "MantidKernel/Unit.h"
 
 using namespace Mantid::Kernel;
-using namespace Mantid::Algorithms;
 using namespace Mantid::API;
 
 namespace {
@@ -42,7 +40,7 @@ MatrixWorkspace_sptr makeEqualSizes(const MatrixWorkspace_sptr &input,
                                     const MatrixWorkspace_sptr &flood) {
   auto newFlood =
       WorkspaceFactory::Instance().create(flood, input->getNumberHistograms());
-  auto const table = BinaryOperation::buildBinaryOperationTable(input, flood);
+  auto const table = OperatorOverloads::buildBinaryOperationTable(input, flood);
   auto const floodBlocksize = flood->blocksize();
   const ISpectrum *missingSpectrum = nullptr;
   for (size_t i = 0; i < table->size(); ++i) {
@@ -64,7 +62,7 @@ MatrixWorkspace_sptr makeEqualSizes(const MatrixWorkspace_sptr &input,
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(ApplyFloodWorkspace)
@@ -142,5 +140,5 @@ void ApplyFloodWorkspace::exec() {
   setProperty(Prop::OUTPUT_WORKSPACE, output);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

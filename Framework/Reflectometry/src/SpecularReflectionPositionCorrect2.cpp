@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/SpecularReflectionPositionCorrect2.h"
+#include "MantidReflectometry/SpecularReflectionPositionCorrect2.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/SpectrumInfo.h"
 #include "MantidGeometry/Instrument.h"
@@ -56,7 +56,7 @@ double offsetAngleFromCentre(const MatrixWorkspace &ws, const double l2,
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(SpecularReflectionPositionCorrect2)
@@ -402,5 +402,5 @@ double SpecularReflectionPositionCorrect2::twoThetaFromDirectLine(
   return twoThetaInRad;
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

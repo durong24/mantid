@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/LoadISISPolarizationEfficiencies.h"
+#include "MantidReflectometry/LoadISISPolarizationEfficiencies.h"
 
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/TextAxis.h"
@@ -16,7 +16,7 @@
 #include <limits>
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 using namespace Mantid::Kernel;
 using namespace Mantid::API;
@@ -124,5 +124,5 @@ MatrixWorkspace_sptr LoadISISPolarizationEfficiencies::createEfficiencies(
   return outWS;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

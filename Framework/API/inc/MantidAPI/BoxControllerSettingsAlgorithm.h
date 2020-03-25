@@ -12,7 +12,7 @@
 #include "MantidKernel/System.h"
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace API {
 
 /** An abstract algorithm sub-class for algorithms that
  * define properties for BoxController settings.
@@ -46,5 +46,5 @@ protected:
 private:
 };
 
-} // namespace MDAlgorithms
+} // namespace API
 } // namespace Mantid

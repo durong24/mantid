@@ -7,15 +7,15 @@
 #pragma once
 
 #include "MantidAPI/Algorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidGeometry/Instrument_fwd.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** Calculates statistical quantities of a reflectometry workspace.
  */
-class MANTID_ALGORITHMS_DLL ReflectometryBeamStatistics
+class MANTID_REFLECTOMETRY_DLL ReflectometryBeamStatistics
     : public API::Algorithm {
 public:
   struct LogEntry {
@@ -84,5 +84,5 @@ private:
                                const Statistics &statistics);
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

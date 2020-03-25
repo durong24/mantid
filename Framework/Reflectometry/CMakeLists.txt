@@ -24,6 +24,9 @@ set(SRC_FILES
     src/ReflectometryReductionOne2.cpp
     src/ReflectometryReductionOneAuto2.cpp
     src/ReflectometryReductionOneAuto3.cpp
+    src/ReflectometryTransformKiKf.cpp
+    src/ReflectometryTransformP.cpp
+    src/ReflectometryTransformQxQz.cpp
     src/ReflectometrySumInQ.cpp
     src/ReflectometryWorkflowBase.cpp
     src/ReflectometryWorkflowBase2.cpp
@@ -65,6 +68,9 @@ set(INC_FILES
     inc/MantidReflectometry/ReflectometryReductionOne2.h
     inc/MantidReflectometry/ReflectometryReductionOneAuto2.h
     inc/MantidReflectometry/ReflectometryReductionOneAuto3.h
+    inc/MantidReflectometry/ReflectometryTransformKiKf.h
+    inc/MantidReflectometry/ReflectometryTransformP.h
+    inc/MantidReflectometry/ReflectometryTransformQxQz.h
     inc/MantidReflectometry/ReflectometrySumInQ.h
     inc/MantidReflectometry/ReflectometryWorkflowBase.h
     inc/MantidReflectometry/ReflectometryWorkflowBase2.h
@@ -103,6 +109,9 @@ set(TEST_FILES
     ReflectometryReductionOne2Test.h
     ReflectometryReductionOneAuto2Test.h
     ReflectometryReductionOneAuto3Test.h
+    ReflectometryTransformKiKfTest.h
+    ReflectometryTransformPTest.h
+    ReflectometryTransformQxQzTest.h
     ReflectometrySumInQTest.h
     SaveANSTOAsciiTest.h
     SaveILLCosmosAsciiTest.h
@@ -116,11 +125,11 @@ set(TEST_FILES
     SpecularReflectionPositionCorrectTest.h)
 
 set(TEST_PY_FILES
-    test/ReflectometryBackgroundSubtractionTest.py
-    test/ReflectometryReductionOne2Test.py)
+    ReflectometryBackgroundSubtractionTest.py
+    ReflectometryReductionOne2Test.py)
 
 if(COVERALLS)
-  foreach(loop_var ${SRC_FILES} ${C_SRC_FILES} ${INC_FILES})
+  foreach(loop_var ${SRC_FILES} ${INC_FILES})
     set_property(GLOBAL APPEND
                  PROPERTY COVERAGE_SRCS
                           "${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}")
@@ -128,9 +137,9 @@ if(COVERALLS)
 endif()
 
 # Add a precompiled header where they are supported 
-# enable_precompiled_headers (inc/MantidAlgorithms/PrecompiledHeader.h SRC_FILES )
+enable_precompiled_headers (inc/MantidReflectometry/PrecompiledHeader.h SRC_FILES )
 # Add the target for this directory
-add_library(Reflectometry ${SRC_FILES} ${C_SRC_FILES} ${INC_FILES})
+add_library(Reflectometry ${SRC_FILES} ${INC_FILES})
 # Set the name of the generated library
 set_target_properties(Reflectometry
                       PROPERTIES OUTPUT_NAME
@@ -149,20 +158,20 @@ endif()
 # Add to the 'Framework' group in VS
 set_property(TARGET Reflectometry PROPERTY FOLDER "MantidFramework")
 
-include_directories(inc)
+# Auto-generate exports header
+generate_mantid_export_header(Reflectometry FALSE)
+
+target_include_directories(Reflectometry PRIVATE
+  inc ${CMAKE_BINARY_DIR}/Framework/Reflectometry ../DataHandling/inc ../Nexus/inc)
 
 target_link_libraries(Reflectometry
-                      LINK_PRIVATE
+                      PRIVATE
                       ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${MANTIDLIBS}
                       ${GSL_LIBRARIES})
 
 # Add the unit tests directory
 add_subdirectory(test)
-
-# Auto-generate exports header
-target_include_directories(Reflectometry PUBLIC ${CMAKE_BINARY_DIR}/Framework/Reflectometry)
-generate_mantid_export_header(Reflectometry FALSE)
 
 # Installation settings
 mtd_install_targets(TARGETS

@@ -8,9 +8,9 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/CalculateSlits.h"
+#include "MantidReflectometry/CalculateSlits.h"
 
-using namespace Mantid::Algorithms;
+using namespace Mantid::Reflectometry;
 
 namespace {
 double roundFour(double i) { return floor(i * 10000 + 0.5) / 10000; }

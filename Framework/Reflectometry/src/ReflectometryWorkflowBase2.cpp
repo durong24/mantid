@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryWorkflowBase2.h"
+#include "MantidReflectometry/ReflectometryWorkflowBase2.h"
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/BoostOptionalToAlgorithmProperty.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -95,7 +95,7 @@ getProcessingInstructionsAsIndices(std::string const &instructions,
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** Initialize properties related to the type of reduction
  */
@@ -949,5 +949,5 @@ void ReflectometryWorkflowBase2::setWorkspacePropertyFromChild(
   MatrixWorkspace_sptr workspace = alg->getProperty(propertyName);
   setProperty(propertyName, workspace);
 }
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

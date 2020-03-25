@@ -10,16 +10,16 @@
 
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
-#include "MantidAlgorithms/NRCalculateSlitResolution.h"
+#include "MantidReflectometry/NRCalculateSlitResolution.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidKernel/PropertyWithValue.h"
 #include "MantidKernel/TimeSeriesProperty.h"
 #include "MantidKernel/V3D.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 
-using namespace Mantid::Algorithms;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
+using namespace Mantid::Reflectometry;
 
 class NRCalculateSlitResolutionTest : public CxxTest::TestSuite {
 public:

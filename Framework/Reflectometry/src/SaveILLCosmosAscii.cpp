@@ -4,15 +4,15 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/SaveILLCosmosAscii.h"
+#include "MantidReflectometry/SaveILLCosmosAscii.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidKernel/ArrayProperty.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 // Register the algorithm into the algorithm factory
 DECLARE_ALGORITHM(SaveILLCosmosAscii)
 using namespace Kernel;
@@ -84,5 +84,5 @@ void SaveILLCosmosAscii::extraHeaders(std::ofstream &file) {
   file << m_sep << "q" << m_sep << "refl" << m_sep << "refl_err" << m_sep
        << "q_res\n";
 }
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

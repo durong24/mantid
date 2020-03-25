@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/SpecularReflectionAlgorithm.h"
+#include "MantidReflectometry/SpecularReflectionAlgorithm.h"
 
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/SpectrumInfo.h"
@@ -61,7 +61,7 @@ void checkSpectrumNumbers(const std::vector<int> &spectrumNumbers,
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /**
  * Initialize common properties
@@ -236,5 +236,5 @@ double SpecularReflectionAlgorithm::calculateTwoTheta() const {
   return twoTheta;
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

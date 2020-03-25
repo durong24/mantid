@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/SaveReflectometryAscii.h"
+#include "MantidReflectometry/SaveReflectometryAscii.h"
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -28,7 +28,7 @@
 #include <stdexcept>
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 using namespace Kernel;
 using namespace API;
@@ -339,5 +339,5 @@ bool SaveReflectometryAscii::processGroups() {
   return true;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

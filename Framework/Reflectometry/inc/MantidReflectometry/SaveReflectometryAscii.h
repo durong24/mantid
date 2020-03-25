@@ -8,17 +8,18 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
+#include "MantidReflectometry/DllConfig.h"
 #include <fstream>
 #include <string>
 #include <vector>
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 /**
 Saves a file of desired (mft, txt, dat or custom) Ascii format from a 2D
 workspace.
 */
-class DLLExport SaveReflectometryAscii : public API::Algorithm {
+class MANTID_REFLECTOMETRY_DLL SaveReflectometryAscii : public API::Algorithm {
 public:
   /// Algorithm's name. @see Algorithm::name
   const std::string name() const override { return "SaveReflectometryAscii"; }
@@ -84,5 +85,5 @@ private:
   /// The output file stream
   std::ofstream m_file;
 };
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

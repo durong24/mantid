@@ -27,6 +27,7 @@
 
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
+using namespace Mantid::Reflectometry;
 
 using VerticalHorizontalOffsetType = boost::tuple<double, double>;
 

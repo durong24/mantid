@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/ApplyFloodWorkspace.h"
+#include "MantidReflectometry/ApplyFloodWorkspace.h"
 
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/Axis.h"
@@ -20,6 +20,7 @@
 using namespace Mantid::Algorithms;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class ApplyFloodWorkspaceTest : public CxxTest::TestSuite {

@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/ReflectometryReductionOneAuto2.h"
+#include "MantidReflectometry/ReflectometryReductionOneAuto2.h"
 
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/Axis.h"
@@ -28,6 +28,7 @@ using namespace Mantid::DataObjects;
 using namespace Mantid::HistogramData;
 using namespace Mantid::Kernel;
 using namespace Mantid::TestHelpers;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class ReflectometryReductionOneAuto2Test : public CxxTest::TestSuite {

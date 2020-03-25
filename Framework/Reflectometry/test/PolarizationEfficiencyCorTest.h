@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/PolarizationEfficiencyCor.h"
+#include "MantidReflectometry/PolarizationEfficiencyCor.h"
 
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/AnalysisDataService.h"
@@ -30,6 +30,7 @@ using namespace Mantid::API;
 using namespace Mantid::Algorithms;
 using namespace Mantid::DataObjects;
 using namespace Mantid::HistogramData;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class PolarizationEfficiencyCorTest : public CxxTest::TestSuite {

@@ -8,16 +8,16 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/DataProcessorAlgorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include <boost/optional.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** NRCalculateSlitResolution
  */
 
-class MANTID_ALGORITHMS_DLL NRCalculateSlitResolution
+class MANTID_REFLECTOMETRY_DLL NRCalculateSlitResolution
     : public API::DataProcessorAlgorithm {
 public:
   const std::string name() const override;
@@ -33,5 +33,5 @@ private:
   void exec() override;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

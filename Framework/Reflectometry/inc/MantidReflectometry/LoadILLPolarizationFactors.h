@@ -7,15 +7,15 @@
 #pragma once
 
 #include "MantidAPI/Algorithm.h"
-#include "MantidDataHandling/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 /** LoadILLPolarizationFactors : Load reflectometry polarization efficiency
   correction factors from disk.
 */
-class MANTID_DATAHANDLING_DLL LoadILLPolarizationFactors
+class MANTID_REFLECTOMETRY_DLL LoadILLPolarizationFactors
     : public API::Algorithm {
 public:
   const std::string name() const override;
@@ -29,5 +29,5 @@ private:
   std::map<std::string, std::string> validateInputs() override;
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

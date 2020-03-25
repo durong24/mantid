@@ -9,10 +9,11 @@
 #include "MantidDataObjects/CalculateReflectometryQxQz.h"
 #include "MantidDataObjects/RebinnedOutput.h"
 #include "MantidDataObjects/ReflectometryTransform.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
 
-namespace MDAlgorithms {
+namespace Reflectometry {
 
 /** ReflectometryTranformQxQz : Type of ReflectometyTransform. Used to convert
  from an input R vs Wavelength workspace to a 2D MDEvent workspace with
@@ -21,7 +22,7 @@ namespace MDAlgorithms {
 
  @date 2012-05-29
  */
-class DLLExport ReflectometryTransformQxQz
+class MANTID_REFLECTOMETRY_DLL ReflectometryTransformQxQz
     : public DataObjects::ReflectometryTransform {
 public:
   /// Constructor
@@ -41,5 +42,5 @@ public:
   operator=(const ReflectometryTransformQxQz &) = delete;
 };
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

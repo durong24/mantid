@@ -11,9 +11,9 @@
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 #include "SpecularReflectionAlgorithmTest.h"
 
-#include "MantidAlgorithms/SpecularReflectionCalculateTheta.h"
+#include "MantidReflectometry/SpecularReflectionCalculateTheta.h"
 
-using namespace Mantid::Algorithms;
+using namespace Mantid::Reflectometry;
 using namespace Mantid::API;
 
 // clang-format off

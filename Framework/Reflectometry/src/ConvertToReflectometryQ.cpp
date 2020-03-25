@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidMDAlgorithms/ConvertToReflectometryQ.h"
+#include "MantidReflectometry/ConvertToReflectometryQ.h"
 
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/HistogramValidator.h"
@@ -26,9 +26,9 @@
 #include "MantidKernel/TimeSeriesProperty.h"
 #include "MantidKernel/Unit.h"
 
-#include "MantidMDAlgorithms/ReflectometryTransformKiKf.h"
-#include "MantidMDAlgorithms/ReflectometryTransformP.h"
-#include "MantidMDAlgorithms/ReflectometryTransformQxQz.h"
+#include "MantidReflectometry/ReflectometryTransformKiKf.h"
+#include "MantidReflectometry/ReflectometryTransformP.h"
+#include "MantidReflectometry/ReflectometryTransformQxQz.h"
 
 #include <boost/make_shared.hpp>
 
@@ -170,7 +170,7 @@ double getThetaFromLogs(MatrixWorkspace_sptr inputWs) {
 } // namespace
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(ConvertToReflectometryQ)
@@ -469,5 +469,5 @@ ConvertToReflectometryQ::correctDetectors(MatrixWorkspace_sptr inputWs,
   return outWS;
 }
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

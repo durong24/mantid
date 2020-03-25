@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryReductionOne2.h"
+#include "MantidReflectometry/ReflectometryReductionOne2.h"
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -33,7 +33,7 @@ using namespace Mantid::HistogramData;
 using namespace Mantid::Indexing;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /*Anonomous namespace */
 namespace {
@@ -1263,5 +1263,5 @@ void ReflectometryReductionOne2::verifySpectrumMaps(
     g_log.warning(message);
   }
 }
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

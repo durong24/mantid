@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/CreatePolarizationEfficiencies.h"
+#include "MantidReflectometry/CreatePolarizationEfficiencies.h"
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/TextAxis.h"
 #include "MantidAPI/WorkspaceFactory.h"
@@ -39,7 +39,7 @@ double calculatePolynomial(std::vector<double> const &coefficients, double x) {
 } // namespace
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 DECLARE_ALGORITHM(CreatePolarizationEfficiencies)
 
@@ -140,5 +140,5 @@ MatrixWorkspace_sptr CreatePolarizationEfficiencies::createEfficiencies(
   return outWS;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

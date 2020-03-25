@@ -9,10 +9,10 @@
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/DeprecatedAlgorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 /**
 This algorithm is deprecated. Please use SaveReflectometryAscii instead.
 
@@ -22,7 +22,7 @@ AsciiPointBase class which provides the main implementation for the init() &
 exec() methods.
 Output is tab delimited Ascii point data with dq/q and extra header information.
 */
-class DLLExport SaveILLCosmosAscii : public DataHandling::AsciiPointBase,
+class DLLExport SaveILLCosmosAscii : public API::AsciiPointBase,
                                      public API::DeprecatedAlgorithm {
 public:
   /// Algorithm's name for identification overriding a virtual method
@@ -50,5 +50,5 @@ private:
   /// write any extra information required
   void extraHeaders(std::ofstream &file) override;
 };
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

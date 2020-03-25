@@ -12,9 +12,9 @@
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/WorkspaceGroup.h"
-#include "MantidAlgorithms/PolarizationCorrectionFredrikze.h"
-#include "MantidDataHandling/CreatePolarizationEfficiencies.h"
-#include "MantidDataHandling/JoinISISPolarizationEfficiencies.h"
+#include "MantidReflectometry/PolarizationCorrectionFredrikze.h"
+#include "MantidReflectometry/CreatePolarizationEfficiencies.h"
+#include "MantidReflectometry/JoinISISPolarizationEfficiencies.h"
 #include "MantidDataObjects/TableWorkspace.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidKernel/OptionalBool.h"
@@ -26,6 +26,7 @@ using namespace Mantid::API;
 using namespace Mantid::Algorithms;
 using namespace Mantid::DataHandling;
 using namespace Mantid::DataObjects;
+using namespae Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class PolarizationCorrectionFredrikzeTest : public CxxTest::TestSuite {

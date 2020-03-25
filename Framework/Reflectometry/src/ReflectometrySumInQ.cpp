@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometrySumInQ.h"
+#include "MantidReflectometry/ReflectometrySumInQ.h"
 
 #include "MantidAPI/Algorithm.tcc"
 #include "MantidAPI/InstrumentValidator.h"
@@ -65,7 +65,7 @@ double centreTwoTheta(const double wsIndex,
  */
 double projectToReference(
     const double wavelength, const double twoTheta,
-    const Mantid::Algorithms::ReflectometrySumInQ::Angles &refAngles) {
+    const Mantid::Reflectometry::ReflectometrySumInQ::Angles &refAngles) {
   return wavelength * std::sin(refAngles.delta) /
          std::sin(twoTheta - refAngles.horizon);
 }
@@ -83,7 +83,7 @@ double projectToReference(
  */
 void shareCounts(
     const double inputCounts, const double inputErr,
-    const Mantid::Algorithms::ReflectometrySumInQ::MinMax &lambdaRange,
+    const Mantid::Reflectometry::ReflectometrySumInQ::MinMax &lambdaRange,
     Mantid::API::MatrixWorkspace &IvsLam, std::vector<double> &outputE) {
   // Check that we have histogram data
   const auto &outputX = IvsLam.x(0);
@@ -137,11 +137,11 @@ void shareCounts(
  * @param spectrumInfo [in] :: a spectrum info structure
  * @return :: the pixel's angular width in radians
  */
-Mantid::Algorithms::ReflectometrySumInQ::MinMax
+Mantid::Reflectometry::ReflectometrySumInQ::MinMax
 twoThetaWidth(const size_t wsIndex,
               const Mantid::API::SpectrumInfo &spectrumInfo) {
   const double twoTheta = spectrumInfo.twoTheta(wsIndex);
-  Mantid::Algorithms::ReflectometrySumInQ::MinMax range;
+  Mantid::Reflectometry::ReflectometrySumInQ::MinMax range;
   if (wsIndex == 0) {
     if (spectrumInfo.size() <= 1) {
       throw std::runtime_error("Cannot calculate pixel widths from a workspace "
@@ -159,7 +159,7 @@ twoThetaWidth(const size_t wsIndex,
   } else {
     const auto t1 = spectrumInfo.twoTheta(wsIndex - 1);
     const auto t2 = spectrumInfo.twoTheta(wsIndex + 1);
-    const Mantid::Algorithms::ReflectometrySumInQ::MinMax neighbours(t1, t2);
+    const Mantid::Reflectometry::ReflectometrySumInQ::MinMax neighbours(t1, t2);
     range.min = (twoTheta + neighbours.min) / 2.;
     range.max = (twoTheta + neighbours.max) / 2.;
   }
@@ -168,7 +168,7 @@ twoThetaWidth(const size_t wsIndex,
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /**
  * Construct a new MinMax object.
@@ -576,5 +576,5 @@ ReflectometrySumInQ::sumInQ(const API::MatrixWorkspace &detectorWS,
   return IvsLam;
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

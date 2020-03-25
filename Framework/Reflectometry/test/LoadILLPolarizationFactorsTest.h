@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidDataHandling/LoadILLPolarizationFactors.h"
+#include "MantidReflectometry/LoadILLPolarizationFactors.h"
 
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -19,7 +19,7 @@
 
 #include <array>
 
-using Mantid::DataHandling::LoadILLPolarizationFactors;
+using Mantid::Reflectometry::LoadILLPolarizationFactors;
 
 class LoadILLPolarizationFactorsTest : public CxxTest::TestSuite {
 public:

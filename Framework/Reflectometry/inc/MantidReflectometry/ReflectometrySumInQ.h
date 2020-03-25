@@ -7,7 +7,7 @@
 #pragma once
 
 #include "MantidAPI/Algorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include <cmath>
 
 namespace Mantid {
@@ -20,13 +20,13 @@ class BinEdges;
 class Counts;
 class CountStandardDeviations;
 } // namespace HistogramData
-namespace Algorithms {
+namespace Reflectometry {
 
 /** ReflectometrySumInQ : Sum counts from the input workspace in lambda
   along lines of constant Q by projecting to "virtual lambda" at a
   reference angle.
 */
-class MANTID_ALGORITHMS_DLL ReflectometrySumInQ : public API::Algorithm {
+class MANTID_REFLECTOMETRY_DLL ReflectometrySumInQ : public API::Algorithm {
 public:
   struct Angles {
     double horizon{std::numeric_limits<double>::quiet_NaN()};
@@ -79,5 +79,5 @@ private:
                                    const Indexing::SpectrumIndexSet &indices);
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

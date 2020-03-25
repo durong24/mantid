@@ -8,21 +8,21 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/WorkspaceGroup_fwd.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
 namespace API {
 class ISpectrum;
 }
 
-namespace Algorithms {
+namespace Reflectometry {
 
 /** PolarizationCorrectionWildes : This algorithm corrects for non-ideal
   component efficiencies in polarized neutron analysis. It is based on
   [A. R. Wildes (2006) Neutron News, 17:2, 17-25,
   DOI: 10.1080/10448630600668738]
 */
-class MANTID_ALGORITHMS_DLL PolarizationCorrectionWildes
+class MANTID_REFLECTOMETRY_DLL PolarizationCorrectionWildes
     : public API::Algorithm {
 public:
   const std::string name() const override;
@@ -75,5 +75,5 @@ private:
                              const WorkspaceMap &inputs,
                              const EfficiencyMap &efficiencies);
 };
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

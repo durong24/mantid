@@ -7,18 +7,18 @@
 #pragma once
 
 #include "MantidAPI/WorkspaceGroup_fwd.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "ReflectometryWorkflowBase2.h"
 
 #include <boost/optional.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** ReflectometryReductionOneAuto3 : Algorithm to run ReflectometryReductionOne,
 attempting to pick instrument parameters for missing properties. Version 3.
 */
-class MANTID_ALGORITHMS_DLL ReflectometryReductionOneAuto3
+class MANTID_REFLECTOMETRY_DLL ReflectometryReductionOneAuto3
     : public ReflectometryWorkflowBase2 {
 public:
   const std::string name() const override;
@@ -109,5 +109,5 @@ private:
                           const std::string &transmissionRun);
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

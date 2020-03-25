@@ -4,14 +4,14 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/SaveReflCustomAscii.h"
+#include "MantidReflectometry/SaveReflCustomAscii.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 #include "MantidKernel/ArrayProperty.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 // Register the algorithm into the algorithm factory
 DECLARE_ALGORITHM(SaveReflCustomAscii)
 using namespace Kernel;
@@ -61,5 +61,5 @@ void SaveReflCustomAscii::data(std::ofstream &file, bool exportDeltaQ) {
   AsciiPointBase::data(file, exportDeltaQ);
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

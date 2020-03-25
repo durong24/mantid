@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/PolarizationCorrectionWildes.h"
+#include "MantidReflectometry/PolarizationCorrectionWildes.h"
 
 #include "MantidAPI/ADSValidator.h"
 #include "MantidAPI/Axis.h"
@@ -367,7 +367,7 @@ createWorkspaceWithHistory(Mantid::API::MatrixWorkspace_const_sptr inputWS) {
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(PolarizationCorrectionWildes)
@@ -1049,5 +1049,5 @@ void PolarizationCorrectionWildes::twoInputsSolve01And10(
     }
   }
 }
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

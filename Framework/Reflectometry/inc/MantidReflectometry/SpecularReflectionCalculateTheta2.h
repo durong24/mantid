@@ -7,16 +7,16 @@
 #pragma once
 
 #include "MantidAPI/Algorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
-#include "MantidAlgorithms/SpecularReflectionAlgorithm.h"
+#include "MantidReflectometry/DllConfig.h"
+#include "MantidReflectometry/SpecularReflectionAlgorithm.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** SpecularReflectionCorrectTheta : Calculates a theta value based on the
   specular reflection condition. Version 2.
 */
-class MANTID_ALGORITHMS_DLL SpecularReflectionCalculateTheta2
+class MANTID_REFLECTOMETRY_DLL SpecularReflectionCalculateTheta2
     : public SpecularReflectionAlgorithm {
 public:
   const std::string name() const override;
@@ -37,5 +37,5 @@ private:
   void exec() override;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

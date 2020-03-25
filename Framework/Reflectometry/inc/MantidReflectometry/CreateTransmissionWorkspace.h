@@ -6,16 +6,16 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidAlgorithms/DllConfig.h"
-#include "MantidAlgorithms/ReflectometryWorkflowBase.h"
+#include "MantidReflectometry/DllConfig.h"
+#include "MantidReflectometry/ReflectometryWorkflowBase.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** CreateTransmissionWorkspace : Create a transmission run workspace in
  Wavelength given one or more TOF workspaces
  */
-class MANTID_ALGORITHMS_DLL CreateTransmissionWorkspace
+class MANTID_REFLECTOMETRY_DLL CreateTransmissionWorkspace
     : public ReflectometryWorkflowBase {
 public:
   const std::string name() const override;
@@ -46,5 +46,5 @@ private:
   void exec() override;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

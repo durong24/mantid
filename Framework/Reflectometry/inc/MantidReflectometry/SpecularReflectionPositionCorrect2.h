@@ -7,7 +7,7 @@
 #pragma once
 
 #include "MantidAPI/Algorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 
 #include "MantidGeometry/IDTypes.h"
 
@@ -19,12 +19,12 @@ class ReferenceFrame;
 namespace Kernel {
 class V3D;
 }
-namespace Algorithms {
+namespace Reflectometry {
 
 /** SpecularReflectionPositionCorrect : Algorithm to perform position
 corrections based on the specular reflection condition. Version 2.
 */
-class MANTID_ALGORITHMS_DLL SpecularReflectionPositionCorrect2 final
+class MANTID_REFLECTOMETRY_DLL SpecularReflectionPositionCorrect2 final
     : public API::Algorithm {
 public:
   /// Name of this algorithm

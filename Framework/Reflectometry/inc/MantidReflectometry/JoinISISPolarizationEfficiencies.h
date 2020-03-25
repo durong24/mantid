@@ -6,16 +6,16 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidDataHandling/CreatePolarizationEfficienciesBase.h"
-#include "MantidDataHandling/DllConfig.h"
+#include "MantidReflectometry/CreatePolarizationEfficienciesBase.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 /** JoinISISPolarizationEfficiencies : Joins reflectometry polarization
   efficiency correction factors to form a single matrix workspace.
 */
-class MANTID_DATAHANDLING_DLL JoinISISPolarizationEfficiencies
+class MANTID_REFLECTOMETRY_DLL JoinISISPolarizationEfficiencies
     : public CreatePolarizationEfficienciesBase {
 public:
   const std::string name() const override;
@@ -40,5 +40,5 @@ private:
                                 size_t const maxSize);
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

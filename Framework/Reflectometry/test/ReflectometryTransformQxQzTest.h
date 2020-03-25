@@ -7,7 +7,7 @@
 #pragma once
 
 #include "MantidKernel/System.h"
-#include "MantidMDAlgorithms/ReflectometryTransformQxQz.h"
+#include "MantidReflectometry/ReflectometryTransformQxQz.h"
 
 #include <cxxtest/TestSuite.h>
 
@@ -15,7 +15,7 @@
 
 using namespace Mantid::API;
 using namespace Mantid::DataObjects;
-using namespace Mantid::MDAlgorithms;
+using namespace Mantid::Reflectometry;
 
 class ReflectometryTransformQxQzTest : public CxxTest::TestSuite {
 private:

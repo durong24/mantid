@@ -9,11 +9,12 @@
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
 #include "MantidKernel/System.h"
+#include "MantidReflectometry/DllConfig.h"
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 /** CreatePolarizationEfficienciesBase - the base class for algorithms
  that create polarization efficiency workspaces:
@@ -22,7 +23,7 @@ namespace DataHandling {
    - JoinISISPolarizationEfficiencies
    - LoadISISPolarizationEfficiencies
  */
-class DLLExport CreatePolarizationEfficienciesBase : public API::Algorithm {
+class MANTID_REFLECTOMETRY_DLL CreatePolarizationEfficienciesBase : public API::Algorithm {
 public:
   const std::string category() const override;
 
@@ -49,5 +50,5 @@ private:
   createEfficiencies(std::vector<std::string> const &labels) = 0;
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/LoadILLReflectometry.h"
+#include "MantidReflectometry/LoadILLReflectometry.h"
 
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/CompositeFunction.h"
@@ -186,7 +186,7 @@ Mantid::Kernel::Quat detectorFaceRotation(const RotationPlane plane,
 } // anonymous namespace
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 using namespace Kernel;
 using namespace API;
@@ -1005,5 +1005,5 @@ double LoadILLReflectometry::sourceSampleDistance() const {
   }
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

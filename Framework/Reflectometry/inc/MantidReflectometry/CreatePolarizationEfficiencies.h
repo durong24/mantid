@@ -6,15 +6,16 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidDataHandling/CreatePolarizationEfficienciesBase.h"
+#include "MantidReflectometry/CreatePolarizationEfficienciesBase.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidKernel/System.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 /** CreatePolarizationEfficiencies
  */
-class DLLExport CreatePolarizationEfficiencies
+class MANTID_REFLECTOMETRY_DLL CreatePolarizationEfficiencies
     : public CreatePolarizationEfficienciesBase {
 public:
   const std::string name() const override;
@@ -28,5 +29,5 @@ private:
   createEfficiencies(std::vector<std::string> const &labels) override;
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

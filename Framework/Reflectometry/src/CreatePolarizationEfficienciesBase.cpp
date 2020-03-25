@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidDataHandling/CreatePolarizationEfficienciesBase.h"
+#include "MantidReflectometry/CreatePolarizationEfficienciesBase.h"
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/TextAxis.h"
 #include "MantidAPI/WorkspaceHistory.h"
@@ -23,7 +23,7 @@ using namespace Mantid::Kernel;
 using namespace Mantid::Geometry;
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 
 std::string const CreatePolarizationEfficienciesBase::Pp("Pp");
 std::string const CreatePolarizationEfficienciesBase::Ap("Ap");
@@ -83,5 +83,5 @@ CreatePolarizationEfficienciesBase::getNonDefaultProperties(
   return outputLabels;
 }
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

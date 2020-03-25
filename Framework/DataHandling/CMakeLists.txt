@@ -1,6 +1,5 @@
 set(SRC_FILES
     src/AppendGeometryToSNSNexus.cpp
-    src/AsciiPointBase.cpp
     src/BankPulseTimes.cpp
     src/CheckMantidVersion.cpp
     src/CompressEvents.cpp
@@ -195,7 +194,6 @@ set(SRC_FILES
 
 set(INC_FILES
     inc/MantidDataHandling/AppendGeometryToSNSNexus.h
-    inc/MantidDataHandling/AsciiPointBase.h
     inc/MantidDataHandling/BankPulseTimes.h
     inc/MantidDataHandling/CheckMantidVersion.h
     inc/MantidDataHandling/CompressEvents.h

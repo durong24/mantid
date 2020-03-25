@@ -6,18 +6,19 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h"
+#include "MantidReflectometry/DllConfig.h"
+#include "MantidAPI/BoxControllerSettingsAlgorithm.h"
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 
 /** ConvertToReflectometryQ : Creates a 2D MD Histogram workspace with two axis
   qz and qx.
 
   @date 2012-03-21
 */
-class DLLExport ConvertToReflectometryQ
-    : public BoxControllerSettingsAlgorithm {
+class MANTID_REFLECTOMETRY_DLL ConvertToReflectometryQ
+    : public API::BoxControllerSettingsAlgorithm {
 public:
   const std::string name() const override;
   /// Summary of algorithms purpose
@@ -39,5 +40,5 @@ private:
   correctDetectors(Mantid::API::MatrixWorkspace_sptr inputWs, double theta);
 };
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

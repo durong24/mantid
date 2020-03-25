@@ -7,7 +7,7 @@
 #pragma once
 
 #include "MantidAPI/Axis.h"
-#include "MantidDataHandling/CreatePolarizationEfficiencies.h"
+#include "MantidReflectometry/CreatePolarizationEfficiencies.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidHistogramData/LinearGenerator.h"
 #include "MantidKernel/Unit.h"
@@ -20,6 +20,7 @@ using namespace Mantid::API;
 using namespace Mantid::DataHandling;
 using namespace Mantid::DataObjects;
 using namespace Mantid::HistogramData;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class CreatePolarizationEfficienciesTest : public CxxTest::TestSuite {

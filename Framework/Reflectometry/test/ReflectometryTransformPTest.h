@@ -6,25 +6,24 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidMDAlgorithms/ReflectometryTransformKiKf.h"
-
+#include "MantidKernel/System.h"
+#include "MantidKernel/Timer.h"
+#include "MantidReflectometry/ReflectometryTransformP.h"
 #include <cmath>
 #include <cxxtest/TestSuite.h>
 
-using namespace Mantid::API;
 using namespace Mantid::DataObjects;
-using namespace Mantid::MDAlgorithms;
+using namespace Mantid::Reflectometry;
+using namespace Mantid::API;
 
-class ReflectometryTransformKiKfTest : public CxxTest::TestSuite {
+class ReflectometryTransformPTest : public CxxTest::TestSuite {
 public:
   // This pair of boilerplate methods prevent the suite being created statically
   // This means the constructor isn't called when running other tests
-  static ReflectometryTransformKiKfTest *createSuite() {
-    return new ReflectometryTransformKiKfTest();
+  static ReflectometryTransformPTest *createSuite() {
+    return new ReflectometryTransformPTest();
   }
-  static void destroySuite(ReflectometryTransformKiKfTest *suite) {
-    delete suite;
-  }
+  static void destroySuite(ReflectometryTransformPTest *suite) { delete suite; }
 
   void test_kimin_greater_than_kimax_throws() {
     double kiMin = 2;
@@ -33,7 +32,7 @@ public:
     double kfMax = 2;
     double incidentTheta = 1;
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::invalid_argument &);
   }
 
@@ -44,7 +43,7 @@ public:
     double kfMax = 2;
     double incidentTheta = 1;
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::invalid_argument &);
   }
 
@@ -55,7 +54,7 @@ public:
     double kfMax = 1; // Smaller than kfMin!
     double incidentTheta = 1;
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::invalid_argument &);
   }
 
@@ -66,7 +65,7 @@ public:
     double kfMax = 1; // Equal to kfMin!
     double incidentTheta = 1;
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::invalid_argument &);
   }
 
@@ -77,7 +76,7 @@ public:
     double kfMax = 3;
     double incidentTheta = -0.001; // Negative
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::out_of_range &);
   }
 
@@ -88,7 +87,7 @@ public:
     double kfMax = 3;
     double incidentTheta = 90.001; // Too large
     TS_ASSERT_THROWS(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta),
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta),
         const std::out_of_range &);
   }
 
@@ -99,38 +98,55 @@ public:
     double kfMax = 2;
     double incidentTheta = 1;
     TS_ASSERT_THROWS_NOTHING(
-        ReflectometryTransformKiKf(kiMin, kiMax, kfMin, kfMax, incidentTheta));
+        ReflectometryTransformP(kiMin, kiMax, kfMin, kfMax, incidentTheta));
   }
 
-  void test_calulate_k() {
+  void test_calulate_diff_p() {
     const double wavelength = 1;
 
-    // Sine 0 = 0
-
-    CalculateReflectometryKiKf A;
+    CalculateReflectometryP A;
     A.setThetaIncident(0);
+    A.setThetaFinal(0);
+    TS_ASSERT_EQUALS(0, A.calculateDim1(wavelength));
+
+    CalculateReflectometryP B;
+    B.setThetaIncident(90);
+    B.setThetaFinal(0);
+    TS_ASSERT_DELTA(2 * M_PI / wavelength, B.calculateDim1(wavelength), 0.0001);
+
+    CalculateReflectometryP C;
+    C.setThetaIncident(0);
+    C.setThetaFinal(90);
+    TS_ASSERT_DELTA(-2 * M_PI / wavelength, C.calculateDim1(wavelength),
+                    0.0001);
+
+    CalculateReflectometryP D;
+    D.setThetaIncident(90);
+    D.setThetaFinal(90);
+    TS_ASSERT_EQUALS(0, A.calculateDim1(wavelength));
+  }
+
+  void test_calulate_sum_p() {
+    const double wavelength = 1;
+
+    CalculateReflectometryP A;
+    A.setThetaIncident(0);
+    A.setThetaFinal(0);
     TS_ASSERT_EQUALS(0, A.calculateDim0(wavelength));
 
-    // Sine 90 = 1
-    CalculateReflectometryKiKf B;
+    CalculateReflectometryP B;
     B.setThetaIncident(90);
+    B.setThetaFinal(0);
     TS_ASSERT_DELTA(2 * M_PI / wavelength, B.calculateDim0(wavelength), 0.0001);
 
-    // Sine 270 = -1
-    CalculateReflectometryKiKf C;
-    C.setThetaIncident(270);
-    TS_ASSERT_DELTA(-2 * M_PI / wavelength, C.calculateDim0(wavelength),
-                    0.0001);
-  }
+    CalculateReflectometryP C;
+    C.setThetaIncident(0);
+    C.setThetaFinal(90);
+    TS_ASSERT_DELTA(2 * M_PI / wavelength, C.calculateDim0(wavelength), 0.0001);
 
-  void test_recalculate_k() {
-    const double wavelength = 1;
-
-    CalculateReflectometryKiKf A;
-    A.setThetaIncident(90);
-    TS_ASSERT_DELTA(2 * M_PI / wavelength, A.calculateDim0(wavelength), 0.0001);
-
-    // Now re-execute on the same calculation object.
-    TS_ASSERT_DELTA(M_PI / wavelength, A.calculateDim0(2 * wavelength), 0.0001);
+    CalculateReflectometryP D;
+    D.setThetaIncident(90);
+    D.setThetaFinal(90);
+    TS_ASSERT_DELTA(4 * M_PI / wavelength, D.calculateDim0(wavelength), 0.0001);
   }
 };

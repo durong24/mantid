@@ -11,7 +11,7 @@
 #include "MantidAPI/Run.h"
 #include "MantidAPI/Workspace.h"
 #include "MantidAPI/WorkspaceGroup.h"
-#include "MantidDataHandling/SaveReflectometryAscii.h"
+#include "MantidReflectometry/SaveReflectometryAscii.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidDataObjects/WorkspaceCreation.h"
 #include "MantidKernel/PropertyWithValue.h"
@@ -23,8 +23,8 @@
 #include <iterator>
 
 using namespace Mantid::API;
-using namespace Mantid::DataHandling;
 using namespace Mantid::DataObjects;
+using namespace Mantid::Reflectometry;
 
 class SaveReflectometryAsciiTest : public CxxTest::TestSuite {
 

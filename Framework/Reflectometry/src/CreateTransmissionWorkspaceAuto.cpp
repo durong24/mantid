@@ -14,7 +14,7 @@
  algorithm.
  *WIKI*/
 
-#include "MantidAlgorithms/CreateTransmissionWorkspaceAuto.h"
+#include "MantidReflectometry/CreateTransmissionWorkspaceAuto.h"
 #include "MantidAPI/BoostOptionalToAlgorithmProperty.h"
 #include "MantidAPI/WorkspaceUnitValidator.h"
 #include "MantidKernel/ArrayProperty.h"
@@ -25,7 +25,7 @@ using namespace Mantid::Kernel;
 using namespace Mantid::API;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(CreateTransmissionWorkspaceAuto)
@@ -249,5 +249,5 @@ CreateTransmissionWorkspaceAuto::isSet(std::string propName) const {
     return boost::optional<T>(value);
   }
 }
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

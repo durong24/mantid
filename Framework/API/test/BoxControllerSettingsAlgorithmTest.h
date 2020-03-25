@@ -7,8 +7,9 @@
 #pragma once
 
 #include "MantidAPI/FrameworkManager.h"
-#include "MantidDataHandling/LoadParameterFile.h"
-#include "MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h"
+#include "MantidGeometry/Instrument/ParameterMap.h"
+#include "MantidAPI/BoxControllerSettingsAlgorithm.h"
+#include "MantidAPI/HistoWorkspace.h"
 #include "MantidTestHelpers/ComponentCreationHelper.h"
 #include "MantidTestHelpers/ScopedFileHelper.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
@@ -19,7 +20,6 @@
 
 using namespace Mantid;
 using namespace Mantid::API;
-using namespace Mantid::MDAlgorithms;
 using ScopedFileHelper::ScopedFile;
 
 //------------------------------------------------------------------------------------------------
@@ -43,56 +43,23 @@ public:
 class BoxControllerSettingsAlgorithmTest : public CxxTest::TestSuite {
 
 private:
-  /**
-  Helper function. Runs LoadParameterAlg, to get an instrument parameter
-  definition from a file onto a workspace.
-  */
-  void apply_instrument_parameter_file_to_workspace(MatrixWorkspace_sptr ws,
-                                                    const ScopedFile &file) {
-    // Load the Instrument Parameter file over the existing test workspace +
-    // instrument.
-    using DataHandling::LoadParameterFile;
-    LoadParameterFile loadParameterAlg;
-    loadParameterAlg.setRethrows(true);
-    loadParameterAlg.initialize();
-    loadParameterAlg.setPropertyValue("Filename", file.getFileName());
-    loadParameterAlg.setProperty("Workspace", ws);
-    loadParameterAlg.execute();
-  }
 
   MatrixWorkspace_sptr
   create_workspace_with_splitting_params(int splitThreshold, int splitInto,
                                          int maxRecursionDepth) {
-    auto ws = boost::make_shared<Mantid::DataObjects::Workspace2D>();
+    auto ws = boost::make_shared<API::HistoWorkspace>();
     ws->initialize(1, 2, 1);
-    ws->setInstrument(
-        ComponentCreationHelper::createTestInstrumentRectangular(6, 1, 0.0));
-    const std::string instrumentName = ws->getInstrument()->getName();
-
-    // Create a parameter file, with a root equation that will apply to all
-    // detectors.
-    const std::string parameterFileContents = boost::str(
-        boost::format("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\
-       <parameter-file instrument = \"%1%\" date = \"2013-01-31T00:00:00\">\n\
-          <component-link name=\"%1%\">\n\
-           <parameter name=\"SplitThreshold\">\n\
-               <value val=\"%2%\"/>\n\
-           </parameter>\n\
-           <parameter name=\"SplitInto\">\n\
-               <value val=\"%3%\"/>\n\
-           </parameter>\n\
-           <parameter name=\"MaxRecursionDepth\">\n\
-               <value val=\"%4%\"/>\n\
-           </parameter>\n\
-           </component-link>\n\
-        </parameter-file>\n") %
-        instrumentName % splitThreshold % splitInto % maxRecursionDepth);
-
-    // Create a temporary Instrument Parameter file.
-    ScopedFile file(parameterFileContents, instrumentName + "_Parameters.xml");
-
-    // Apply parameter file to workspace.
-    apply_instrument_parameter_file_to_workspace(ws, file);
+    auto baseInstrument =
+        ComponentCreationHelper::createTestInstrumentRectangular(6, 1, 0.0);
+    auto parameters = boost::make_shared<Mantid::Geometry::ParameterMap>();
+    parameters->add("double", baseInstrument.get(), "SplitThreshold",
+                     static_cast<double>(splitThreshold));
+    parameters->add("double", baseInstrument.get(), "SplitInto",
+                     static_cast<double>(splitInto));
+    parameters->add("double", baseInstrument.get(), "MaxRecursionDepth",
+                     static_cast<double>(maxRecursionDepth));
+    ws->setInstrument(boost::make_shared<Mantid::Geometry::Instrument>(
+        baseInstrument, parameters));
 
     return ws;
   }
@@ -230,7 +197,7 @@ public:
   void test_with_no_instrument_parameters() {
     // Create a workspace with an instrument, but no instrument parameters for
     // box splitting.
-    auto ws = boost::make_shared<Mantid::DataObjects::Workspace2D>();
+    auto ws = boost::make_shared<API::HistoWorkspace>();
     ws->initialize(1, 2, 1);
     ws->setInstrument(
         ComponentCreationHelper::createTestInstrumentRectangular(6, 1, 0));

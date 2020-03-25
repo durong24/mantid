@@ -6,7 +6,6 @@ set(SRC_FILES
     src/BinMD.cpp
     src/BinaryOperationMD.cpp
     src/BooleanBinaryOperationMD.cpp
-    src/BoxControllerSettingsAlgorithm.cpp
     src/CalculateCoverageDGS.cpp
     src/CentroidPeaksMD.cpp
     src/CentroidPeaksMD2.cpp
@@ -93,9 +92,6 @@ set(SRC_FILES
     src/PreprocessDetectorsToMD.cpp
     src/QueryMDWorkspace.cpp
     src/RecalculateTrajectoriesExtents.cpp
-    src/ReflectometryTransformKiKf.cpp
-    src/ReflectometryTransformP.cpp
-    src/ReflectometryTransformQxQz.cpp
     src/ReplicateMD.cpp
     src/SaveIsawQvector.cpp
     src/SaveMD.cpp
@@ -125,7 +121,6 @@ set(
   inc/MantidMDAlgorithms/BinMD.h
   inc/MantidMDAlgorithms/BinaryOperationMD.h
   inc/MantidMDAlgorithms/BooleanBinaryOperationMD.h
-  inc/MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h
   inc/MantidMDAlgorithms/CalculateCoverageDGS.h
   inc/MantidMDAlgorithms/CentroidPeaksMD.h
   inc/MantidMDAlgorithms/CentroidPeaksMD2.h
@@ -213,9 +208,6 @@ set(
   inc/MantidMDAlgorithms/PreprocessDetectorsToMD.h
   inc/MantidMDAlgorithms/QueryMDWorkspace.h
   inc/MantidMDAlgorithms/RecalculateTrajectoriesExtents.h
-  inc/MantidMDAlgorithms/ReflectometryTransformKiKf.h
-  inc/MantidMDAlgorithms/ReflectometryTransformP.h
-  inc/MantidMDAlgorithms/ReflectometryTransformQxQz.h
   inc/MantidMDAlgorithms/ReplicateMD.h
   inc/MantidMDAlgorithms/SaveIsawQvector.h
   inc/MantidMDAlgorithms/SaveMD.h
@@ -242,7 +234,6 @@ set(TEST_FILES
     AccumulateMDTest.h
     AndMDTest.h
     BooleanBinaryOperationMDTest.h
-    BoxControllerSettingsAlgorithmTest.h
     CalculateCoverageDGSTest.h
     CentroidPeaksMD2Test.h
     CentroidPeaksMDTest.h
@@ -324,9 +315,6 @@ set(TEST_FILES
     PreprocessDetectorsToMDTest.h
     QueryMDWorkspaceTest.h
     RecalculateTrajectoriesExtentsTest.h
-    ReflectometryTransformKiKfTest.h
-    ReflectometryTransformPTest.h
-    ReflectometryTransformQxQzTest.h
     ReplicateMDTest.h
     SaveIsawQvectorTest.h
     SaveMD2Test.h

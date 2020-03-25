@@ -13,7 +13,7 @@
 #include <string>
 
 namespace Mantid {
-namespace DataHandling {
+namespace API {
 /**
 Abstract base class for some ascii format save algorithms that print point data
 and dq/q.
@@ -60,5 +60,5 @@ protected:
   API::MatrixWorkspace_const_sptr m_ws;
 };
 
-} // namespace DataHandling
+} // namespace API
 } // namespace Mantid

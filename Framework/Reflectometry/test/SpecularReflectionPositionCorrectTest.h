@@ -9,14 +9,14 @@
 #include "SpecularReflectionAlgorithmTest.h"
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/SpecularReflectionPositionCorrect.h"
+#include "MantidReflectometry/SpecularReflectionPositionCorrect.h"
 #include "MantidGeometry/Instrument/ReferenceFrame.h"
 #include "MantidKernel/Exception.h"
 #include "MantidKernel/V3D.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 #include <cmath>
 
-using Mantid::Algorithms::SpecularReflectionPositionCorrect;
+using Mantid::Reflectometry::SpecularReflectionPositionCorrect;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
 using namespace Mantid::Geometry;

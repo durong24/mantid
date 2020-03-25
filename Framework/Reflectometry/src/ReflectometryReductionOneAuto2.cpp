@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryReductionOneAuto2.h"
+#include "MantidReflectometry/ReflectometryReductionOneAuto2.h"
 #include "MantidAPI/BoostOptionalToAlgorithmProperty.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/WorkspaceGroup.h"
@@ -20,7 +20,7 @@
 #include <boost/regex.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 using namespace Mantid::API;
 using namespace Mantid::Geometry;
@@ -1209,5 +1209,5 @@ void ReflectometryReductionOneAuto2::applyFloodCorrections() {
   }
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

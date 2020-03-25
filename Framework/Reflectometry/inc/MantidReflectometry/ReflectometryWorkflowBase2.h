@@ -8,19 +8,19 @@
 
 #include "MantidAPI/DataProcessorAlgorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidGeometry/Instrument_fwd.h"
 
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
 using namespace Mantid::Geometry;
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** ReflectometryWorkflowBase2 : base class containing common implementation
  functionality usable by concrete reflectometry workflow algorithms. Version 2.
  */
-class MANTID_ALGORITHMS_DLL ReflectometryWorkflowBase2
+class MANTID_REFLECTOMETRY_DLL ReflectometryWorkflowBase2
     : public API::DataProcessorAlgorithm {
 protected:
   /// Initialize reduction-type properties
@@ -105,5 +105,5 @@ protected:
   void setWorkspacePropertyFromChild(Algorithm_sptr alg,
                                      std::string const &propertyName);
 };
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

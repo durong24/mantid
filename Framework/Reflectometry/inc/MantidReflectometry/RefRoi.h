@@ -12,14 +12,14 @@
 #include "MantidAPI/Algorithm.h"
 
 namespace Mantid {
-namespace WorkflowAlgorithms {
+namespace Reflectometry {
 /**
 
     Workflow algorithm for reflectometry to sum up a region of interest on a 2D
    detector.
 */
 
-class DLLExport RefRoi : public API::Algorithm {
+class MANTID_REFLECTOMETRY_DLL RefRoi : public API::Algorithm {
 public:
   /// Constructor
   RefRoi();
@@ -56,5 +56,5 @@ private:
   int m_nYPixel;
 };
 
-} // namespace WorkflowAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

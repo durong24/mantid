@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/NRCalculateSlitResolution.h"
+#include "MantidReflectometry/NRCalculateSlitResolution.h"
 #include "MantidAPI/InstrumentValidator.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
@@ -17,7 +17,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 using namespace Mantid::API;
 using namespace Mantid::Geometry;
@@ -144,5 +144,5 @@ void NRCalculateSlitResolution::exec() {
   setProperty("Resolution", resolution);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h"
+#include "MantidAPI/BoxControllerSettingsAlgorithm.h"
 #include "MantidKernel/ArrayProperty.h"
 #include "MantidKernel/BoundedValidator.h"
 #include "MantidKernel/StringTokenizer.h"
@@ -12,10 +12,9 @@
 #include "MantidKernel/System.h"
 
 using namespace Mantid::Kernel;
-using namespace Mantid::API;
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace API {
 
 //----------------------------------------------------------------------------------------------
 /** Add Box-controller-specific properties to this algorithm
@@ -155,5 +154,5 @@ void BoxControllerSettingsAlgorithm::setBoxController(BoxController_sptr bc) {
   bc->resetNumBoxes();
 }
 
-} // namespace MDAlgorithms
+} // namespace API
 } // namespace Mantid

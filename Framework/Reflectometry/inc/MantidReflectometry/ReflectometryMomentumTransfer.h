@@ -8,15 +8,15 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/MatrixWorkspace_fwd.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** Converts wavelength to momentum transfer and calculates the Qz
   resolution for reflectometers at continuous beam sources.
 */
-class MANTID_ALGORITHMS_DLL ReflectometryMomentumTransfer
+class MANTID_REFLECTOMETRY_DLL ReflectometryMomentumTransfer
     : public API::Algorithm {
 public:
   const std::string name() const override;
@@ -71,5 +71,5 @@ private:
                                             const double wavelength);
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

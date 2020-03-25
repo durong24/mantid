@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/SpecularReflectionPositionCorrect.h"
+#include "MantidReflectometry/SpecularReflectionPositionCorrect.h"
 
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidGeometry/Instrument/DetectorGroup.h"
@@ -18,7 +18,7 @@ using namespace Mantid::Geometry;
 using namespace Mantid::Kernel;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 namespace {
 const std::string multiDetectorAnalysis = "MultiDetectorAnalysis";
 const std::string lineDetectorAnalysis = "LineDetectorAnalysis";
@@ -233,5 +233,5 @@ void SpecularReflectionPositionCorrect::correctPosition(
                 detector->getPos());
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

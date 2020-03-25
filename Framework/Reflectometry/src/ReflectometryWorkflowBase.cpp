@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryWorkflowBase.h"
+#include "MantidReflectometry/ReflectometryWorkflowBase.h"
 #include "MantidAPI/BoostOptionalToAlgorithmProperty.h"
 #include "MantidAPI/WorkspaceUnitValidator.h"
 #include "MantidKernel/ArrayProperty.h"
@@ -18,7 +18,7 @@ using namespace Mantid::HistogramData;
 using namespace Mantid::Kernel;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 namespace {
 
 /**
@@ -502,5 +502,5 @@ ReflectometryWorkflowBase::toLam(MatrixWorkspace_sptr toConvert,
   return DetectorMonitorWorkspacePair(detectorWS, monitorWS);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

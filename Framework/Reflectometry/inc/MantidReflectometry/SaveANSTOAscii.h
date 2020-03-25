@@ -8,10 +8,10 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/DeprecatedAlgorithm.h"
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 
 namespace Mantid {
-namespace DataHandling {
+namespace Reflectometry {
 /**
 Saves a file in Ansto format and from a 2D workspace
 (Workspace2D class). SaveANSTOAscii is an algorithm but inherits from the
@@ -19,7 +19,7 @@ AsciiPointBase class which provides the main implementation for the init() &
 exec() methods.
 Output is tab delimited Ascii point data with dq/q.
 */
-class DLLExport SaveANSTOAscii : public DataHandling::AsciiPointBase,
+class MANTID_REFLECTOMETRY_DLL SaveANSTOAscii : public API::AsciiPointBase,
                                  public API::DeprecatedAlgorithm {
 public:
   /// Algorithm's name for identification overriding a virtual method
@@ -50,5 +50,5 @@ private:
   void extraHeaders(std::ofstream &file) override { UNUSED_ARG(file); };
 };
 
-} // namespace DataHandling
+} // namespace Reflectometry
 } // namespace Mantid

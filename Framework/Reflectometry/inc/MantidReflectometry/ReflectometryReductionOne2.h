@@ -6,7 +6,7 @@
 // SPDX - License - Identifier: GPL - 3.0 +
 #pragma once
 
-#include "MantidAlgorithms/ReflectometryWorkflowBase2.h"
+#include "MantidReflectometry/ReflectometryWorkflowBase2.h"
 
 namespace Mantid {
 // Forward declaration
@@ -21,12 +21,12 @@ class HistogramX;
 class HistogramY;
 class HistogramE;
 } // namespace HistogramData
-namespace Algorithms {
+namespace Reflectometry {
 
 /** ReflectometryReductionOne2 : Reflectometry reduction of a single input TOF
  workspace to an IvsQ workspace. Version 2 of the algorithm.
  */
-class MANTID_ALGORITHMS_DLL ReflectometryReductionOne2
+class MANTID_REFLECTOMETRY_DLL ReflectometryReductionOne2
     : public ReflectometryWorkflowBase2 {
 public:
   /// Algorithm's name for identification
@@ -175,5 +175,5 @@ private:
   bool m_partialBins;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

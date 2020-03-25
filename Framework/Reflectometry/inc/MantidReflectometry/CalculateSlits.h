@@ -8,16 +8,16 @@
 
 #include "MantidAPI/Algorithm.h"
 #include "MantidAPI/DataProcessorAlgorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include <boost/optional.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** CalculateSlits
  */
 
-class MANTID_ALGORITHMS_DLL CalculateSlits
+class MANTID_REFLECTOMETRY_DLL CalculateSlits
     : public API::DataProcessorAlgorithm {
 public:
   CalculateSlits();
@@ -36,5 +36,5 @@ private:
   void exec() override;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

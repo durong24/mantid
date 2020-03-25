@@ -13,7 +13,7 @@
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/WorkspaceHistory.h"
 #include "MantidAlgorithms/CreateSampleWorkspace.h"
-#include "MantidAlgorithms/ReflectometryReductionOne2.h"
+#include "MantidReflectometry/ReflectometryReductionOne2.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidGeometry/Instrument/ReferenceFrame.h"
 #include "MantidHistogramData/HistogramY.h"
@@ -25,6 +25,7 @@
 using namespace Mantid::API;
 using namespace Mantid::Algorithms;
 using namespace Mantid::HistogramData;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class ReflectometryReductionOne2Test : public CxxTest::TestSuite {

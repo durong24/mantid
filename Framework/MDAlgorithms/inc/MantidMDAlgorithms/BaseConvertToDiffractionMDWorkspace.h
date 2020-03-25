@@ -12,7 +12,7 @@
 #include "MantidDataObjects/MDEventFactory.h"
 #include "MantidDataObjects/MDEventWorkspace.h"
 #include "MantidKernel/V3D.h"
-#include "MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h"
+#include "MantidAPI/BoxControllerSettingsAlgorithm.h"
 
 namespace Mantid {
 namespace MDAlgorithms {
@@ -23,7 +23,7 @@ namespace MDAlgorithms {
  * ConvertToDiffractionMDWorkspace algorithm.
  */
 class DLLExport BaseConvertToDiffractionMDWorkspace
-    : public BoxControllerSettingsAlgorithm {
+    : public API::BoxControllerSettingsAlgorithm {
 
 public:
   /// Algorithm's name for identification

@@ -4,17 +4,17 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/CreateTransmissionWorkspaceAuto2.h"
+#include "MantidReflectometry/CreateTransmissionWorkspaceAuto2.h"
 #include "MantidAPI/BoostOptionalToAlgorithmProperty.h"
 #include "MantidAPI/WorkspaceUnitValidator.h"
-#include "MantidAlgorithms/ReflectometryWorkflowBase2.h"
+#include "MantidReflectometry/ReflectometryWorkflowBase2.h"
 #include "MantidKernel/ListValidator.h"
 
 using namespace Mantid::Kernel;
 using namespace Mantid::API;
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(CreateTransmissionWorkspaceAuto2)
@@ -112,5 +112,5 @@ void CreateTransmissionWorkspaceAuto2::exec() {
   setProperty("OutputWorkspace", outWS);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

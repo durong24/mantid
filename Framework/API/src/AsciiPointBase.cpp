@@ -10,7 +10,7 @@ SaveILLCosmosAscii and SaveANSTOAscii export-only Acii-based save formats. It is
 based on a python script by Maximilian Skoda, written for the ISIS Reflectometry
 GUI
 */
-#include "MantidDataHandling/AsciiPointBase.h"
+#include "MantidAPI/AsciiPointBase.h"
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidKernel/ListValidator.h"
@@ -23,9 +23,8 @@ GUI
 #include <stdexcept>
 
 namespace Mantid {
-namespace DataHandling {
+namespace API {
 using namespace Kernel;
-using namespace API;
 
 /// Initialisation method.
 void AsciiPointBase::init() {
@@ -134,5 +133,5 @@ void AsciiPointBase::appendSeparatorProperty() {
                   boost::make_shared<StringListValidator>(propOptions),
                   "The separator used for splitting data columns.");
 }
-} // namespace DataHandling
+} // namespace API
 } // namespace Mantid

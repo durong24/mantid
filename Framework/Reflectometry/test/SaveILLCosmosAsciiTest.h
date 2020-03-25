@@ -8,7 +8,7 @@
 
 #include "MantidAPI/AnalysisDataService.h"
 #include "MantidAPI/MatrixWorkspace.h"
-#include "MantidDataHandling/SaveILLCosmosAscii.h"
+#include "MantidReflectometry/SaveILLCosmosAscii.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 #include <Poco/File.h>
 #include <cxxtest/TestSuite.h>
@@ -16,8 +16,8 @@
 #include <string>
 
 using namespace Mantid::API;
-using namespace Mantid::DataHandling;
 using namespace Mantid::DataObjects;
+using namespace Mantid::Reflectometry;
 
 class SaveILLCosmosAsciiTest : public CxxTest::TestSuite {
 

@@ -4,13 +4,13 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/ReflectometryMomentumTransfer.h"
+#include "MantidReflectometry/ReflectometryMomentumTransfer.h"
 
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/Run.h"
 #include "MantidAPI/SpectrumInfo.h"
 #include "MantidAPI/WorkspaceUnitValidator.h"
-#include "MantidAlgorithms/ReflectometryBeamStatistics.h"
+#include "MantidReflectometry/ReflectometryBeamStatistics.h"
 #include "MantidGeometry/Crystal/AngleUnits.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidKernel/ArrayLengthValidator.h"
@@ -74,7 +74,7 @@ double fromLogs(const Mantid::API::Run &run, const std::string &entry) {
 } // namespace
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(ReflectometryMomentumTransfer)
@@ -453,5 +453,5 @@ double ReflectometryMomentumTransfer::wavelengthResolutionSquared(
   return pow<2>(partialResolution) + pow<2>(widthResolution);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

@@ -7,17 +7,17 @@
 #pragma once
 
 #include "MantidAPI/DataProcessorAlgorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidGeometry/Instrument.h"
 #include <boost/optional.hpp>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** CreateTransmissionWorkspaceAuto : Creates a transmission run workspace in
 Wavelength from input TOF workspaces.
 */
-class MANTID_ALGORITHMS_DLL CreateTransmissionWorkspaceAuto
+class MANTID_REFLECTOMETRY_DLL CreateTransmissionWorkspaceAuto
     : public API::DataProcessorAlgorithm {
 public:
   //----------------------------------------------------------------------------------------------
@@ -39,5 +39,5 @@ private:
   template <typename T> boost::optional<T> isSet(std::string propName) const;
 };
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

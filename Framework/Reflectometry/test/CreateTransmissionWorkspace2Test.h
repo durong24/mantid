@@ -10,7 +10,7 @@
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
-#include "MantidAlgorithms/CreateTransmissionWorkspace2.h"
+#include "MantidReflectometry/CreateTransmissionWorkspace2.h"
 #include "MantidKernel/Unit.h"
 #include "MantidTestHelpers/WorkspaceCreationHelper.h"
 #include <algorithm>
@@ -20,6 +20,7 @@ using namespace Mantid;
 using namespace Mantid::Kernel;
 using namespace Mantid::API;
 using namespace Mantid::Algorithms;
+using namespace Mantid::Reflectometry;
 using namespace WorkspaceCreationHelper;
 
 class CreateTransmissionWorkspace2Test : public CxxTest::TestSuite {

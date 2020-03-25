@@ -8,7 +8,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "MantidAlgorithms/FindReflectometryLines2.h"
+#include "MantidReflectometry/FindReflectometryLines2.h"
 
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
@@ -34,7 +34,7 @@ public:
   }
 
   void test_init() {
-    Algorithms::FindReflectometryLines2 alg;
+    Reflectometry::FindReflectometryLines2 alg;
     TS_ASSERT_THROWS_NOTHING(alg.initialize())
     TS_ASSERT(alg.isInitialized())
   }
@@ -49,7 +49,7 @@ public:
     double const horizontalWidth = ws->x(0).back() / 2.5;
     addReflectometryLine(*ws, horizontalCentre, horizontalWidth, verticalCentre,
                          verticalWidth);
-    Algorithms::FindReflectometryLines2 alg;
+    Reflectometry::FindReflectometryLines2 alg;
     alg.setChild(true);
     alg.setRethrows(true);
     TS_ASSERT_THROWS_NOTHING(alg.initialize())
@@ -81,7 +81,7 @@ public:
     addReflectometryLine(*ws, horizontalCentre, horizontalWidth,
                          verticalCentres.back(), verticalWidth);
     for (auto const centre : verticalCentres) {
-      Algorithms::FindReflectometryLines2 alg;
+      Reflectometry::FindReflectometryLines2 alg;
       alg.setChild(true);
       alg.setRethrows(true);
       TS_ASSERT_THROWS_NOTHING(alg.initialize())
@@ -123,7 +123,7 @@ public:
     std::array<double, 2> const lower{{0., 0.5 * ws->x(0).back()}};
     std::array<double, 2> const upper{{0.5 * ws->x(0).back(), ws->x(0).back()}};
     for (size_t i = 0; i < 2; ++i) {
-      Algorithms::FindReflectometryLines2 alg;
+      Reflectometry::FindReflectometryLines2 alg;
       alg.setChild(true);
       alg.setRethrows(true);
       TS_ASSERT_THROWS_NOTHING(alg.initialize())
@@ -147,7 +147,7 @@ public:
     constexpr size_t nBins{256};
     constexpr size_t nHisto{128};
     auto ws = emptyWorkspace(nHisto, nBins);
-    Algorithms::FindReflectometryLines2 alg;
+    Reflectometry::FindReflectometryLines2 alg;
     alg.setChild(true);
     alg.setRethrows(true);
     TS_ASSERT_THROWS_NOTHING(alg.initialize())
@@ -166,7 +166,7 @@ public:
     constexpr size_t nBins{256};
     constexpr size_t nHisto{128};
     auto ws = emptyWorkspace(nHisto, nBins);
-    Algorithms::FindReflectometryLines2 alg;
+    Reflectometry::FindReflectometryLines2 alg;
     alg.setChild(true);
     alg.setRethrows(true);
     TS_ASSERT_THROWS_NOTHING(alg.initialize())

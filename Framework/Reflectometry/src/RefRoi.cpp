@@ -4,7 +4,7 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidWorkflowAlgorithms/RefRoi.h"
+#include "MantidReflectometry/RefRoi.h"
 #include "MantidAPI/Axis.h"
 #include "MantidAPI/CommonBinsValidator.h"
 #include "MantidAPI/WorkspaceFactory.h"
@@ -14,7 +14,7 @@
 #include "Poco/String.h"
 
 namespace Mantid {
-namespace WorkflowAlgorithms {
+namespace Reflectometry {
 
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(RefRoi)
@@ -233,5 +233,5 @@ void RefRoi::extract2D() {
   setProperty("OutputWorkspace", outputWS);
 }
 
-} // namespace WorkflowAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

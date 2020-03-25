@@ -8,7 +8,7 @@
 
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/AnalysisDataService.h"
-#include "MantidDataHandling/SaveReflThreeColumnAscii.h"
+#include "MantidReflectometry/SaveReflThreeColumnAscii.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidDataObjects/WorkspaceCreation.h"
 #include <Poco/File.h>
@@ -18,9 +18,9 @@
 #include <fstream>
 
 using namespace Mantid::API;
-using namespace Mantid::DataHandling;
-using namespace Mantid::HistogramData;
 using namespace Mantid::DataObjects;
+using namespace Mantid::HistogramData;
+using namespace Mantid::Reflectometry;
 
 class SaveReflThreeColumnAsciiTest : public CxxTest::TestSuite {
 

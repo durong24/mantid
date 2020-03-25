@@ -11,14 +11,14 @@
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/WorkspaceHistory.h"
-#include "MantidAlgorithms/CreateTransmissionWorkspaceAuto.h"
+#include "MantidReflectometry/CreateTransmissionWorkspaceAuto.h"
 #include <cxxtest/TestSuite.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
-using Mantid::Algorithms::CreateTransmissionWorkspaceAuto;
+using Mantid::Reflectometry::CreateTransmissionWorkspaceAuto;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
 using Mantid::MantidVec;

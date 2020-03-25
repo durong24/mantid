@@ -7,18 +7,18 @@
 #pragma once
 
 #include "MantidAPI/DataProcessorAlgorithm.h"
-#include "MantidAlgorithms/DllConfig.h"
+#include "MantidReflectometry/DllConfig.h"
 #include "MantidGeometry/IComponent.h"
 #include "MantidGeometry/Instrument.h"
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 /** SpecularReflectionAlgorithm : Algorithm base class implementing generic
  methods required for specular reflection calculations.
  *
  */
-class MANTID_ALGORITHMS_DLL SpecularReflectionAlgorithm
+class MANTID_REFLECTOMETRY_DLL SpecularReflectionAlgorithm
     : public Mantid::API::DataProcessorAlgorithm {
 protected:
   /// Constructor
@@ -44,4 +44,4 @@ protected:
 };
 
 } // namespace Algorithms
-} // namespace Mantid
+} // namespace Reflectometry

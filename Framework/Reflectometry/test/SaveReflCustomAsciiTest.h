@@ -8,7 +8,7 @@
 
 #include "MantidAPI/AlgorithmManager.h"
 #include "MantidAPI/AnalysisDataService.h"
-#include "MantidDataHandling/SaveReflCustomAscii.h"
+#include "MantidReflectometry/SaveReflCustomAscii.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidDataObjects/WorkspaceCreation.h"
 #include "MantidHistogramData/Points.h"
@@ -19,9 +19,9 @@
 #include <fstream>
 
 using namespace Mantid::API;
-using namespace Mantid::DataHandling;
-using namespace Mantid::HistogramData;
 using namespace Mantid::DataObjects;
+using namespace Mantid::HistogramData;
+using namespace Mantid::Reflectometry;
 
 class SaveReflCustomAsciiTest : public CxxTest::TestSuite {
 

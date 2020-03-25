@@ -4,13 +4,13 @@
 //   NScD Oak Ridge National Laboratory, European Spallation Source,
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
-#include "MantidAlgorithms/CalculateSlits.h"
+#include "MantidReflectometry/CalculateSlits.h"
 
 #include <boost/shared_ptr.hpp>
 #include <cmath>
 
 namespace Mantid {
-namespace Algorithms {
+namespace Reflectometry {
 
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
@@ -131,5 +131,5 @@ void CalculateSlits::exec() {
   setProperty("Slit2", s2);
 }
 
-} // namespace Algorithms
+} // namespace Reflectometry
 } // namespace Mantid

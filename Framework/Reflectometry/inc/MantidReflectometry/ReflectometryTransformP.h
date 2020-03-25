@@ -8,16 +8,17 @@
 
 #include "MantidDataObjects/CalculateReflectometryP.h"
 #include "MantidDataObjects/ReflectometryTransform.h"
+#include "MantidReflectometry/DllConfig.h"
 
 namespace Mantid {
-namespace MDAlgorithms {
+namespace Reflectometry {
 
 /** ReflectometryTransformP : Calculates workspace(s) of Pi and Pf based on the
   input workspace and incident theta angle.
 
   @date 2012-06-06
 */
-class DLLExport ReflectometryTransformP
+class MANTID_REFLECTOMETRY_DLL ReflectometryTransformP
     : public DataObjects::ReflectometryTransform {
 public:
   ReflectometryTransformP(double pSumMin, double pSumMax, double pDiffMin,
@@ -25,5 +26,5 @@ public:
                           int numberOfBinsQx = 100, int numberOfBinsQz = 100);
 };
 
-} // namespace MDAlgorithms
+} // namespace Reflectometry
 } // namespace Mantid

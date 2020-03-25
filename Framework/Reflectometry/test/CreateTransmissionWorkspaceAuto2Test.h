@@ -11,13 +11,13 @@
 #include "MantidAPI/FrameworkManager.h"
 #include "MantidAPI/MatrixWorkspace.h"
 #include "MantidAPI/WorkspaceHistory.h"
-#include "MantidAlgorithms/CreateTransmissionWorkspaceAuto2.h"
+#include "MantidReflectometry/CreateTransmissionWorkspaceAuto2.h"
 #include "MantidGeometry/Instrument.h"
 #include "MantidKernel/PropertyHistory.h"
 #include <boost/lexical_cast.hpp>
 #include <cxxtest/TestSuite.h>
 
-using Mantid::Algorithms::CreateTransmissionWorkspaceAuto2;
+using Mantid::Reflectometry::CreateTransmissionWorkspaceAuto2;
 using namespace Mantid::API;
 using namespace Mantid::Kernel;
 
