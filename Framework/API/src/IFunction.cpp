@@ -1243,9 +1243,8 @@ void IFunction::setMatrixWorkspace(
  *  @param wsIndex :: workspace index
  *  @return converted value
  */
-double
+double IFunction::convertValue(double value, Kernel::Unit_sptr &outUnit,
                                const std::shared_ptr<const MatrixWorkspace> &ws,
-                        const boost::shared_ptr<const MatrixWorkspace> &ws,
                         size_t wsIndex) const {
   // only required if formula or look-up-table different from ws unit
   const auto &wsUnit = ws->getAxis(0)->unit();

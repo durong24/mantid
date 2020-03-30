@@ -27,7 +27,7 @@ using namespace Mantid::DataObjects;
 using namespace HistogramData;
 
 namespace {
-Workspace2D_sptr createInputWS(const std::string &name, size_t sizex,
+Workspace2D_sptr createInputWS(const std::string &name, size_t sizex, size_t sizey) {
   Workspace2D_sptr inputWS = std::dynamic_pointer_cast<Workspace2D>(
       WorkspaceFactory::Instance().create("Workspace2D", 1, sizex, sizey));
   AnalysisDataService::Instance().addOrReplace(name, inputWS);

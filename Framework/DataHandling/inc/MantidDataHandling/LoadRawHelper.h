@@ -159,7 +159,7 @@ protected:
   getmonitorSpectrumList(const API::SpectrumDetectorMapping &mapping);
 
   /// This method sets the raw file data to workspace vectors
-  void
+  void setWorkspaceData(
       const DataObjects::Workspace2D_sptr &newWorkspace,
                    const std::vector<std::shared_ptr<HistogramData::HistogramX>>
                        &timeChannelsVec,
@@ -192,10 +192,10 @@ protected:
                                specnum_t &normalwsSpecs,
                                specnum_t &monitorwsSpecs);
   /// load the spectra
-  void loadSpectra(
-      FILE *file, const int &period, const int &total_specs,
-                   const std::vector<std::shared_ptr<HistogramData::HistogramX>> &);
-      const std::vector<boost::shared_ptr<HistogramData::HistogramX>> &);
+  void
+  loadSpectra(FILE *file, const int &period, const int &total_specs,
+              const DataObjects::Workspace2D_sptr &ws_sptr,
+              const std::vector<std::shared_ptr<HistogramData::HistogramX>> &);
 
   /// Has the spectrum_list property been set?
   bool m_list;

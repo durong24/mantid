@@ -84,8 +84,7 @@ void ChangeTimeZero::exec() {
   // Set up remaining progress points
   const double progressStartShiftTimeLogs = progressStopCreateOutputWs;
 
-  if (std::dynamic_pointer_cast<Mantid::API::IEventWorkspace>(out_ws)) {
-      boost::dynamic_pointer_cast<Mantid::API::IEventWorkspace>(out_ws)
+  double progressStopShiftTimeLogs = std::dynamic_pointer_cast<Mantid::API::IEventWorkspace>(out_ws)
           ? progressStartShiftTimeLogs + 0.1
           : 1.0;
 

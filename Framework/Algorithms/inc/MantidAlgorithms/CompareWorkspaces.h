@@ -97,7 +97,6 @@ private:
   /// Process the two groups
   void processGroups(const std::shared_ptr<const API::WorkspaceGroup> &groupOne,
                      const std::shared_ptr<const API::WorkspaceGroup> &groupTwo);
-                const boost::shared_ptr<const API::WorkspaceGroup> &groupTwo);
 
   void doComparison();
 

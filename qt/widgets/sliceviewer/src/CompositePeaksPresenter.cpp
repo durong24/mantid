@@ -599,7 +599,6 @@ void CompositePeaksPresenter::zoomToPeak(PeaksPresenter *const presenter,
  */
 bool CompositePeaksPresenter::getIsHidden(
     const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS) const {
-    const {
   auto iterator = getPresenterIteratorFromWorkspace(std::move(peaksWS));
   auto subjectPresenter = *iterator;
   return subjectPresenter->isHidden();

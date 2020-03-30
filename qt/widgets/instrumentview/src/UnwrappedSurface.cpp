@@ -227,7 +227,6 @@ void UnwrappedSurface::setColor(size_t index, bool picking) const {
 }
 
 bool hasParent(const std::shared_ptr<const Mantid::Geometry::IComponent> &comp,
-    const boost::shared_ptr<const Mantid::Geometry::IComponent> &comp,
     Mantid::Geometry::ComponentID id) {
   std::shared_ptr<const Mantid::Geometry::IComponent> parent =
       comp->getParent();

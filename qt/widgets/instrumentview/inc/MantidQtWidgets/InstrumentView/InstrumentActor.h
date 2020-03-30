@@ -216,7 +216,6 @@ signals:
 private:
   void
   setUpWorkspace(const std::shared_ptr<const Mantid::API::MatrixWorkspace> &sharedWorkspace,
-                     &sharedWorkspace,
                  double scaleMin, double scaleMax);
   void setupPhysicalInstrumentIfExists();
   void resetColors();

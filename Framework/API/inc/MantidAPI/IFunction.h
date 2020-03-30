@@ -524,7 +524,6 @@ public:
   void calNumericalDeriv(const FunctionDomain &domain, Jacobian &jacobian);
   /// Set the covariance matrix
   void setCovarianceMatrix(const std::shared_ptr<Kernel::Matrix<double>> &covar);
-  setCovarianceMatrix(const std::shared_ptr<Kernel::Matrix<double>> &covar);
   /// Get the covariance matrix
   std::shared_ptr<const Kernel::Matrix<double>> getCovarianceMatrix() const {
     return m_covar;

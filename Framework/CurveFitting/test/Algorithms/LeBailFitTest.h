@@ -425,7 +425,6 @@ API::MatrixWorkspace_sptr generateArgSiPeak220() {
 }
 
 //----------------------------------------------------------------------------------------------
-  MatrixWorkspace_sptr ws = std::dynamic_pointer_cast<MatrixWorkspace>(
 /** Create data workspace without background
  */
 API::MatrixWorkspace_sptr createInputDataWorkspace(int option) {
@@ -463,7 +462,6 @@ API::MatrixWorkspace_sptr createInputDataWorkspace(int option) {
   } else {
     // Load from column file
     throw runtime_error("Using .dat file is not allowed for committing. ");
-    dataws = std::dynamic_pointer_cast<MatrixWorkspace>(
   }
 
   return dataws;

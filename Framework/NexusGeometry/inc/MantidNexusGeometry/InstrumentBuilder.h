@@ -73,7 +73,6 @@ private:
   void doAddTube(
       const std::string &compName, const detail::TubeBuilder &tube,
                  const std::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
-      const boost::shared_ptr<const Mantid::Geometry::IObject> &pixelShape);
   /// Sorts detectors
   void sortDetectors() const;
   /// product

@@ -69,15 +69,14 @@ private:
             const std::string &entry_class,
                  const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
   /// Load an IXseblock entry
-  void
+  void loadSELog(::NeXus::File &file, const std::string &entry_name,
                  const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
-            const boost::shared_ptr<API::MatrixWorkspace> &workspace) const;
-                      const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
-      ::NeXus::File &file,
-                    const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
+  void
+  loadVetoPulses(::NeXus::File &file,
+                 const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
   void
   loadNPeriods(::NeXus::File &file,
-               const boost::shared_ptr<API::MatrixWorkspace> &workspace) const;
+               const std::shared_ptr<API::MatrixWorkspace> &workspace) const;
 
   /// Progress reporting object
   std::shared_ptr<API::Progress> m_progress;

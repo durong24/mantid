@@ -26,7 +26,7 @@ namespace QwtHelper {
  * @param wsIndex :: Workspace index to use
  * @return Pointer to created QwtData
  */
-std::shared_ptr<QwtData> curveDataFromWs(const MatrixWorkspace_const_sptr ws,
+std::shared_ptr<QwtData> curveDataFromWs(const MatrixWorkspace_const_sptr &ws,
                                          size_t wsIndex) {
   const double *x = &ws->x(wsIndex)[0];
   const double *y = &ws->y(wsIndex)[0];

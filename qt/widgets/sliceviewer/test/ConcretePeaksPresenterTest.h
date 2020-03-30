@@ -106,10 +106,9 @@ class ConcretePeaksPresenterTest : public CxxTest::TestSuite {
     void withPeaksWorkspace(IPeaksWorkspace_sptr val) {
       m_peaksWS = std::move(val);
     }
-    void withMDWorkspace(boost::shared_ptr<MDGeometry> val) {
+    void withMDWorkspace(std::shared_ptr<MDGeometry> val) {
       m_mdWS = std::move(val);
     }
-    void withMDWorkspace(std::shared_ptr<MDGeometry> val) { m_mdWS = val; }
     void withTransformFactory(PeakTransformFactory_sptr val) {
       m_transformFactory = std::move(val);
     }

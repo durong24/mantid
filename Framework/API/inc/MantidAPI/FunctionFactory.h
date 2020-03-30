@@ -100,10 +100,8 @@ private:
                      const Expression &penalty_expr) const;
   /// Add ties to the created function
   void addTies(const std::shared_ptr<IFunction> &fun, const Expression &expr) const;
-               const Expression &expr) const;
   /// Add a tie to the created function
-  void addTie(connst std::shared_ptr<IFunction> &fun, const Expression &expr) const;
-              const Expression &expr) const;
+  void addTie(const std::shared_ptr<IFunction> &fun, const Expression &expr) const;
 
   mutable std::map<std::string, std::vector<std::string>> m_cachedFunctionNames;
   mutable std::mutex m_mutex;

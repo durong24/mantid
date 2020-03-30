@@ -39,10 +39,10 @@ private:
   void init() override;
   /// Execution code
   void exec() override;
+  void setupTransmission(
+      const std::shared_ptr<Kernel::PropertyManager> &reductionManager);
   void setupBackground(
-  setupTransmission(const std::shared_ptr<Kernel::PropertyManager> &reductionManager);
-  void setupSensitivity(
-  setupBackground(const std::shared_ptr<Kernel::PropertyManager> &reductionManager);
+      const std::shared_ptr<Kernel::PropertyManager> &reductionManager);
   void
   setupSensitivity(const std::shared_ptr<Kernel::PropertyManager> &reductionManager);
 };

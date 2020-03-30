@@ -454,7 +454,6 @@ bool MeshObject::searchForObject(Kernel::V3D &point) const {
  * the calling function.
  */
 void MeshObject::setGeometryHandler(const std::shared_ptr<GeometryHandler> &h) {
-    const boost::shared_ptr<GeometryHandler> &h) {
   if (h == nullptr)
     return;
   m_handler = h;

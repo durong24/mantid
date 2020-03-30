@@ -229,7 +229,6 @@ private:
   MatrixWorkspace_sptr
   create_workspace_with_incomplete_detector_level_only_fit_functions(
       MatrixWorkspace_sptr original = std::shared_ptr<MatrixWorkspace>()) {
-          boost::shared_ptr<MatrixWorkspace>()) {
     MatrixWorkspace_sptr ws = original;
     if (original == nullptr) {
       // Create a default workspace with no-fitting functions.

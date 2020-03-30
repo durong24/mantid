@@ -366,7 +366,6 @@ public:
   IAlgorithm_sptr
   setUpAlg(Mantid::API::MatrixWorkspace_sptr const &inputWS,
       const std::shared_ptr<Mantid::DataObjects::TableWorkspace> &twoThetaRanges) {
-               &twoThetaRanges) {
     const std::vector<double> qBinParams{0.023};
     IAlgorithm_sptr alg =
         AlgorithmManager::Instance().create("SofQWNormalisedPolygon");

@@ -10,6 +10,7 @@
 // Includes
 //----------------------------------------------------------------------
 #include "MantidAPI/IBackgroundFunction.h"
+#include "MantidCurveFitting/DllConfig.h"
 #include <memory>
 
 namespace mu {

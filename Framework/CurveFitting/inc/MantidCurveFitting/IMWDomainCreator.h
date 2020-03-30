@@ -14,6 +14,7 @@
 #include "MantidKernel/cow_ptr.h"
 
 #include <list>
+#include <utility>
 #include <memory>
 
 namespace Mantid {

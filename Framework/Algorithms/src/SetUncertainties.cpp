@@ -113,7 +113,7 @@ void SetUncertainties::init() {
 void SetUncertainties::exec() {
   MatrixWorkspace_const_sptr inputWorkspace = getProperty("InputWorkspace");
   auto inputEventWorkspace =
-      boost::dynamic_pointer_cast<const DataObjects::EventWorkspace>(
+      std::dynamic_pointer_cast<const DataObjects::EventWorkspace>(
           inputWorkspace);
   MatrixWorkspace_sptr outputWorkspace = getProperty("OutputWorkspace");
   std::string errorType = getProperty("SetError");

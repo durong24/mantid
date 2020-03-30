@@ -1104,7 +1104,6 @@ void LoadRawHelper::loadSpectra(
     FILE *file, const int &period, const int &total_specs,
     const DataObjects::Workspace2D_sptr &ws_sptr,
     const std::vector<std::shared_ptr<HistogramData::HistogramX>> &timeChannelsVec) {
-        &timeChannelsVec) {
   double progStart = m_prog;
   double progEnd = 1.0; // Assume this function is called last
 

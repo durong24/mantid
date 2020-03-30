@@ -107,11 +107,10 @@ public:
   /// Enter peak edit mode.
   void peakEditMode(EditMode mode) override;
   void setForegroundColor(
-  setForegroundColor(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
+      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
       const PeakViewColor & /*color*/);
   /// Change the background representation for the peaks of this workspace
-  void setBackgroundColor(
-  setBackgroundColor(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
+  void setBackgroundColor(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws,
       const PeakViewColor & /*color*/);
   /// Get the foreground colour corresponding to the workspace
   PeakViewColor getForegroundPeakViewColor(
@@ -129,22 +128,18 @@ public:
       const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &ws, const bool shown);
   /// Remove the workspace and corresponding presenter.
   void remove(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS);
-  remove(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS);
   /// Hide these peaks in the plot.
   void setShown(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
-  setShown(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
            const bool shown);
   /// zoom in on a peak.
   void zoomToPeak(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
-      const boost::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS,
       const int peakIndex);
   /// Get the named peaks presenter.
   PeaksPresenter *getPeaksPresenter(const QString &name);
   /// Register any owning presenter
   void registerOwningPresenter(UpdateableOnDemand *owner) override;
   /// Is the presenter hidden.
-  bool getIsHidden(const boost::shared_ptr<const Mantid::API::IPeaksWorkspace>
-      const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS) const;
+  bool getIsHidden(const std::shared_ptr<const Mantid::API::IPeaksWorkspace> &peaksWS) const;
   /// Perform update on demand
   void performUpdate() override;
   /// Zoom to the rectangle
@@ -165,7 +160,7 @@ public:
   /// Enter the requested edit mode for the peaks workspace.
   void editCommand(
       EditMode editMode,
-                   const std::weak_ptr<const Mantid::API::IPeaksWorkspace> target);
+                   const std::weak_ptr<const Mantid::API::IPeaksWorkspace> &target);
 
 private:
   /// Updateable on demand method.

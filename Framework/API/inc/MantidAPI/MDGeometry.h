@@ -65,7 +65,6 @@ public:
   std::string getGeometryXML() const;
 
   void addDimension(const std::shared_ptr<Mantid::Geometry::IMDDimension> &dim);
-  addDimension(const boost::shared_ptr<Mantid::Geometry::IMDDimension> &dim);
   void addDimension(Mantid::Geometry::IMDDimension *dim);
 
   // --------------------------------------------------------------------------------------------

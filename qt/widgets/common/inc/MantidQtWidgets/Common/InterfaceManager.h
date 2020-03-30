@@ -58,7 +58,7 @@ class EXPORT_OPT_MANTIDQT_COMMON InterfaceManager {
 public:
   /// Create a new instance of the correct type of AlgorithmDialog
   AlgorithmDialog *createDialog(
-      const std::shared_ptr<Mantid::API::IAlgorithm> &alg, QWidget *parent = nullptr,
+      const std::shared_ptr<Mantid::API::IAlgorithm> &alg,
       QWidget *parent = nullptr, bool forScript = false,
       const QHash<QString, QString> &presetValues = (QHash<QString, QString>()),
       const QString &optional_msg = QString(),

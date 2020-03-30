@@ -246,7 +246,6 @@ public:
   std::shared_ptr<Mantid::API::IPeaksWorkspace> getEditPeaksWorkspace() const;
   QStringList getPeaksWorkspaceNames() const;
   void deletePeaksWorkspace(const std::shared_ptr<Mantid::API::IPeaksWorkspace> &ws);
-      const boost::shared_ptr<Mantid::API::IPeaksWorkspace> &ws);
   void clearPeakOverlays();
   void clearAlignmentPlane();
   void clearComparisonPeaks();

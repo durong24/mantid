@@ -11,6 +11,7 @@
 //----------------------------------------------------------------------
 #include "MantidAPI/IFunction1D.h"
 #include "MantidAPI/ParamFunction.h"
+#include "MantidCurveFitting/DllConfig.h"
 #include <memory>
 
 namespace mu {

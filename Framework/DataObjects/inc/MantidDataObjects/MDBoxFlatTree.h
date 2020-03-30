@@ -123,7 +123,7 @@ public:
   // function
   static void loadExperimentInfos(
       ::NeXus::File *const file, const std::string &filename,
-                      const std::shared_ptr<API::MultipleExperimentInfos> &mei,
+                      std::shared_ptr<API::MultipleExperimentInfos> mei,
       bool lazy = false);
 
   static void

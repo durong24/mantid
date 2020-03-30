@@ -255,8 +255,7 @@ void LoadInstrument::exec() {
 //-----------------------------------------------------------------------------------------------------------------------
 /// Run the Child Algorithm LoadInstrument (or LoadInstrumentFromRaw)
 void LoadInstrument::runLoadParameterFile(
-    const std::shared_ptr<API::MatrixWorkspace> &ws, std::string filename) {
-    const std::string &filename) {
+    const std::shared_ptr<API::MatrixWorkspace> &ws, const std::string &filename) {
   g_log.debug("Loading the parameter definition...");
 
   // First search for XML parameter file in same folder as IDF file

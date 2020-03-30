@@ -297,7 +297,6 @@ void BoxController::clearFileBacked() {
  *name to open for the file based IO operations
  */
 void BoxController::setFileBacked(const std::shared_ptr<IBoxControllerIO> &newFileIO,
-    const std::shared_ptr<IBoxControllerIO> &newFileIO,
     const std::string &fileName) {
   if (!newFileIO->isOpened())
     newFileIO->openFile(fileName, "w");

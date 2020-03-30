@@ -68,7 +68,6 @@ public:
   void getSelectedDetectors(std::vector<size_t> &detIndices) override;
   void getMaskedDetectors(std::vector<size_t> &detIndices) const override;
   void setPeaksWorkspace(const std::shared_ptr<Mantid::API::IPeaksWorkspace> &pws);
-  setPeaksWorkspace(const boost::shared_ptr<Mantid::API::IPeaksWorkspace> &pws);
   QString getInfoText() const override;
   RectF getSurfaceBounds() const override;
   //@}

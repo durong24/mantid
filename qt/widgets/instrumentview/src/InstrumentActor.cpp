@@ -142,7 +142,6 @@ InstrumentActor::~InstrumentActor() { saveSettings(); }
  */
 void InstrumentActor::setUpWorkspace(
     const std::shared_ptr<const Mantid::API::MatrixWorkspace> &sharedWorkspace,
-        &sharedWorkspace,
     double scaleMin, double scaleMax) {
   m_WkspBinMinValue = DBL_MAX;
   m_WkspBinMaxValue = -DBL_MAX;

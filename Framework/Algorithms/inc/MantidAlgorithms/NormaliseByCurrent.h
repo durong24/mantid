@@ -56,7 +56,6 @@ private:
   void exec() override;
   // Extract the charge value from the logs.
   double extractCharge(const std::shared_ptr<Mantid::API::MatrixWorkspace> &inputWS,
-  extractCharge(const boost::shared_ptr<Mantid::API::MatrixWorkspace> &inputWS,
                 const bool integratePCharge) const;
 };
 

@@ -119,7 +119,6 @@ public:
 
 private:
   std::string isValidGroup(const std::shared_ptr<WorkspaceGroup> &wsGroup) const;
-  isValidGroup(const boost::shared_ptr<WorkspaceGroup> &wsGroup) const;
 
   std::string isValidOutputWs() const;
 

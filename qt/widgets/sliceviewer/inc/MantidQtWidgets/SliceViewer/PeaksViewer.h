@@ -32,7 +32,6 @@ public:
   PeaksViewer(QWidget *parent = nullptr);
   void setPeaksWorkspaces(const SetPeaksWorkspaces &workspaces);
   void setPresenter(const std::shared_ptr<ProxyCompositePeaksPresenter> &presenter);
-      const boost::shared_ptr<ProxyCompositePeaksPresenter> &presenter);
   void performUpdate() override;
   void updatePeaksWorkspace(
       const std::string &toName,

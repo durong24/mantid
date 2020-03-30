@@ -88,7 +88,7 @@ public:
   /// Find the net integrated intensity of a modulated peak, using ellipsoidal
   /// volumes
   std::shared_ptr<const Mantid::Geometry::PeakShape> ellipseIntegrateModEvents(
-      std::vector<Kernel::V3D> E1Vec, Mantid::Kernel::V3D const &peak_q,
+      const std::vector<Kernel::V3D> &E1Vec, Mantid::Kernel::V3D const &peak_q,
       Mantid::Kernel::V3D const &hkl, Mantid::Kernel::V3D const &mnp,
       bool specify_size, double peak_radius, double back_inner_radius,
       double back_outer_radius, std::vector<double> &axes_radii, double &inti,

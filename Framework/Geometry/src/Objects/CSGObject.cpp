@@ -2116,7 +2116,6 @@ int CSGObject::searchForObject(Kernel::V3D &point) const {
  * @param[in] h is pointer to the geometry handler.
  */
 void CSGObject::setGeometryHandler(const std::shared_ptr<GeometryHandler> &h) {
-    const boost::shared_ptr<GeometryHandler> &h) {
   if (h)
     m_handler = h;
 }

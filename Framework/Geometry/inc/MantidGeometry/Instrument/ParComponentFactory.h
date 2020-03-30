@@ -45,7 +45,6 @@ public:
   /// ParameterMap
   static std::shared_ptr<IComponent>
   create(const std::shared_ptr<const IComponent> &base, const ParameterMap *map);
-         const ParameterMap *map);
 };
 
 } // Namespace Geometry

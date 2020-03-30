@@ -115,8 +115,8 @@ MANTIDQT_MUONINTERFACE_DLL std::pair<std::string, std::string> findLogRange(
 
 /// Concatenates time-series log of one workspace with the second
 MANTIDQT_MUONINTERFACE_DLL void
-appendTimeSeriesLogs(std::shared_ptr<Mantid::API::Workspace> &toAppend,
-                     std::shared_ptr<Mantid::API::Workspace> &resultant,
+appendTimeSeriesLogs(const std::shared_ptr<Mantid::API::Workspace> &toAppend,
+                     const std::shared_ptr<Mantid::API::Workspace> &resultant,
                      const std::string &logName);
 
 /// Parse analysis workspace name

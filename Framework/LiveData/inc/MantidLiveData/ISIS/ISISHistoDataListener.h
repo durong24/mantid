@@ -68,7 +68,6 @@ private:
                                   std::vector<int> &count);
   void loadSpectraMap();
   void runLoadInstrument(const std::shared_ptr<API::MatrixWorkspace> &localWorkspace,
-      const boost::shared_ptr<API::MatrixWorkspace> &localWorkspace,
       const std::string &iName);
   void loadTimeRegimes();
   int getTimeRegimeToLoad() const;

@@ -26,6 +26,7 @@
 #include <boost/regex.hpp>
 #include <limits>
 #include <memory>
+#include <utility>
 
 namespace Mantid {
 namespace CurveFitting {
