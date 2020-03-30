@@ -6,11 +6,12 @@
 # SPDX - License - Identifier: GPL - 3.0 +
 #  This file is part of the mantidqt package
 import unittest
+from unittest import mock
+
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QDialogButtonBox, QVBoxLayout
 
 from mantid.api import WorkspaceFactory
-from mantid.py3compat import mock
 from mantid.simpleapi import AddSampleLog, CreateSampleWorkspace, ExtractSpectra
 from mantidqt.dialogs import spectraselectordialog
 from mantidqt.dialogs.spectraselectordialog import parse_selection_str, SpectraSelectionDialog
