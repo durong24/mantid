@@ -658,12 +658,10 @@ private:
 };
 } // namespace
 
+/// Copy assignment. Do not copy m_quoteValue flag.
 /// @param attr :: The attribute to copy from.
-IFunction::Attribute &IFunction::Attribute::operator=(const Attribute attr) {
-  // This uses copy and swap as the copy constructor does the right
-  // thing of not copying m_quoteValue
-  std::swap(m_data, attr.m_data);
-  m_quoteValue = attr.m_quoteValue;
+IFunction::Attribute &IFunction::Attribute::operator=(const Attribute &attr) {
+  m_data = attr.m_data;
   return *this;
 }
 
