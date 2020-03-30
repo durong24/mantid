@@ -45,6 +45,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
             property_browser.normaliseData.assert_called_once_with(normalised)
             normaliseData_mock.reset_mock()
 
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
+
     @patch('mantidqt.widgets.fitpropertybrowser.fitpropertybrowser.FitPropertyBrowser.normaliseData')
     def test_normalise_data_set_to_false_for_distribution_workspace(self, normaliseData_mock):
         fig, canvas = self._create_and_plot_matrix_workspace('ws_name', distribution=True)
@@ -52,6 +56,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         with patch.object(property_browser, 'workspaceName', lambda: 'ws_name'):
             property_browser.getFitMenu().aboutToShow.emit()
         property_browser.normaliseData.assert_called_once_with(False)
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
 
     def test_plot_guess_plots_for_table_workspaces(self):
         table = WorkspaceFactory.createTable()
@@ -70,6 +78,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         property_browser.plot_guess()
 
         self.assertEqual(1, property_browser.get_axes().plot.call_count)
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
 
     def test_fit_curves_removed_when_workspaces_deleted(self):
         fig, canvas = self._create_and_plot_matrix_workspace(name="ws")
@@ -105,6 +117,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
 
             self.assertEqual(1, len(fig.get_axes()[0].lines))
 
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
+
     def test_fit_result_workspaces_are_added_to_browser_when_fitting_done(self):
         name = "ws"
         fig, canvas = self._create_and_plot_matrix_workspace(name)
@@ -125,6 +141,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         self.assertEqual(name + "_NormalisedCovarianceMatrix", workspaceList.item(0).text())
         self.assertEqual(name + "_Parameters", workspaceList.item(1).text())
         self.assertEqual(name + "_Workspace", workspaceList.item(2).text())
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
 
     def test_fit_result_matrix_workspace_in_browser_is_viewed_when_clicked(self):
         if not PYQT5:
@@ -149,6 +169,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         item = wsList.item(0).text()
         property_browser.workspaceClicked.emit(item)
         self.assertEqual(1, MatrixWorkspaceDisplay.show_view.call_count)
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
 
     def test_fit_parameter_table_workspaces_in_browser_is_viewed_when_clicked(self):
         if not PYQT5:
@@ -176,6 +200,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         property_browser.workspaceClicked.emit(item)
         self.assertEqual(1, TableWorkspaceDisplay.show_view.call_count)
 
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
+
     def test_workspaces_removed_from_workspace_list_widget_if_deleted_from_ADS(self):
         name = "ws"
         fig, canvas_mock = self._create_and_plot_matrix_workspace(name)
@@ -195,6 +223,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
         wsList = property_browser.getWorkspaceList()
         self.assertEqual(1, len(wsList))
 
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        property_browser.clearEditorManagersAndFactories()
+
     def test_plot_limits_are_not_changed_when_plotting_fit_lines(self):
         fig, canvas = self._create_and_plot_matrix_workspace()
         ax_limits = fig.get_axes()[0].axis()
@@ -204,12 +236,20 @@ class FitPropertyBrowserTest(unittest.TestCase):
         widget.fitting_done_slot(fit_ws_name)
         self.assertEqual(ax_limits, fig.get_axes()[0].axis())
 
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        widget.clearEditorManagersAndFactories()
+
     def test_plot_limits_are_not_changed_when_plotting_guess(self):
         fig, canvas = self._create_and_plot_matrix_workspace()
         ax_limits = fig.get_axes()[0].axis()
         widget = self._create_widget(canvas=canvas)
         widget.plot_guess()
         self.assertEqual(ax_limits, fig.get_axes()[0].axis())
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        widget.clearEditorManagersAndFactories()
 
     @patch('matplotlib.pyplot.get_figlabels')
     def test_output_workspace_name_changes_if_more_than_one_plot_of_same_workspace(self, figure_labels_mock):
@@ -229,6 +269,10 @@ class FitPropertyBrowserTest(unittest.TestCase):
             browser.show()
             output_name.append(browser.outputName())
         self.assertNotEqual(output_name[0], output_name[1])
+
+        # clears the editor factories and managers created in fitpropertybrowser.cpp init
+        # these are not cleared by default in the destructor as the properties may be used elsewhere
+        browser.clearEditorManagersAndFactories()
 
     # Private helper functions
     def _create_widget(self, canvas=MagicMock(), toolbar_manager=Mock()):

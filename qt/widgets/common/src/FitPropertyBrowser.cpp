@@ -3526,5 +3526,14 @@ QStringList FitPropertyBrowser::getPeakPrefixes() const {
   return peaks;
 }
 
+/*
+ Clears the editors managers and factories.
+ This is not done in the destructor as properties can still be used elsewhere.
+ This is only for use in testing.
+ */
+void FitPropertyBrowser::clearEditorManagersAndFactories() {
+  m_browser->clearPropertyManagersAndFactories();
+}
+
 } // namespace MantidWidgets
 } // namespace MantidQt

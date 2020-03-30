@@ -505,6 +505,7 @@ SIP_PYOBJECT defaultBackgroundType();
     void normaliseData(bool on);
     QMenu *getFitMenu() const;
     QListWidget* getWorkspaceList() const;
+    void clearEditorManagersAndFactories();
 
     SIP_PYOBJECT workspaceName() const;
 %MethodCode

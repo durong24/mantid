@@ -1740,6 +1740,20 @@ void QtAbstractPropertyBrowser::clear() {
 }
 
 /**
+    Clears the property managers and editor factories used by this property
+    browser widget.
+
+    These are not deleted by the destructor as the properties may still by used
+    by other editors.
+
+    This is for use in testing only.
+*/
+void QtAbstractPropertyBrowser::clearPropertyManagersAndFactories() {
+  m_viewToManagerToFactory()->clear();
+  m_managerToFactoryToViews()->clear();
+}
+
+/**
     Appends the given \a property (and its subproperties) to the
     property browser's list of top level properties. Returns the item
     created by property browser which is associated with the \a property.

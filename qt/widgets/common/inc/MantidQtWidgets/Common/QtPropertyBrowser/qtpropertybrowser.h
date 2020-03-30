@@ -318,6 +318,10 @@ public:
   QList<QtBrowserItem *> topLevelItems() const;
   void clear();
 
+  // clears the property managers and editor factories used by this property
+  // browser widget. This is for use in testing only.
+  void clearPropertyManagersAndFactories();
+
   template <class PropertyManager>
   void setFactoryForManager(PropertyManager *manager,
                             QtAbstractEditorFactory<PropertyManager> *factory) {

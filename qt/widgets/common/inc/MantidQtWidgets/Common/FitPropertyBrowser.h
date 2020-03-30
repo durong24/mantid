@@ -317,6 +317,11 @@ public:
 
   void sequentialFitFinished() { emit sequentialFitDone(); }
 
+  /// clears the editors managers and factories. This is not done in the
+  /// destructor as properties can still be used elsewhere.
+  /// This should only be used in testing!!
+  void clearEditorManagersAndFactories();
+
 public slots:
   virtual void fit();
   virtual void sequentialFit();
