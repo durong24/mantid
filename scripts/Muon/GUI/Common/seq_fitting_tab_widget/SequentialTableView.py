@@ -7,6 +7,8 @@
 from __future__ import (absolute_import, division, print_function)
 from qtpy import QtWidgets
 from qtpy.QtCore import Qt, Signal
+from Muon.GUI.Common.seq_fitting_tab_widget.SequentialTableModel import FIT_STATUS_COLUMN
+from Muon.GUI.Common.seq_fitting_tab_widget.SequentialTableDelegates import FitQualityDelegate
 
 
 class SequentialTableView(QtWidgets.QTableView):
@@ -17,6 +19,8 @@ class SequentialTableView(QtWidgets.QTableView):
         self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setItemDelegateForColumn(FIT_STATUS_COLUMN, FitQualityDelegate(self))
         self.setAlternatingRowColors(True)
 
     def resizeColumnsToContents(self):
