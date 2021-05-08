@@ -7,7 +7,6 @@
 #    This file is part of the mantid workbench.
 #
 #
-
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT
 from matplotlib.collections import LineCollection
 from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
@@ -27,6 +26,7 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
     sig_toggle_fit_triggered = QtCore.Signal()
     sig_copy_to_clipboard_triggered = QtCore.Signal()
     sig_plot_options_triggered = QtCore.Signal()
+    sig_plot_help_triggered = QtCore.Signal()
     sig_generate_plot_script_file_triggered = QtCore.Signal()
     sig_generate_plot_script_clipboard_triggered = QtCore.Signal()
     sig_waterfall_reverse_order_triggered = QtCore.Signal()
@@ -58,7 +58,9 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
         ('Offset', 'Adjust curve offset %', 'mdi.arrow-expand-horizontal',
          'waterfall_offset_amount', None),
         ('Reverse Order', 'Reverse curve order', 'mdi.swap-horizontal', 'waterfall_reverse_order', None),
-        ('Fill Area', 'Fill area under curves', 'mdi.format-color-fill', 'waterfall_fill_area', None)
+        ('Fill Area', 'Fill area under curves', 'mdi.format-color-fill', 'waterfall_fill_area', None),
+        (None, None, None, None, None),
+        ('Help', 'Open plotting help documentation', 'mdi.help', 'launch_plot_help', None)
     )
 
     def _init_toolbar(self):
@@ -103,7 +105,7 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
 
         # Adjust icon size or they are too small in PyQt5 by default
         dpi_ratio = QtWidgets.QApplication.instance().desktop().physicalDpiX() / 100
-        self.setIconSize(QtCore.QSize(24 * dpi_ratio, 24 * dpi_ratio))
+        self.setIconSize(QtCore.QSize(int(24 * dpi_ratio), int(24 * dpi_ratio)))
 
     def copy_to_clipboard(self):
         self.sig_copy_to_clipboard_triggered.emit()
@@ -111,8 +113,13 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
     def launch_plot_options(self):
         self.sig_plot_options_triggered.emit()
 
-    def toggle_grid(self):
-        enable = self._actions['toggle_grid'].isChecked()
+    def toggle_grid(self, enable=None):
+        if enable is None:
+            # Toggle grid to whatever state the toolbar button is in
+            enable = self._actions['toggle_grid'].isChecked()
+        else:
+            # Otherwise toggle grid to whatever state we were given
+            self._actions['toggle_grid'].setChecked(enable)
         self.sig_grid_toggle_triggered.emit(enable)
 
     def toggle_fit(self):
@@ -126,6 +133,9 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
 
     def trigger_fit_toggle_action(self):
         self._actions['toggle_fit'].trigger()
+
+    def launch_plot_help(self):
+        self.sig_plot_help_triggered.emit()
 
     def print_figure(self):
         printer = QtPrintSupport.QPrinter(QtPrintSupport.QPrinter.HighResolution)
@@ -155,9 +165,9 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
             toolbar_action.setEnabled(on)
             toolbar_action.setVisible(on)
 
-        # show/hide separator
-        fit_action = self._actions['toggle_fit']
-        self.toggle_separator_visibility(fit_action, on)
+        # Show/hide the separator between this button and help button
+        action = self._actions['waterfall_fill_area']
+        self.toggle_separator_visibility(action, on)
 
     def set_generate_plot_script_enabled(self, enabled):
         action = self._actions['generate_plot_script']
@@ -166,10 +176,12 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
         # Show/hide the separator between this button and the "Fit" button
         self.toggle_separator_visibility(action, enabled)
 
-    def _set_fit_enabled(self, on):
+    def set_fit_enabled(self, on):
         action = self._actions['toggle_fit']
         action.setEnabled(on)
         action.setVisible(on)
+        # Show/hide the separator between this button and help button / waterfall options
+        self.toggle_separator_visibility(action, on)
 
     def waterfall_offset_amount(self):
         self.sig_waterfall_offset_amount_triggered.emit()
@@ -199,18 +211,18 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
                 break
 
     def set_buttons_visiblity(self, fig):
-        if figure_type(fig) not in [FigureType.Line, FigureType.Errorbar] and len(fig.get_axes()) > 1:
-            self._set_fit_enabled(False)
+        if figure_type(fig) not in [FigureType.Line, FigureType.Errorbar] or len(fig.get_axes()) > 1:
+            self.set_fit_enabled(False)
 
         # if any of the lines are a sample log plot disable fitting
         for ax in fig.get_axes():
             for artist in ax.get_lines():
                 try:
                     if ax.get_artists_sample_log_plot_details(artist) is not None:
-                        self._set_fit_enabled(False)
+                        self.set_fit_enabled(False)
                         break
-                except ValueError:
-                    #The artist is not tracked - ignore this one and check the rest
+                except Exception:
+                    # The artist is not tracked - ignore this one and check the rest
                     continue
 
         # For plot-to-script button to show, every axis must be a MantidAxes with lines in it
@@ -218,6 +230,10 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
         if not all((isinstance(ax, MantidAxes) and curve_in_ax(ax)) for ax in fig.get_axes()) or \
                 fig.get_axes()[0].is_waterfall():
             self.set_generate_plot_script_enabled(False)
+
+        # reenable script generation for colormaps
+        if self.is_colormap(fig):
+            self.set_generate_plot_script_enabled(True)
 
         # Only show options specific to waterfall plots if the axes is a MantidAxes and is a waterfall plot.
         if not isinstance(fig.get_axes()[0], MantidAxes) or not fig.get_axes()[0].is_waterfall():
@@ -227,8 +243,17 @@ class WorkbenchNavigationToolbar(NavigationToolbar2QT):
         if figure_type(fig) in [FigureType.Wireframe, FigureType.Contour]:
             self.set_up_color_selector_toolbar_button(fig)
 
-        if figure_type(fig) in [FigureType.Surface, FigureType.Wireframe]:
+        if figure_type(fig) in [FigureType.Surface, FigureType.Wireframe, FigureType.Mesh]:
             self.adjust_for_3d_plots()
+
+    def is_colormap(self, fig):
+        """Identify as a single colopur map if it has a axes, one with the plot and the other the colorbar"""
+        if figure_type(fig) in [FigureType.Image] and len(fig.get_axes()) == 2:
+            if len(fig.get_axes()[0].get_images()) == 1 and len(fig.get_axes()[1].get_images()) == 0 \
+                    and not hasattr(fig.get_axes()[1], 'get_subplotspec'):
+                return True
+        else:
+            return False
 
     def set_up_color_selector_toolbar_button(self, fig):
         # check if the action is already in the toolbar
@@ -291,6 +316,12 @@ class ToolbarStateManager(object):
         Check if any of the zoom buttons are checked
         """
         return self.is_pan_active() or self.is_zoom_active()
+
+    def is_fit_active(self):
+        """
+        Check if the fit button is checked
+        """
+        return self._toolbar._actions['toggle_fit'].isChecked()
 
     def toggle_fit_button_checked(self):
         fit_action = self._toolbar._actions['toggle_fit']

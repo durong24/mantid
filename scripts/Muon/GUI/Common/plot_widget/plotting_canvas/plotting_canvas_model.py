@@ -7,8 +7,7 @@
 from typing import NamedTuple, List
 from Muon.GUI.Common.ADSHandler.workspace_naming import *
 from Muon.GUI.Common.contexts.muon_context import MuonContext
-from Muon.GUI.Common.fitting_tab_widget.fitting_tab_model import MUON_ANALYSIS_GUESS_WS, \
-    FREQUENCY_DOMAIN_ANALYSIS_GUESS_WS
+from Muon.GUI.Common.fitting_widgets.basic_fitting.basic_fitting_model import MA_GUESS_WORKSPACE, FDA_GUESS_WORKSPACE
 
 FIT_FUNCTION_GUESS_LABEL = "Fit function guess"
 
@@ -119,7 +118,7 @@ class PlottingCanvasModel(object):
 
     def _create_workspace_label(self, workspace_name, index):
         group = str(get_group_or_pair_from_name(workspace_name))
-        run = str(get_run_number_from_workspace_name(workspace_name, self._context.data_context.instrument))
+        run = str(get_run_numbers_as_string_from_workspace_name(workspace_name, self._context.data_context.instrument))
         instrument = self._context.data_context.instrument
         fit_label = self._get_fit_label(workspace_name, index)
         rebin_label = self._get_rebin_label(workspace_name)
@@ -134,11 +133,16 @@ class PlottingCanvasModel(object):
     def _get_workspace_plot_axis(self, workspace_name: str):
         if not self._is_tiled:
             return 0
-        for key, axis in self._axes_workspace_map.items():
-            if key in workspace_name:
-                return axis
-        else:
-            return 0
+
+        group_pair_name, run_as_string = self._context.group_pair_context.get_group_pair_name_and_run_from_workspace_name(workspace_name)
+
+        if group_pair_name in self._axes_workspace_map:
+            return self._axes_workspace_map[group_pair_name]
+
+        if run_as_string in self._axes_workspace_map:
+            return self._axes_workspace_map[run_as_string]
+
+        return 0
 
     @staticmethod
     def _get_rebin_label(workspace_name):
@@ -169,7 +173,7 @@ class PlottingCanvasModel(object):
         return label
 
     def _is_guess_workspace(self, workspace_name):
-        if MUON_ANALYSIS_GUESS_WS in workspace_name or FREQUENCY_DOMAIN_ANALYSIS_GUESS_WS in workspace_name:
+        if MA_GUESS_WORKSPACE in workspace_name or FDA_GUESS_WORKSPACE in workspace_name:
             return True
         else:
             return False

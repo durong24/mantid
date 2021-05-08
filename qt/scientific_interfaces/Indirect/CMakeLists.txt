@@ -6,30 +6,40 @@ set(
         CalculatePaalmanPings.cpp
         ContainerSubtraction.cpp
         CorrectionsTab.cpp
-        ConvFit.cpp
         ConvFitAddWorkspaceDialog.cpp
         ConvFitDataPresenter.cpp
         ConvFitDataTablePresenter.cpp
         ConvFitModel.cpp
         DensityOfStates.cpp
-        Elwin.cpp
+        FitStatusWidget.cpp
+        FqFitAddWorkspaceDialog.cpp
+        FqFitDataPresenter.cpp
+        FqFitDataTablePresenter.cpp
+        FqFitModel.cpp
         FunctionTemplateBrowser.cpp
+        IDAFunctionParameterEstimation.cpp
         ILLEnergyTransfer.cpp
         ISISCalibration.cpp
         ISISDiagnostics.cpp
         ISISEnergyTransfer.cpp
-        IndexTypes.cpp
         IndirectAddWorkspaceDialog.cpp
         IndirectBayes.cpp
         IndirectBayesTab.cpp
         IndirectCorrections.cpp
         IndirectDataAnalysis.cpp
+        IndirectDataAnalysisConvFitTab.cpp
+        IndirectDataAnalysisElwinTab.cpp
+        IndirectDataAnalysisFqFitTab.cpp
+        IndirectDataAnalysisIqtTab.cpp
+        IndirectDataAnalysisIqtFitTab.cpp
+        IndirectDataAnalysisMSDFitTab.cpp
         IndirectDataAnalysisTab.cpp
         IndirectDataReduction.cpp
         IndirectDataReductionTab.cpp
         IndirectDataTablePresenter.cpp
         IndirectDataValidationHelper.cpp
         IndirectDiffractionReduction.cpp
+        IndirectDockWidgetArea.cpp
         IndirectEditResultsDialog.cpp
         IndirectFitAnalysisTab.cpp
         IndirectFitData.cpp
@@ -41,9 +51,20 @@ set(
         IndirectFitPlotModel.cpp
         IndirectFitPlotPresenter.cpp
         IndirectFitPlotView.cpp
+        IndirectFitPropertyBrowser.cpp
         IndirectFittingModel.cpp
-        IndirectFitDataModel.cpp
+        IndirectFitDataTableModel.cpp
         IndirectFitOutputModel.cpp
+        IndirectFunctionBrowser/ConvTypes.cpp
+        IndirectFunctionBrowser/ConvFunctionModel.cpp
+        IndirectFunctionBrowser/ConvTemplateBrowser.cpp
+        IndirectFunctionBrowser/ConvTemplatePresenter.cpp
+        IndirectFunctionBrowser/IqtFunctionModel.cpp
+        IndirectFunctionBrowser/IqtTemplateBrowser.cpp
+        IndirectFunctionBrowser/IqtTemplatePresenter.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplateModel.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.cpp
         IndirectInstrumentConfig.cpp
         IndirectInterface.cpp
         IndirectLoadILL.cpp
@@ -70,26 +91,7 @@ set(
         IndirectToolsTab.cpp
         IndirectTransmission.cpp
         IndirectTransmissionCalc.cpp
-        Iqt.cpp
-        IqtFit.cpp
         IqtFitModel.cpp
-        IndirectFitPropertyBrowser.cpp
-        IndirectFunctionBrowser/ConvTypes.cpp
-        IndirectFunctionBrowser/ConvFunctionModel.cpp
-        IndirectFunctionBrowser/ConvTemplateBrowser.cpp
-        IndirectFunctionBrowser/ConvTemplatePresenter.cpp
-        IndirectFunctionBrowser/IqtFunctionModel.cpp
-        IndirectFunctionBrowser/IqtTemplateBrowser.cpp
-        IndirectFunctionBrowser/IqtTemplatePresenter.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplateModel.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.cpp
-        JumpFit.cpp
-        JumpFitAddWorkspaceDialog.cpp
-        JumpFitDataPresenter.cpp
-        JumpFitDataTablePresenter.cpp
-        JumpFitModel.cpp
-        MSDFit.cpp
         MSDFitModel.cpp
         Quasi.cpp
         ResNorm.cpp
@@ -103,26 +105,25 @@ set(
         QT4_INC_FILES
         ConvFitModel.h
         DllConfig.h
-        IndexTypes.h
+        FqFitModel.h
+        IFQFitObserver.h
         IndirectDataValidationHelper.h
         IndirectFitData.h
         IndirectFitOutputOptionsModel.h
         IndirectFitPlotModel.h
         IndirectFitPlotPresenter.h
         IndirectFittingModel.h
-        IndirectFitDataModel.h
+        IndirectFitDataTableModel.h
         IndirectFitOutputModel.h
+        IndirectFunctionBrowser/ConvFunctionModel.h
+        IndirectFunctionBrowser/IqtFunctionModel.h
         IndirectPlotOptionsModel.h
         IndirectSettingsHelper.h
         IndirectToolsTab.h
         IPythonRunner.h
         IqtFitModel.h
-        IndirectFunctionBrowser/ConvFunctionModel.h
-        IndirectFunctionBrowser/IqtFunctionModel.h
-        JumpFitModel.h
         MSDFitModel.h
         Notifier.h
-        IFQFitObserver.h
         ParameterEstimation.h
 )
 
@@ -135,12 +136,14 @@ set(
         ConvFitAddWorkspaceDialog.h
         ConvFitDataPresenter.h
         ConvFitDataTablePresenter.h
-        ConvFit.h
         CorrectionsTab.h
         DensityOfStates.h
-        Elwin.h
+        FqFitAddWorkspaceDialog.h
+        FqFitDataPresenter.h
+        FqFitDataTablePresenter.h
         FunctionTemplateBrowser.h
         IAddWorkspaceDialog.h
+        IIndirectFitDataTableModel.h
         IIndirectFitDataView.h
         IIndirectFitOutputOptionsView.h
         IIndirectFitPlotView.h
@@ -151,10 +154,17 @@ set(
         IndirectBayesTab.h
         IndirectCorrections.h
         IndirectDataAnalysis.h
+        IndirectDataAnalysisConvFitTab.h
+        IndirectDataAnalysisElwinTab.h
+        IndirectDataAnalysisFqFitTab.h
+        IndirectDataAnalysisIqtFitTab.h
+        IndirectDataAnalysisIqtTab.h
+        IndirectDataAnalysisMSDFitTab.h
         IndirectDataAnalysisTab.h
         IndirectDataReduction.h
         IndirectDataReductionTab.h
         IndirectDataTablePresenter.h
+        IndirectDockWidgetArea.h
         IndirectDiffractionReduction.h
         IndirectEditResultsDialog.h
         IndirectFitAnalysisTab.h
@@ -164,6 +174,12 @@ set(
         IndirectFitOutputOptionsView.h
         IndirectFitPlotPresenter.h
         IndirectFitPlotView.h
+        IndirectFunctionBrowser/ConvTemplateBrowser.h
+        IndirectFunctionBrowser/ConvTemplatePresenter.h
+        IndirectFunctionBrowser/IqtTemplateBrowser.h
+        IndirectFunctionBrowser/IqtTemplatePresenter.h
+        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.h
+        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.h
         IndirectInstrumentConfig.h
         IndirectInterface.h
         IndirectLoadILL.h
@@ -187,27 +203,15 @@ set(
         IndirectToolsTab.h
         IndirectTransmissionCalc.h
         IndirectTransmission.h
-        IqtFit.h
-        IndirectFunctionBrowser/ConvTemplateBrowser.h
-        IndirectFunctionBrowser/ConvTemplatePresenter.h
-        IndirectFunctionBrowser/IqtTemplateBrowser.h
-        IndirectFunctionBrowser/IqtTemplatePresenter.h
-        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.h
-        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.h
         IndirectFitPropertyBrowser.h
-        Iqt.h
         ISISCalibration.h
         ISISDiagnostics.h
         ISISEnergyTransfer.h
-        JumpFitAddWorkspaceDialog.h
-        JumpFitDataPresenter.h
-        JumpFitDataTablePresenter.h
-        JumpFit.h
         LazyAsyncRunner.h
-        MSDFit.h
         Quasi.h
         ResNorm.h
         Stretch.h
+        FitStatusWidget.h
 )
 
 set(
@@ -216,21 +220,23 @@ set(
         ApplyAbsorptionCorrections.ui
         CalculatePaalmanPings.ui
         ContainerSubtraction.ui
-        ConvFit.ui
         ConvFitAddWorkspaceDialog.ui
         DensityOfStates.ui
-        Elwin.ui
         ILLEnergyTransfer.ui
         IndirectAddWorkspaceDialog.ui
         IndirectBayes.ui
         IndirectCorrections.ui
         IndirectDataAnalysis.ui
+        IndirectDataAnalysisElwinTab.ui
+        IndirectDataAnalysisIqtTab.ui
         IndirectDataReduction.ui
         IndirectDiffractionReduction.ui
+        IndirectDockWidgetArea.ui
         IndirectEditResultsDialog.ui
         IndirectFitDataView.ui
         IndirectFitOutputOptions.ui
         IndirectFitPreviewPlot.ui
+        IndirectFitTab.ui
         IndirectInterfaceSettings.ui
         IndirectInstrumentConfig.ui
         IndirectLoadILL.ui
@@ -246,11 +252,7 @@ set(
         IndirectTools.ui
         IndirectTransmission.ui
         IndirectTransmissionCalc.ui
-        Iqt.ui
-        IqtFit.ui
-        JumpFit.ui
-        JumpFitAddWorkspaceDialog.ui
-        MSDFit.ui
+        FqFitAddWorkspaceDialog.ui
         Quasi.ui
         ResNorm.ui
         Stretch.ui
@@ -276,7 +278,6 @@ mtd_add_qt_library(
         INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
         SYSTEM_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
         LINK_LIBS
-        ${TCMALLOC_LIBRARIES_LINKTIME}
         ${CORE_MANTIDLIBS}
         ${POCO_LIBRARIES}
         ${Boost_LIBRARIES}
@@ -304,14 +305,18 @@ set(
         CalculatePaalmanPings.cpp
         ContainerSubtraction.cpp
         CorrectionsTab.cpp
-        ConvFit.cpp
         ConvFitAddWorkspaceDialog.cpp
         ConvFitDataPresenter.cpp
         ConvFitDataTablePresenter.cpp
         ConvFitModel.cpp
         DensityOfStates.cpp
-        Elwin.cpp
+        FitStatusWidget.cpp
+        FqFitAddWorkspaceDialog.cpp
+        FqFitDataPresenter.cpp
+        FqFitDataTablePresenter.cpp
+        FqFitModel.cpp
         FunctionTemplateBrowser.cpp
+        IDAFunctionParameterEstimation.cpp
         ILLEnergyTransfer.cpp
         ISISCalibration.cpp
         ISISDiagnostics.cpp
@@ -321,12 +326,19 @@ set(
         IndirectBayesTab.cpp
         IndirectCorrections.cpp
         IndirectDataAnalysis.cpp
+        IndirectDataAnalysisConvFitTab.cpp
+        IndirectDataAnalysisElwinTab.cpp
+        IndirectDataAnalysisFqFitTab.cpp
+        IndirectDataAnalysisIqtTab.cpp
+        IndirectDataAnalysisIqtFitTab.cpp
+        IndirectDataAnalysisMSDFitTab.cpp
         IndirectDataAnalysisTab.cpp
         IndirectDataReduction.cpp
         IndirectDataReductionTab.cpp
         IndirectDataTablePresenter.cpp
         IndirectDataValidationHelper.cpp
         IndirectDiffractionReduction.cpp
+        IndirectDockWidgetArea.cpp
         IndirectEditResultsDialog.cpp
         IndirectFitAnalysisTab.cpp
         IndirectFitData.cpp
@@ -335,13 +347,23 @@ set(
         IndirectFitOutputOptionsModel.cpp
         IndirectFitOutputOptionsPresenter.cpp
         IndirectFitOutputOptionsView.cpp
-        IndirectFitPropertyBrowser.cpp
         IndirectFitPlotModel.cpp
         IndirectFitPlotPresenter.cpp
         IndirectFitPlotView.cpp
+        IndirectFitPropertyBrowser.cpp
         IndirectFittingModel.cpp
-        IndirectFitDataModel.cpp
+        IndirectFitDataTableModel.cpp
         IndirectFitOutputModel.cpp
+        IndirectFunctionBrowser/ConvTypes.cpp
+        IndirectFunctionBrowser/ConvFunctionModel.cpp
+        IndirectFunctionBrowser/ConvTemplateBrowser.cpp
+        IndirectFunctionBrowser/ConvTemplatePresenter.cpp
+        IndirectFunctionBrowser/IqtFunctionModel.cpp
+        IndirectFunctionBrowser/IqtTemplateBrowser.cpp
+        IndirectFunctionBrowser/IqtTemplatePresenter.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplateModel.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.cpp
+        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.cpp
         IndirectInstrumentConfig.cpp
         IndirectInterface.cpp
         IndirectLoadILL.cpp
@@ -368,25 +390,7 @@ set(
         IndirectToolsTab.cpp
         IndirectTransmission.cpp
         IndirectTransmissionCalc.cpp
-        Iqt.cpp
-        IqtFit.cpp
         IqtFitModel.cpp
-        IndirectFunctionBrowser/ConvTypes.cpp
-        IndirectFunctionBrowser/ConvFunctionModel.cpp
-        IndirectFunctionBrowser/ConvTemplateBrowser.cpp
-        IndirectFunctionBrowser/ConvTemplatePresenter.cpp
-        IndirectFunctionBrowser/IqtFunctionModel.cpp
-        IndirectFunctionBrowser/IqtTemplateBrowser.cpp
-        IndirectFunctionBrowser/IqtTemplatePresenter.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplateModel.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.cpp
-        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.cpp
-        JumpFit.cpp
-        JumpFitAddWorkspaceDialog.cpp
-        JumpFitDataPresenter.cpp
-        JumpFitDataTablePresenter.cpp
-        JumpFitModel.cpp
-        MSDFit.cpp
         MSDFitModel.cpp
         Quasi.cpp
         ResNorm.cpp
@@ -402,29 +406,35 @@ set(
         ConvFitAddWorkspaceDialog.h
         ConvFitDataPresenter.h
         ConvFitDataTablePresenter.h
-        ConvFit.h
         CorrectionsTab.h
         DensityOfStates.h
-        Elwin.h
+        FqFitAddWorkspaceDialog.h
+        FqFitDataPresenter.h
+        FqFitDataTablePresenter.h
         FunctionTemplateBrowser.h
-        ILLEnergyTransfer.h
-        ISISCalibration.h
-        ISISDiagnostics.h
-        ISISEnergyTransfer.h
         IAddWorkspaceDialog.h
+        IIndirectFitDataTableModel.h
         IIndirectFitDataView.h
         IIndirectFitOutputOptionsView.h
         IIndirectFitPlotView.h
         IIndirectSettingsView.h
+        ILLEnergyTransfer.h
         IndirectAddWorkspaceDialog.h
         IndirectBayes.h
         IndirectBayesTab.h
         IndirectCorrections.h
         IndirectDataAnalysis.h
+        IndirectDataAnalysisConvFitTab.h
+        IndirectDataAnalysisElwinTab.h
+        IndirectDataAnalysisFqFitTab.h
+        IndirectDataAnalysisIqtFitTab.h
+        IndirectDataAnalysisIqtTab.h
+        IndirectDataAnalysisMSDFitTab.h
         IndirectDataAnalysisTab.h
         IndirectDataReduction.h
         IndirectDataReductionTab.h
         IndirectDataTablePresenter.h
+        IndirectDockWidgetArea.h
         IndirectDiffractionReduction.h
         IndirectEditResultsDialog.h
         IndirectFitAnalysisTab.h
@@ -432,9 +442,14 @@ set(
         IndirectFitDataView.h
         IndirectFitOutputOptionsPresenter.h
         IndirectFitOutputOptionsView.h
-        IndirectFitPropertyBrowser.h
         IndirectFitPlotPresenter.h
         IndirectFitPlotView.h
+        IndirectFunctionBrowser/ConvTemplateBrowser.h
+        IndirectFunctionBrowser/ConvTemplatePresenter.h
+        IndirectFunctionBrowser/IqtTemplateBrowser.h
+        IndirectFunctionBrowser/IqtTemplatePresenter.h
+        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.h
+        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.h
         IndirectInstrumentConfig.h
         IndirectInterface.h
         IndirectLoadILL.h
@@ -456,44 +471,36 @@ set(
         IndirectTab.h
         IndirectTools.h
         IndirectToolsTab.h
-        IndirectTransmission.h
         IndirectTransmissionCalc.h
-        IqtFit.h
-        IndirectFunctionBrowser/ConvTemplateBrowser.h
-        IndirectFunctionBrowser/ConvTemplatePresenter.h
-        IndirectFunctionBrowser/IqtTemplateBrowser.h
-        IndirectFunctionBrowser/IqtTemplatePresenter.h
-        IndirectFunctionBrowser/SingleFunctionTemplateBrowser.h
-        IndirectFunctionBrowser/SingleFunctionTemplatePresenter.h
-        Iqt.h
-        JumpFitAddWorkspaceDialog.h
-        JumpFitDataPresenter.h
-        JumpFitDataTablePresenter.h
-        JumpFit.h
+        IndirectTransmission.h
+        IndirectFitPropertyBrowser.h
+        ISISCalibration.h
+        ISISDiagnostics.h
+        ISISEnergyTransfer.h
         LazyAsyncRunner.h
-        MSDFit.h
         Quasi.h
         ResNorm.h
         Stretch.h
+        FitStatusWidget.h
 )
 
 set(
         INC_FILES
         ConvFitModel.h
+        FqFitModel.h
         IndirectDataValidationHelper.h
         IndirectFitData.h
         IndirectFitOutputOptionsModel.h
         IndirectFitPlotModel.h
         IndirectFitPlotPresenter.h
         IndirectFittingModel.h
-        IndirectFitDataModel.h
+        IndirectFitDataTableModel.h
         IndirectFitOutputModel.h
+        IndirectFunctionBrowser/ConvFunctionModel.h
         IndirectPlotOptionsModel.h
         IndirectSettingsHelper.h
         IPythonRunner.h
         IqtFitModel.h
-        IndirectFunctionBrowser/ConvFunctionModel.h
-        JumpFitModel.h
         MSDFitModel.h
         Notifier.h
         IFQFitObserver.h
@@ -505,10 +512,9 @@ set(
         ApplyAbsorptionCorrections.ui
         CalculatePaalmanPings.ui
         ContainerSubtraction.ui
-        ConvFit.ui
         ConvFitAddWorkspaceDialog.ui
         DensityOfStates.ui
-        Elwin.ui
+        FqFitAddWorkspaceDialog.ui
         ILLEnergyTransfer.ui
         ISISCalibration.ui
         ISISDiagnostics.ui
@@ -517,12 +523,15 @@ set(
         IndirectBayes.ui
         IndirectCorrections.ui
         IndirectDataAnalysis.ui
+        IndirectDataAnalysisElwinTab.ui
         IndirectDataReduction.ui
         IndirectDiffractionReduction.ui
+        IndirectDockWidgetArea.ui
         IndirectEditResultsDialog.ui
         IndirectFitDataView.ui
         IndirectFitOutputOptions.ui
         IndirectFitPreviewPlot.ui
+        IndirectFitTab.ui
         IndirectInstrumentConfig.ui
         IndirectInterfaceSettings.ui
         IndirectLoadILL.ui
@@ -538,11 +547,7 @@ set(
         IndirectTools.ui
         IndirectTransmission.ui
         IndirectTransmissionCalc.ui
-        Iqt.ui
-        IqtFit.ui
-        JumpFit.ui
-        JumpFitAddWorkspaceDialog.ui
-        MSDFit.ui
+        IndirectDataAnalysisIqtTab.ui
         Quasi.ui
         ResNorm.ui
         Stretch.ui
@@ -568,7 +573,6 @@ mtd_add_qt_library(
         PrecompiledHeader.h
         INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
         LINK_LIBS
-        ${TCMALLOC_LIBRARIES_LINKTIME}
         ${CORE_MANTIDLIBS}
         PythonInterfaceCore
         ${POCO_LIBRARIES}

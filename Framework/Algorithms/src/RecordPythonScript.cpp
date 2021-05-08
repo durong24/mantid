@@ -20,10 +20,14 @@ namespace Algorithms {
 // Register the algorithm into the AlgorithmFactory
 DECLARE_ALGORITHM(RecordPythonScript)
 
+// This is to overwrite inheriting ExportHistory alias from GeneratePythonScript
+const std::string RecordPythonScript::alias() const { return ""; }
+
 //----------------------------------------------------------------------------------------------
 /// Constructor
-RecordPythonScript::RecordPythonScript()
-    : Algorithms::GeneratePythonScript(), API::AlgorithmObserver() {}
+RecordPythonScript::RecordPythonScript() : Algorithms::GeneratePythonScript(), API::AlgorithmObserver() {
+  useAlgorithm("GeneratePythonScript", 1);
+}
 
 //----------------------------------------------------------------------------------------------
 
@@ -32,8 +36,7 @@ RecordPythonScript::RecordPythonScript()
  */
 void RecordPythonScript::init() {
 
-  declareProperty(std::make_unique<API::FileProperty>(
-                      "Filename", "", API::FileProperty::Save, ".py"),
+  declareProperty(std::make_unique<API::FileProperty>("Filename", "", API::FileProperty::Save, ".py"),
                   "The file into which the Python script will be generated.");
 }
 

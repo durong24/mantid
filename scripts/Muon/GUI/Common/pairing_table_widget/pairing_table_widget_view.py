@@ -139,13 +139,17 @@ class PairingTableView(QtWidgets.QWidget):
         if not self._updating:
             self.dataChanged.emit()
 
-    def add_entry_to_table(self, row_entries):
+    def add_entry_to_table(self, row_entries, color=(255, 255, 255), tooltip=''):
         assert len(row_entries) == self.pairing_table.columnCount() - 1
+        q_color = QtGui.QColor(*color, alpha=127)
+        q_brush = QtGui.QBrush(q_color)
 
         row_position = self.pairing_table.rowCount()
         self.pairing_table.insertRow(row_position)
         for i, entry in enumerate(row_entries):
             item = QtWidgets.QTableWidgetItem(entry)
+            item.setBackground(q_brush)
+            item.setToolTip(tooltip)
             if pair_columns[i] == 'pair_name':
                 pair_name_widget = table_utils.ValidatedTableItem(self._validate_pair_name_entry)
                 pair_name_widget.setText(entry)
@@ -277,6 +281,7 @@ class PairingTableView(QtWidgets.QWidget):
 
     def _context_menu_add_pair_action(self, slot):
         add_pair_action = QtWidgets.QAction('Add Pair', self)
+        add_pair_action.setCheckable(False)
         if len(self._get_selected_row_indices()) > 0:
             add_pair_action.setEnabled(False)
         add_pair_action.triggered.connect(slot)
@@ -300,14 +305,12 @@ class PairingTableView(QtWidgets.QWidget):
     def _get_selected_row_indices(self):
         return list(set(index.row() for index in self.pairing_table.selectedIndexes()))
 
-    def get_selected_pair_names(self):
+    def get_selected_pair_names_and_indexes(self):
         indexes = self._get_selected_row_indices()
-        return [str(self.pairing_table.item(i, 0).text()) for i in indexes]
+        return [[str(self.pairing_table.item(i, 0).text()),i] for i in indexes]
 
-    def remove_selected_pairs(self):
-        indices = self._get_selected_row_indices()
-        for index in reversed(sorted(indices)):
-            self.pairing_table.removeRow(index)
+    def remove_pair_by_index(self, index):
+        self.pairing_table.removeRow(index)
 
     def remove_last_row(self):
         last_row = self.pairing_table.rowCount() - 1

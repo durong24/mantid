@@ -9,6 +9,9 @@ import re
 from Muon.GUI.Common.muon_pair import MuonPair
 from Muon.GUI.Common.utilities.run_string_utils import valid_name_regex, valid_alpha_regex
 from mantidqt.utils.observer_pattern import Observable, GenericObservable
+from Muon.GUI.Common.grouping_tab_widget.grouping_tab_widget_model import RowValid
+from Muon.GUI.Common.grouping_table_widget.grouping_table_widget_presenter import row_colors, row_tooltips
+
 
 pair_columns = ['pair_name', 'to_analyse', 'group_1', 'group_2', 'alpha']
 
@@ -19,7 +22,7 @@ class PairingTablePresenter(object):
         self._view = view
         self._model = model
 
-        self._view.on_add_pair_button_clicked(self.handle_add_pair_button_clicked)
+        self._view.on_add_pair_button_clicked(self.handle_add_pair_button_checked_state)
         self._view.on_remove_pair_button_clicked(self.handle_remove_pair_button_clicked)
 
         self._view.on_user_changes_pair_name(self.validate_pair_name)
@@ -96,10 +99,12 @@ class PairingTablePresenter(object):
             table = self._view.get_table_contents()
         self._model.clear_pairs()
         for entry in table:
+            periods = self._model.get_periods(str(entry[2]))+self._model.get_periods(str(entry[3]))
             pair = MuonPair(pair_name=str(entry[0]),
                             backward_group_name=str(entry[3]),
                             forward_group_name=str(entry[2]),
-                            alpha=float(entry[4]))
+                            alpha=float(entry[4]),
+                            periods = periods)
             self._model.add_pair(pair)
 
     def update_view_from_model(self):
@@ -107,13 +112,26 @@ class PairingTablePresenter(object):
 
         self._view.clear()
         for pair in self._model.pairs:
-            to_analyse = True if pair.name in self._model.selected_pairs else False
-            self.add_pair_to_view(pair, to_analyse)
+            if isinstance(pair, MuonPair):
+                to_analyse = True if pair.name in self._model.selected_pairs else False
+                forward_group_periods = self._model._context.group_pair_context[pair.forward_group].periods
+                backward_group_periods = self._model._context.group_pair_context[pair.backward_group].periods
+                forward_period_warning = self._model.validate_periods_list(forward_group_periods)
+                backward_period_warning = self._model.validate_periods_list(backward_group_periods)
+                if forward_period_warning==RowValid.invalid_for_all_runs or backward_period_warning == RowValid.invalid_for_all_runs:
+                    display_period_warning = RowValid.invalid_for_all_runs
+                elif forward_period_warning==RowValid.valid_for_some_runs or backward_period_warning == RowValid.valid_for_some_runs:
+                    display_period_warning = RowValid.valid_for_some_runs
+                else:
+                    display_period_warning = RowValid.valid_for_all_runs
+                color = row_colors[display_period_warning]
+                tool_tip = row_tooltips[display_period_warning]
+                self.add_pair_to_view(pair, to_analyse, color, tool_tip)
 
         self._view.enable_updates()
 
     def update_group_selections(self):
-        groups = self._model.group_names
+        groups = self._model.group_names + [diff.name for diff in self._model.get_diffs("group")]
         self._view.update_group_selections(groups)
 
     def to_analyse_data_checkbox_changed(self, state, row, pair_name):
@@ -122,7 +140,6 @@ class PairingTablePresenter(object):
             self._model.add_pair_to_analysis(pair_name)
         else:
             self._model.remove_pair_from_analysis(pair_name)
-
         pair_info = {'is_added': pair_added, 'name': pair_name}
         self.selected_pair_changed_notifier.notify_subscribers(pair_info)
 
@@ -141,19 +158,27 @@ class PairingTablePresenter(object):
         if self._view.num_rows() > 19:
             self._view.warning_popup("Cannot add more than 20 pairs.")
             return
-        self.add_pair_to_view(pair)
         self.add_pair_to_model(pair)
+        self.update_view_from_model()
 
     def add_pair_to_model(self, pair):
         self._model.add_pair(pair)
 
-    def add_pair_to_view(self, pair, to_analyse=False):
+    def add_pair_to_view(self, pair, to_analyse=False, color=row_colors[RowValid.valid_for_all_runs],
+                         tool_tip=row_tooltips[RowValid.valid_for_all_runs]):
         self._view.disable_updates()
         self.update_group_selections()
         assert isinstance(pair, MuonPair)
         entry = [str(pair.name), to_analyse, str(pair.forward_group), str(pair.backward_group), str(pair.alpha)]
-        self._view.add_entry_to_table(entry)
+        self._view.add_entry_to_table(entry, color, tool_tip)
         self._view.enable_updates()
+
+    """
+    This is required to strip out the boolean value the clicked method
+    of QButton emits by default.
+    """
+    def handle_add_pair_button_checked_state(self):
+        self.handle_add_pair_button_clicked()
 
     def handle_add_pair_button_clicked(self, group_1='', group_2=''):
         if len(self._model.group_names) == 0 or len(self._model.group_names) == 1:
@@ -167,28 +192,46 @@ class PairingTablePresenter(object):
             elif self.validate_pair_name(new_pair_name):
                 group1 = self._model.group_names[0] if not group_1 else group_1
                 group2 = self._model.group_names[1] if not group_2 else group_2
+                periods = self._model.get_periods(group1)+self._model.get_periods(group2)
                 pair = MuonPair(pair_name=str(new_pair_name),
-                                forward_group_name=group1, backward_group_name=group2, alpha=1.0)
+                                forward_group_name=group1, backward_group_name=group2, alpha=1.0, periods=periods)
                 self.add_pair(pair)
                 self.notify_data_changed()
 
     def handle_remove_pair_button_clicked(self):
-        pair_names = self._view.get_selected_pair_names()
+        pair_names = self._view.get_selected_pair_names_and_indexes()
         if not pair_names:
             self.remove_last_row_in_view_and_model()
         else:
-            self._view.remove_selected_pairs()
-            for pair_name in pair_names:
-                self._model.remove_pair_from_analysis(pair_name)
-            self._model.remove_pairs_by_name(pair_names)
+            self.remove_selected_rows_in_view_and_model(pair_names)
         self.notify_data_changed()
+
+    def remove_selected_rows_in_view_and_model(self, pair_names):
+        safe_to_rm = []
+        warnings = ""
+        for name, index in pair_names:
+            used_by = self._model.check_if_used_by_diff(name)
+            if used_by:
+                warnings+=used_by+"\n"
+            else:
+                safe_to_rm.append([index, name])
+        for index, name in reversed(safe_to_rm):
+            self._model.remove_pair_from_analysis(name)
+            self._view.remove_pair_by_index(index)
+        self._model.remove_pairs_by_name([name for index, name in safe_to_rm])
+        if warnings:
+            self._view.warning_popup(warnings)
 
     def remove_last_row_in_view_and_model(self):
         if self._view.num_rows() > 0:
             name = self._view.get_table_contents()[-1][0]
-            self._view.remove_last_row()
-            self._model.remove_pair_from_analysis(name)
-            self._model.remove_pairs_by_name([name])
+            warning = self._model.check_if_used_by_diff(name)
+            if warning:
+                self._view.warning_popup(warning)
+            else:
+                self._view.remove_last_row()
+                self._model.remove_pair_from_analysis(name)
+                self._model.remove_pairs_by_name([name])
 
     # ------------------------------------------------------------------------------------------------------------------
     # Table entry validation

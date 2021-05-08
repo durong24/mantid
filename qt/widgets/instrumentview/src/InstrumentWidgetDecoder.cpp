@@ -53,7 +53,14 @@ void InstrumentWidgetDecoder::decode(const QMap<QString, QVariant> &map,
   const auto energyTransferList = map[QString("energyTransfer")].toList();
   const auto min = energyTransferList[0].toDouble();
   const auto max = energyTransferList[1].toDouble();
-  obj.setBinRange(min, max);
+  if (energyTransferList.size() == 3) {
+    const bool isIntegrable = energyTransferList[2].toBool();
+    if (isIntegrable) {
+      obj.setBinRange(min, max);
+    }
+  } else {
+    obj.setBinRange(min, max);
+  }
 
   this->decodeSurface(map[QString("surface")].toMap(), obj.getSurface());
   this->decodeActor(map[QString("actor")].toMap(), obj.m_instrumentActor);
@@ -81,6 +88,8 @@ void InstrumentWidgetDecoder::decodeMaskTab(const QMap<QString, QVariant> &map,
   obj->m_ring_rectangle->setChecked(
       activeTools["ringRectangleButton"].toBool());
   obj->m_free_draw->setChecked(activeTools["freeFrawButton"].toBool());
+  obj->m_pixel->setChecked(activeTools["pixelButton"].toBool());
+  obj->m_tube->setChecked(activeTools["tubeButton"].toBool());
 
   // Decode the active type
   obj->m_masking_on->setChecked(activeType["maskingOn"].toBool());
@@ -109,6 +118,7 @@ void InstrumentWidgetDecoder::decodeRenderTab(
   obj->m_lighting->setChecked(map[QString("displayLighting")].toBool());
   obj->m_GLView->setChecked(map[QString("useOpenGL")].toBool());
   obj->m_UCorrection->setChecked(map[QString("useUCorrection")].toBool());
+  obj->m_freezeRotation->setChecked(map[QString("freezeRotation")].toBool());
 
   // Load the surface
   auto surface = obj->getSurface();
@@ -163,8 +173,8 @@ void InstrumentWidgetDecoder::decodePickTab(const QMap<QString, QVariant> &map,
   obj->m_free_draw->setChecked(map[QString("freeDraw")].toBool());
   obj->m_one->setChecked(map[QString("one")].toBool());
   obj->m_tube->setChecked(map[QString("tube")].toBool());
-  obj->m_peak->setChecked(map[QString("peak")].toBool());
-  obj->m_peakSelect->setChecked(map[QString("peakSelect")].toBool());
+  obj->m_peakAdd->setChecked(map[QString("peakAdd")].toBool());
+  obj->m_peakErase->setChecked(map[QString("peakErase")].toBool());
 }
 
 void InstrumentWidgetDecoder::decodeActor(
@@ -259,6 +269,8 @@ InstrumentWidgetDecoder::decodeShape(const QMap<QString, QVariant> &map) {
       return this->decodeRectangle(map[QString("subShapeMap")].toMap());
     } else if (type == "ring") {
       return this->decodeRing(map[QString("subShapeMap")].toMap());
+    } else if (type == "sector") {
+      return this->decodeSector(map[QString("subShapeMap")].toMap());
     } else if (type == "free") {
       return this->decodeFree(map[QString("subShapeMap")].toMap());
     } else {
@@ -319,13 +331,25 @@ InstrumentWidgetDecoder::decodeRing(const QMap<QString, QVariant> &map) {
   const auto baseShape = this->decodeShape(map[QString("shape")].toMap());
   return new Shape2DRing(baseShape, xWidth, yWidth);
 }
+Shape2D *
+InstrumentWidgetDecoder::decodeSector(const QMap<QString, QVariant> &map) {
+  const double outerRadius = map[QString("outerRadius")].toDouble();
+  const double innerRadius = map[QString("innerRadius")].toDouble();
+  const double startAngle = map[QString("startAngle")].toDouble();
+  const double endAngle = map[QString("endAngle")].toDouble();
+  const double centerX = map[QString("centerX")].toDouble();
+  const double centerY = map[QString("centerY")].toDouble();
+
+  return new Shape2DSector(innerRadius, outerRadius, startAngle, endAngle,
+                           QPointF(centerX, centerY));
+}
 
 Shape2D *
 InstrumentWidgetDecoder::decodeFree(const QMap<QString, QVariant> &map) {
   QPolygonF polygon;
 
   const auto parameters = map[QString("paramaters")].toList();
-  for (const auto param : parameters) {
+  for (const auto &param : parameters) {
     const auto paramList = param.toList();
     const double x = paramList[0].toDouble();
     const double y = paramList[1].toDouble();
@@ -348,7 +372,7 @@ void InstrumentWidgetDecoder::decodeAlignmentInfo(
                                qLabMap[QString("y")].toDouble(),
                                qLabMap[QString("z")].toDouble());
 
-    alignmentPlane.emplace_back(std::make_pair(qValue, marker));
+    alignmentPlane.emplace_back(qValue, marker);
   }
   obj->m_selectedAlignmentPlane = alignmentPlane;
 }

@@ -19,6 +19,7 @@ import sys
 import mantid.api
 import mantid.kernel
 import mantid.plots.modest_image
+from mantid.plots.resampling_image import samplingimage
 from mantid.plots.datafunctions import get_axes_labels, get_bins, get_data_uneven_flag, get_distribution, \
     get_matrix_2d_ragged, get_matrix_2d_data, get_md_data1d, get_md_data2d_bin_bounds, \
     get_md_data2d_bin_centers, get_normalization, get_sample_log, get_spectrum, get_uneven_data, \
@@ -33,7 +34,7 @@ _LARGEST, _SMALLEST = float(sys.maxsize), -sys.maxsize
 # ================================================
 
 
-def _pcolormesh_nonortho(axes, workspace, to_display, *args, **kwargs):
+def _pcolormesh_nonortho(axes, workspace, nonortho_tr, *args, **kwargs):
     '''
     Essentially the same as :meth:`matplotlib.axes.Axes.pcolormesh` and adds arguments related to
     plotting slices on nonorthogonal axes. It requires a non-standard Axes type. See
@@ -45,8 +46,8 @@ def _pcolormesh_nonortho(axes, workspace, to_display, *args, **kwargs):
     :param axes:      :class:`matplotlib.axes.Axes` object that will do the plotting
     :param workspace: :class:`mantid.api.MatrixWorkspace` or :class:`mantid.api.IMDHistoWorkspace`
                       to extract the data from
-    :param to_display: Callable accepting two numpy arrays to transfrom from nonorthogonal
-                       coordinates to orthogonal display
+    :param nonortho_tr: Callable accepting two numpy arrays to transfrom from nonorthogonal
+                        coordinates to rectilinear image coordinates
     :param transpose: ``bool`` to transpose the x and y axes of the plotted dimensions of an MDHistoWorkspace
     '''
     transpose = kwargs.pop('transpose', False)
@@ -57,7 +58,7 @@ def _pcolormesh_nonortho(axes, workspace, to_display, *args, **kwargs):
                                        normalization=normalization,
                                        transpose=transpose)
     X, Y = numpy.meshgrid(x, y)
-    xx, yy = to_display(X, Y)
+    xx, yy = nonortho_tr(X, Y)
     _setLabels2D(axes, workspace, indices, transpose)
     return axes.pcolormesh(xx, yy, z, *args, **kwargs)
 
@@ -72,7 +73,7 @@ def _setLabels1D(axes,
     '''
     labels = get_axes_labels(workspace, indices, normalize_by_bin_width)
     # We assume that previous checking has ensured axis can only be 1 of 2 types
-    axes.set_xlabel(labels[1 if axis == MantidAxType.SPECTRUM else 2])
+    axes.set_xlabel(labels[2 if axis == MantidAxType.BIN else 1])
     axes.set_ylabel(labels[0])
 
 
@@ -92,7 +93,7 @@ def _setLabels2D(axes,
     else:
         axes.set_xlabel(labels[1])
         axes.set_ylabel(labels[2])
-    axes.set_title(labels[0])
+    axes.colorbar_label = labels[0]
     if xscale is None and hasattr(workspace, 'isCommonLogBins') and workspace.isCommonLogBins():
         axes.set_xscale('log')
     elif xscale is not None:
@@ -112,9 +113,19 @@ def _get_data_for_plot(axes, workspace, kwargs, with_dy=False, with_dx=False):
         workspace_index, distribution, kwargs = get_wksp_index_dist_and_label(
             workspace, axis, **kwargs)
         if axis == MantidAxType.BIN:
-            # Overwrite any user specified xlabel
-            axes.set_xlabel("Spectrum")
             x, y, dy, dx = get_bins(workspace, workspace_index, with_dy)
+            vertical_axis = workspace.getAxis(1)
+            if isinstance(vertical_axis, mantid.api.NumericAxis):
+                axes.set_xlabel(vertical_axis.getUnit().unitID())
+                values = vertical_axis.extractValues()
+                if isinstance(vertical_axis, mantid.api.BinEdgeAxis):
+                    # for bin edge axis we have one more edge than content
+                    values = (values[0:-1] + values[1:])/2.
+                x = values
+            if isinstance(vertical_axis, mantid.api.SpectraAxis):
+                spectrum_numbers = workspace.getSpectrumNumbers()
+                x = [spectrum_numbers[i] for i in x]
+
         elif axis == MantidAxType.SPECTRUM:
             x, y, dy, dx = get_spectrum(workspace, workspace_index, normalize_by_bin_width, with_dy,
                                         with_dx)
@@ -146,6 +157,10 @@ def _plot_impl(axes, workspace, args, kwargs):
         kwargs['drawstyle'] = 'steps-post'
     else:
         normalize_by_bin_width, kwargs = get_normalize_by_bin_width(workspace, axes, **kwargs)
+        # the get... function returns kwargs without 'normalize_by_bin_width', but it is needed in _get_data_for_plot to
+        # avoid reverting to the default norm setting, in the event that this function is being called as part of a plot
+        # restoration
+        kwargs['normalize_by_bin_width'] = normalize_by_bin_width
         x, y, _, _, indices, axis, kwargs = _get_data_for_plot(axes, workspace, kwargs)
         if kwargs.pop('update_axes_labels', True):
             _setLabels1D(axes,
@@ -620,37 +635,27 @@ def imshow(axes, workspace, *args, **kwargs):
                         number of bins, the polygons will be aligned with the axes
     :param transpose: ``bool`` to transpose the x and y axes of the plotted dimensions of an MDHistoWorkspace
     '''
-    transpose = kwargs.pop('transpose', False)
+    transpose = kwargs.get('transpose', False)
     if isinstance(workspace, mantid.dataobjects.MDHistoWorkspace):
         (normalization, kwargs) = get_normalization(workspace, **kwargs)
         indices, kwargs = get_indices(workspace, **kwargs)
         x, y, z = get_md_data2d_bin_bounds(workspace, normalization, indices, transpose)
         _setLabels2D(axes, workspace, indices, transpose)
+        if 'extent' not in kwargs:
+            if x.ndim == 2 and y.ndim == 2:
+                kwargs['extent'] = [x[0, 0], x[0, -1], y[0, 0], y[-1, 0]]
+            else:
+                kwargs['extent'] = [x[0], x[-1], y[0], y[-1]]
+        return mantid.plots.modest_image.imshow(axes, z, *args, **kwargs)
     else:
         (aligned, kwargs) = check_resample_to_regular_grid(workspace, **kwargs)
         (normalize_by_bin_width, kwargs) = get_normalize_by_bin_width(workspace, axes, **kwargs)
-        (distribution, kwargs) = get_distribution(workspace, **kwargs)
-        if aligned:
-            (x, y, z) = get_matrix_2d_ragged(workspace,
-                                             normalize_by_bin_width,
-                                             histogram2D=True,
-                                             transpose=transpose)
-        else:
-            (x, y, z) = get_matrix_2d_data(workspace,
-                                           distribution=distribution,
-                                           histogram2D=True,
-                                           transpose=transpose)
+        kwargs['normalize_by_bin_width'] = normalize_by_bin_width
         _setLabels2D(axes,
                      workspace,
                      transpose=transpose,
                      normalize_by_bin_width=normalize_by_bin_width)
-    if 'extent' not in kwargs:
-        if x.ndim == 2 and y.ndim == 2:
-            kwargs['extent'] = [x[0, 0], x[0, -1], y[0, 0], y[-1, 0]]
-        else:
-            kwargs['extent'] = [x[0], x[-1], y[0], y[-1]]
-    return mantid.plots.modest_image.imshow(axes, z, *args, **kwargs)
-
+        return samplingimage.imshow_sampling(axes, workspace=workspace, *args, **kwargs)
 
 def tripcolor(axes, workspace, *args, **kwargs):
     '''
@@ -825,6 +830,10 @@ def update_colorplot_datalimits(axes, mappables):
         ymin_all, ymax_all = min(ymin_all, ymin), max(ymax_all, ymax)
     axes.update_datalim(((xmin_all, ymin_all), (xmax_all, ymax_all)))
     axes.autoscale()
+    if axes._autoscaleXon:
+        axes.set_xlim((xmin_all, xmax_all), auto=None)
+    if axes._autoscaleYon:
+        axes.set_ylim((ymin_all, ymax_all), auto=None)
 
 
 def get_colorplot_extents(mappable):
@@ -834,7 +843,10 @@ def get_colorplot_extents(mappable):
     :return: (left, right, bottom, top)
     """
     if isinstance(mappable, mimage.AxesImage):
-        xmin, xmax, ymin, ymax = mappable.get_extent()
+        if hasattr(mappable, 'get_full_extent'):
+            xmin, xmax, ymin, ymax = mappable.get_full_extent()
+        else:
+            xmin, xmax, ymin, ymax = mappable.get_extent()
     elif isinstance(mappable, mcoll.QuadMesh):
         # coordinates are vertices of the grid
         coords = mappable._coordinates

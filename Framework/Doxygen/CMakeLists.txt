@@ -73,7 +73,7 @@ if(DOXYGEN_FOUND)
                              Mantid.doxyfile
                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Mantid.doxyfile)
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doxy_header.html
-                     COMMAND ${PYTHON_EXECUTABLE}
+                     COMMAND ${Python_EXECUTABLE}
                              ${CMAKE_CURRENT_SOURCE_DIR}/make_header.py
                              ${CMAKE_CURRENT_BINARY_DIR}/doxy_header.html.in
                      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxy_header.html.in
@@ -89,4 +89,5 @@ if(DOXYGEN_FOUND)
       ${CMAKE_CURRENT_BINARY_DIR}/Mantid.doxyfile
       ${CMAKE_CURRENT_BINARY_DIR}/../../doxygen/html/Mantid_Logo_Transparent.png
       ${CMAKE_CURRENT_BINARY_DIR}/doxy_header.html)
+
 endif(DOXYGEN_FOUND)

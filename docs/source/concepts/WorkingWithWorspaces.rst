@@ -31,6 +31,8 @@ Output:
     The variable myWS now points to the workspace called my_new_workspace
     myOtherWS now points to the workspace called myOtherWS
 
+.. _Workspace-Properties_Workspaces:
+
 Workspace Properties
 ####################
 
@@ -100,7 +102,7 @@ Output:
         InputWorkspace = myWS
         OutputWorkspace = myWS
         Params = 200
-        
+
 The full documentation for workspace history can be found at the :class:`~mantid.api.WorkspaceHistory` api.
 
 .. categories:: Concepts

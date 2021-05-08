@@ -25,6 +25,7 @@ Install the following:
 
     * ``Windows Universal CRT SDK``
     * The latest Windows 10 SDK
+  * If your machine has less than 32GB of memory Mantid may not build. If you have problems change the maximum number of parallel project builds to 1 in Visual Studio in Tools -> Options -> Projects and Solutions -> Build And Run.
 
 
 * `Git <https://git-scm.com/>`_.
@@ -54,6 +55,19 @@ Unfortunately CMake can't find it out of the box and the following steps are req
 Linux
 -----
 
+The goal of this section is to (in broad terms) get to the state where one can build and run a subset of tests
+
+.. code-block:: sh
+
+   git clone git@github.com:mantidproject/mantid.git
+   cd mantid
+   mkdir build  # this makes an in-source build
+   cd build
+   cmake3 -GNinja ../  # wrap in scl enable on RHEL7
+   ninja all AlgorithmsTest  # ninja-build on RHEL7
+   ctest -R ^AlgorithmsTest --output-on-failure
+
+
 Red Hat/Cent OS/Fedora
 ~~~~~~~~~~~~~~~~~~~~~~
 * Follow the `instructions here <https://fedoraproject.org/wiki/EPEL>`_ to enable the EPEL repository
@@ -71,12 +85,20 @@ Red Hat/Cent OS/Fedora
   # Install dependencies
   yum install mantid-developer
 
-Ubuntu
-~~~~~~
+  # Install pre-commit
+  pip3 install pre-commit --user
+
+
+On fedora, the ``yum`` commands should be replaced with ``dnf``.
+For systems with default python3 the ``pip3`` command can be replaced with ``pip``, but it should work either way.
+
+
+Ubuntu 18.04
+~~~~~~~~~~~~
 - Setup the Kitware APT repository to get a recent version of CMake by
   following `these instructions <https://apt.kitware.com/>`_
 - Follow the `Ubuntu instructions <http://download.mantidproject.org/ubuntu.html>`_
-  to add the stable release repository and mantid ppa.
+  to add the stable release repository and mantid ppa and
 - Download the latest
   `mantid-developer <https://sourceforge.net/projects/mantid/files/developer>`_
   package and install it:
@@ -88,11 +110,93 @@ Ubuntu
 
 where ``X.Y.Z`` should be replaced with the version that was downloaded.
 
+Install pre-commit for use in our current developer workflow
+
+.. code-block:: sh
+
+   pip install pre-commit --user
+
 if you wish to setup eclipse for use developing mantid, then instructions can be found :ref:`here <Eclipse>`.
+
+Ubuntu 20.04
+~~~~~~~~~~~~
+- Mantid uses `qtpy` to talk to Python bindings of Qt.  It is recommended to have the _
+  environment var `QT_API=pyqt5` exported to the shell before building with CMake.
+- The header and lib shipped with Anaconda (if installed) could interfere with Mantid building _
+  process. It is highly recommended to remove Anaconda Python from your env prior to building _
+  using `conda deactivate`.
+- Mantid is not yet officially supported on Ubuntu 20.04 as Qt4 has been removed but Workbench can be built by installing:
+
+.. code-block:: sh
+
+   apt-get install -y \
+     git \
+     g++ \
+     clang-format-6.0 \
+     cmake \
+     dvipng \
+     doxygen \
+     libtbb-dev \
+     libgoogle-perftools-dev \
+     libboost-all-dev \
+     libpoco-dev \
+     libnexus-dev \
+     libhdf5-dev \
+     libhdf4-dev \
+     libjemalloc-dev \
+     libgsl-dev \
+     liboce-visualization-dev \
+     libmuparser-dev \
+     libssl-dev \
+     libjsoncpp-dev \
+     librdkafka-dev \
+     qtbase5-dev \
+     qttools5-dev \
+     qttools5-dev-tools \
+     libqt5webkit5-dev \
+     libqt5x11extras5-dev \
+     libqt5opengl5-dev \
+     libqscintilla2-qt5-dev \
+     libpython3-dev \
+     ninja-build \
+     python3-setuptools \
+     python3-sip-dev \
+     python3-pyqt5 \
+     pyqt5-dev \
+     pyqt5-dev-tools \
+     python3-qtpy \
+     python3-numpy \
+     python3-scipy \
+     python3-sphinx \
+     python3-sphinx-bootstrap-theme \
+     python3-pycifrw \
+     python3-dateutil \
+     python3-matplotlib \
+     python3-qtconsole \
+     python3-h5py \
+     python3-mock \
+     python3-psutil \
+     python3-requests \
+     python3-toml \
+     python3-yaml
+
+
+Install pre-commit for use in our current developer workflow
+
+.. code-block:: sh
+
+   pip install pre-commit --user
+
 
 OSX
 ---
 The build environment on OS X is described here :ref:`BuildingOnOSX`.
+
+Install pre-commit for use in our current developer workflow
+
+.. code-block:: sh
+
+   brew install pre-commit
 
 Docker
 ------
@@ -101,7 +205,7 @@ On Docker supported systems you may use the `mantid-development
 <https://github.com/mantidproject/dockerfiles/tree/master/development>`_
 images to develop Mantid without having to configure your system as a suitable
 build environment. This will give you an out of the box working build
-environment, including ParaView/VATES, Python 3 (where available) and ccache.
+environment, Python 3 (where available) and ccache.
 
 More details and instructions can be found at the GitHub link above.
 
@@ -117,21 +221,42 @@ There are a number of URLs via which the code can be checked out using various p
 
     git clone git@github.com:mantidproject/mantid.git
 
+Alternatively, one can use the ``https`` protocol for cloning the repository.
+This requires one to supply an authentication token when pushing or re-type their password.
+
+.. code-block:: sh
+
+    git clone https://github.com/mantidproject/mantid.git
+
+
+Custom git setup for inside the ORNL firewall:
+----------------------------------------------
+
+Due to security configuration at ORNL one needs to do additional configuration to access github from within the lab.
+One option is to use the ``https`` protocol listed above
+The alternative is to "corkscrew the snowman" which allows for using the ``git`` protocol by modifying the ssh configuration.
+Corkscrew can be installed from your package manager, or it is a single ``c`` file found on github.
+Add the following lines to ``~/.ssh/config``:
+
+.. code:: bash
+
+    ProxyCommand corkscrew snowman.ornl.gov 3128 %h %p
+    Host github.com
+
+
+If you need further help, ask another developer at the facility how to configure the corkscrew option.
+
 
 Setting up GitHub
 #################
-Please install the ZenHub Browser extension from this `page <https://www.zenhub.com/extension>`_. 
+Please install the ZenHub Browser extension from this `page <https://www.zenhub.com/extension>`_.
 
 Building Mantid
 ###############
 See :ref:`BuildingWithCMake` for information about building Mantid.
 
-Building VATES
-##############
-See :ref:`BuildingVATES` for infromation about building VATES.
-
-Archive access
-##############
+Archive access - ISIS
+#####################
 
 It is very convenient to be able to access the data archive directly.
 At ISIS, this is automatically done on the Windows machines, however OSX and Linux

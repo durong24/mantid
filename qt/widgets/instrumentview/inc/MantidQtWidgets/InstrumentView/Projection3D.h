@@ -35,8 +35,7 @@ class Projection3D : public ProjectionSurface {
   };
 
 public:
-  Projection3D(const InstrumentActor *rootActor, int winWidth, int winHeight);
-  ~Projection3D() override;
+  Projection3D(const InstrumentActor *rootActor, QSize viewportSize);
   RectF getSurfaceBounds() const override;
 
   void setViewDirection(const QString &vd);
@@ -52,6 +51,7 @@ public:
   virtual void loadFromProject(const std::string &lines) override;
   /// Save settings for the 3D projection to a project file
   virtual std::string saveToProject() const override;
+  virtual void saveShapesToTableWorkspace() override;
 
 signals:
   void finishedMove();

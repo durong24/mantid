@@ -34,7 +34,7 @@
         <x>0</x>
         <y>0</y>
         <width>728</width>
-        <height>631</height>
+        <height>656</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -104,7 +104,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="instrument">
+               <widget class="QComboBox" name="instrument_dummy">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -394,6 +394,33 @@
                 </property>
                 <property name="text">
                  <string>Select Font</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="window_behaviour_label">
+                <property name="text">
+                 <string>Additional Windows Behaviour</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="window_behaviour">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>202</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
                </widget>
               </item>

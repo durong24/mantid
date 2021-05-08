@@ -29,7 +29,7 @@ We are proud to announce version {version} of Mantid.
 
 **TODO: Add paragraph summarizing big changes**
 
-This is just one of many improvements in this release, so please take a
+These are just some of the many improvements in this release, so please take a
 look at the release notes, which are filled with details of the
 important changes and improvements in many areas. The development team
 has put a great effort into making all of these improvements within
@@ -42,7 +42,7 @@ reported any issues to us. Please keep on reporting any problems you
 have, or crashes that occur on our `forum`_.
 
 Installation packages can be found on our `download page`_
-which now links to sourceforge to mirror our download files around the world, you can also
+which now links to sourceforge to mirror our download files around the world. You can also
 access the source code on `GitHub release page`_.
 
 Citation
@@ -68,11 +68,7 @@ Changes
    *
 
 - :doc:`Framework <framework>`
-- :doc:`General UI & Usability <ui>`
-
-  - :doc:`MantidPlot <mantidplot>`
-
-  - :doc:`MantidWorkbench <mantidworkbench>`
+- :doc:`Mantid Workbench <mantidworkbench>`
 - :doc:`Diffraction <diffraction>`
 - :doc:`Muon Analysis <muon>`
 - Low Q
@@ -121,10 +117,7 @@ Data Objects
 
 Python
 ------
-''',
-    'ui.rst':'''======================
-UI & Usability Changes
-======================
+
 
 .. contents:: Table of Contents
    :local:
@@ -136,25 +129,14 @@ UI & Usability Changes
 Installation
 ------------
 
-MantidPlot
-----------
-
-See :doc:`mantidplot`.
 
 MantidWorkbench
 ---------------
 
 See :doc:`mantidworkbench`.
 
-SliceViewer and Vates Simple Interface
---------------------------------------
-''',
-    'mantidplot.rst':'''==================
-MantidPlot Changes
-==================
-
-.. contents:: Table of Contents
-   :local:
+SliceViewer
+-----------
 
 Improvements
 ############
@@ -162,18 +144,18 @@ Improvements
 Bugfixes
 ########
 ''',
-    'mantidworkbench.rst':'''=======================
-MantidWorkbench Changes
-=======================
+    'mantidworkbench.rst':'''========================
+Mantid Workbench Changes
+========================
 
 .. contents:: Table of Contents
    :local:
 
-Improvements
-############
+New and Improved
+----------------
 
 Bugfixes
-########
+--------
 '''
     }
 
@@ -193,9 +175,6 @@ Engineering Diffraction
 
 Single Crystal Diffraction
 --------------------------
-
-Imaging
--------
 '''),
     'direct_geometry.rst':('Direct Geometry Changes', '''
 .. warning:: **Developers:** Sort changes under appropriate heading
@@ -211,7 +190,6 @@ Imaging
 .. warning:: **Developers:** Sort changes under appropriate heading
     putting new features at the top of the section, followed by
     improvements, followed by bug fixes.
-
 '''),
     'sans.rst':('SANS Changes', '''
 .. warning:: **Developers:** Sort changes under appropriate heading
@@ -284,7 +262,6 @@ def toMilestoneName(version):
 
 def addToReleaseList(release_root, version):
     filename = os.path.join(release_root, 'index.rst')
-    newversion = '   %s <%s/index>\n' % (version, version)
 
     # read in the entire old version
     with open(filename, 'r') as handle:
@@ -295,9 +272,9 @@ def addToReleaseList(release_root, version):
         search_for_insertion = True
         for i in range(len(oldtext)):
             line = oldtext[i].strip()
-            if search_for_insertion and line.startswith('v') and line.endswith('/index>'):
+            if search_for_insertion and line.startswith('* :doc:`v') and line.endswith('/index>`'):
                 if version not in line:
-                    handle.write(newversion)
+                    handle.write(f"* :doc:`{version} <{version}/index>`\n")
                 search_for_insertion = False
             handle.write(oldtext[i])
 

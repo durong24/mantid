@@ -105,7 +105,7 @@ CustomInstallLib = patch_setuptools_command('install_lib')
       -E
       env
       PYTHONPATH=${_egg_link_dir}
-      ${PYTHON_EXECUTABLE}
+      ${Python_EXECUTABLE}
       ${_setup_py}
       develop
       --install-dir
@@ -129,7 +129,7 @@ CustomInstallLib = patch_setuptools_command('install_lib')
   # directories so we can have a flat structure
   install(
     CODE
-      "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${_setup_py} install -O1 --single-version-externally-managed --root=${_setup_py_build_root}/install --install-scripts=bin --install-lib=lib WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})"
+      "execute_process(COMMAND ${Python_EXECUTABLE} ${_setup_py} install -O1 --single-version-externally-managed --root=${_setup_py_build_root}/install --install-scripts=bin --install-lib=lib WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})"
   )
 
   # Registers the "installed" components with CMake so it will carry them over
@@ -164,29 +164,11 @@ CustomInstallLib = patch_setuptools_command('install_lib')
     endforeach()
   endif()
 
-  if(APPLE AND "${pkg_name}" STREQUAL "mantidqt")
-    # Horrible hack to get mantidqt into the MantidPlot.app bundle too. Remove
-    # this when MantidPlot is removed!! Registers the "installed" components
-    # with CMake so it will carry them over
-    install(
-      DIRECTORY ${_setup_py_build_root}/install/lib/
-      DESTINATION ${BIN_DIR}
-      PATTERN
-        "test"
-        EXCLUDE
-    )
-  endif()
-
-  # install the generated executable - only tested with "workbench"
-  if(_parsed_arg_EXECUTABLE)
-    # On UNIX systems install the workbench executable directly. The Windows
-    # case is handled with a custom startup script installed in WindowsNSIS
-    if(NOT WIN32)
+  # install the generated executable
+  if(_parsed_arg_EXECUTABLE AND _parsed_arg_INSTALL_BIN_DIR)
       install(
         PROGRAMS ${_setup_py_build_root}/install/bin/${pkg_name}
         DESTINATION ${_parsed_arg_INSTALL_BIN_DIR}
-        RENAME workbench-script
       )
-    endif()
   endif()
 endfunction()

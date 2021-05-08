@@ -1,5 +1,5 @@
 if(CXXTEST_FOUND)
-  include_directories(SYSTEM 
+  include_directories(SYSTEM
 				      ${CXXTEST_INCLUDE_DIR})
 
   include_directories(../../TestHelpers/inc)
@@ -25,7 +25,6 @@ if(CXXTEST_FOUND)
                              PRIVATE ${HDF5_INCLUDE_DIRS})
   target_link_libraries(DataHandlingTest
                         LINK_PRIVATE
-                        ${TCMALLOC_LIBRARIES_LINKTIME}
                         ${MANTIDLIBS}
                         Catalog
                         DataHandling

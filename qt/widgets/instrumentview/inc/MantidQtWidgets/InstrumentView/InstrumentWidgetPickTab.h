@@ -11,6 +11,7 @@
 #include "MantidQtWidgets/InstrumentView/MiniPlot.h"
 
 #include "MantidAPI/MatrixWorkspace_fwd.h"
+#include "MantidDataObjects/Peak.h"
 #include "MantidGeometry/Crystal/IPeak.h"
 #include "MantidGeometry/ICompAssembly.h"
 #include "MantidGeometry/IDTypes.h"
@@ -30,6 +31,7 @@ namespace MantidQt {
 namespace MantidWidgets {
 class InstrumentActor;
 class CollapsiblePanel;
+class CollapsibleStack;
 class ProjectionSurface;
 class ComponentInfoController;
 class DetectorPlotController;
@@ -77,6 +79,7 @@ public:
     PeakAlign,
     DrawEllipse,
     DrawRectangle,
+    DrawSector,
     DrawFree,
     EditShape
   };
@@ -88,8 +91,10 @@ public:
   void loadSettings(const QSettings &settings) override;
   bool addToDisplayContextMenu(QMenu & /*unused*/) const override;
   void selectTool(const ToolType tool);
+  SelectionType getSelectionType() const { return m_selectionType; }
   std::shared_ptr<ProjectionSurface> getSurface() const;
   const InstrumentWidget *getInstrumentWidget() const;
+  void clearWidgets();
   /// Load settings for the pick tab from a project file
   virtual void loadFromProject(const std::string &lines) override;
   /// Save settings for the pick tab to a project file
@@ -124,6 +129,7 @@ private slots:
 private:
   void showEvent(QShowEvent * /*unused*/) override;
   QColor getShapeBorderColor() const;
+  void collapsePlotPanel();
 
   /* Pick tab controls */
   MiniPlot *m_plot;     ///< Miniplot to display data in the detectors
@@ -131,8 +137,8 @@ private:
   QPushButton *m_zoom;  ///< Button switching on navigation mode
   QPushButton *m_one;   ///< Button switching on single detector selection mode
   QPushButton *m_tube; ///< Button switching on detector's parent selection mode
-  QPushButton *m_peak; ///< Button switching on peak creation mode
-  QPushButton *m_peakSelect;  ///< Button switching on peak selection mode
+  QPushButton *m_peakAdd;     ///< Button switching on peak creation mode
+  QPushButton *m_peakErase;   ///< Button switching on peak erase mode
   QPushButton *m_peakCompare; ///< Button switching on peak comparison mode
   QPushButton *m_peakAlign;   ///< Button switching on peak alignment mode
   QPushButton *m_rectangle;   ///< Button switching on drawing a rectangular
@@ -143,6 +149,7 @@ private:
   /// ring selection region
   QPushButton *m_ring_rectangle; ///< Button switching on drawing a rectangular
   /// ring selection region
+  QPushButton *m_sector; ///< Button switching on drawing a circular sector
   QPushButton
       *m_free_draw; ///< Button switching on drawing a region of arbitrary shape
   QPushButton *m_edit; ///< Button switching on edditing the selection region

@@ -13,6 +13,7 @@ import copy
 
 from sans.state.JsonSerializable import JsonSerializable
 from sans.common.enums import (RebinType, RangeStepType, SANSInstrument)
+from sans.state.StateObjects.wavelength_interval import WavelengthInterval
 from sans.state.automatic_setters import automatic_setters
 from sans.state.state_functions import (is_pure_none_or_not_none, is_not_none_and_first_larger_than_second,
                                         one_is_none, validation_message)
@@ -27,9 +28,7 @@ class StateNormalizeToMonitor(metaclass=JsonSerializable):
         self.prompt_peak_correction_enabled = False  # : Bool
 
         self.rebin_type = RebinType.REBIN
-        self.wavelength_low = None  # : List[Float] (Positive)
-        self.wavelength_high = None  # : List[Float] (Positive)
-        self.wavelength_step = None  # : Float (Positive)
+        self.wavelength_interval: WavelengthInterval = WavelengthInterval()
         self.wavelength_step_type = RangeStepType.NOT_SET
 
         self.background_TOF_general_start = None  # : Float
@@ -38,6 +37,17 @@ class StateNormalizeToMonitor(metaclass=JsonSerializable):
         self.background_TOF_monitor_stop = {}  # : Dict
 
         self.incident_monitor = None  # : Int (Positive)
+
+    @property
+    def wavelength_step_type_lin_log(self):
+        # Return the wavelength step type, converting RANGE_LIN/RANGE_LOG to
+        # LIN/LOG. This is not ideal but is required for workflow algorithms
+        # which only accept a subset of the values in the enum
+        value = self.wavelength_step_type
+        result = RangeStepType.LIN if value in [RangeStepType.LIN, RangeStepType.RANGE_LIN] else \
+            RangeStepType.LOG if value in [RangeStepType.LOG, RangeStepType.RANGE_LOG] else \
+            RangeStepType.NOT_SET
+        return result
 
     def validate(self):
         is_invalid = {}
@@ -67,20 +77,11 @@ class StateNormalizeToMonitor(metaclass=JsonSerializable):
         # -----------------
         # Wavelength rebin
         # -----------------
-        if one_is_none([self.wavelength_low, self.wavelength_high, self.wavelength_step, self.wavelength_step_type]):
+        if one_is_none([self.wavelength_interval, self.wavelength_step_type]):
             entry = validation_message("A wavelength entry has not been set.",
                                        "Make sure that all entries are set.",
-                                       {"wavelength_low": self.wavelength_low,
-                                        "wavelength_high": self.wavelength_high,
-                                        "wavelength_step": self.wavelength_step,
+                                       {"wavelength_interval": self.wavelength_interval,
                                         "wavelength_step_type": self.wavelength_step_type})
-            is_invalid.update(entry)
-
-        if is_not_none_and_first_larger_than_second([self.wavelength_low, self.wavelength_high]):
-            entry = validation_message("Incorrect wavelength bounds.",
-                                       "Make sure that lower wavelength bound is smaller then upper bound.",
-                                       {"wavelength_low": self.wavelength_low,
-                                        "wavelength_high": self.wavelength_high})
             is_invalid.update(entry)
 
         # ----------------------
@@ -145,9 +146,6 @@ class StateNormalizeToMonitorLOQ(StateNormalizeToMonitor):
         self.prompt_peak_correction_max = 20500.0
         self.prompt_peak_correction_enabled = True
 
-    def validate(self):
-        super(StateNormalizeToMonitorLOQ, self).validate()
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Builder
@@ -159,6 +157,8 @@ def set_default_incident_monitor(normalize_monitor_info, data_info):
     :param data_info: a StateData object
     """
     ipf_file_path = data_info.ipf_file_path
+    if not ipf_file_path:
+        return
     named_element = "default-incident-monitor-spectrum"
     monitor_spectrum_tag_to_search = [named_element]
     found_monitor_spectrum = get_named_elements_from_ipf_file(ipf_file_path, monitor_spectrum_tag_to_search, int)
@@ -172,10 +172,10 @@ class StateNormalizeToMonitorBuilder(object):
         super(StateNormalizeToMonitorBuilder, self).__init__()
         self._data = data_info
         self.state = StateNormalizeToMonitor()
-        set_default_incident_monitor(self.state, self._data)
+        if data_info.instrument is not SANSInstrument.NO_INSTRUMENT:
+            set_default_incident_monitor(self.state, self._data)
 
     def build(self):
-        self.state.validate()
         return copy.copy(self.state)
 
     def set_wavelength_step_type(self, val):
@@ -194,7 +194,6 @@ class StateNormalizeToMonitorBuilderLOQ(object):
         set_default_incident_monitor(self.state, self._data)
 
     def build(self):
-        self.state.validate()
         return copy.copy(self.state)
 
     def set_wavelength_step_type(self, val):
@@ -207,10 +206,7 @@ class StateNormalizeToMonitorBuilderLOQ(object):
 def get_normalize_to_monitor_builder(data_info):
     instrument = data_info.instrument
 
-    if instrument is SANSInstrument.LARMOR or instrument is SANSInstrument.SANS2D or instrument is SANSInstrument.ZOOM:
-        return StateNormalizeToMonitorBuilder(data_info)
-    elif instrument is SANSInstrument.LOQ:
+    if instrument is SANSInstrument.LOQ:
         return StateNormalizeToMonitorBuilderLOQ(data_info)
     else:
-        raise NotImplementedError("StateNormalizeToMonitorBuilder: Could not find any valid normalize to monitor "
-                                  "builder for the specified StateData object {0}".format(str(data_info)))
+        return StateNormalizeToMonitorBuilder(data_info)

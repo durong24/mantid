@@ -41,6 +41,24 @@ class PlottingCanvasViewInterface(metaclass=PlottingViewMeta):
         """Returns plotted workspaces and indices"""
         pass
 
+    @property
+    @abc.abstractmethod
+    def autoscale_state(self):
+        """Returns the state of the autoscale checkbox"""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def get_xlim_list(self):
+        """Returns a list of x limits for all axes"""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def get_ylim_list(self):
+        """Returns a list of y limits for all axes"""
+        pass
+
     @abc.abstractmethod
     def create_new_plot_canvas(self, num_axes):
         """Creates a new blank plotting canvas"""
@@ -114,4 +132,20 @@ class PlottingCanvasViewInterface(metaclass=PlottingViewMeta):
     @abc.abstractmethod
     def get_axis_limits(self, axis_number):
         """Get the x and y limits if the specified axis"""
+        pass
+
+    @abc.abstractmethod
+    def add_uncheck_autoscale_subscriber(self, observer):
+        pass
+
+    @abc.abstractmethod
+    def add_enable_autoscale_subscriber(self, observer):
+        pass
+
+    @abc.abstractmethod
+    def add_disable_autoscale_subscriber(self, observer):
+        pass
+
+    @abc.abstractmethod
+    def add_range_changed_subscriber(self, observer):
         pass

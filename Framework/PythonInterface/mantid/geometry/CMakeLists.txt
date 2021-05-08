@@ -42,7 +42,10 @@ set(EXPORT_FILES
     src/Exports/DetectorInfoPythonIterator.cpp
     src/Exports/ComponentInfo.cpp
     src/Exports/ComponentInfoItem.cpp
-    src/Exports/ComponentInfoPythonIterator.cpp)
+    src/Exports/ComponentInfoPythonIterator.cpp
+    src/Exports/MeshObject.cpp
+    src/Exports/SampleEnvironment.cpp
+)
 
 # Generate a source file from the export definitions and provided template
 
@@ -53,50 +56,43 @@ create_module(${MODULE_TEMPLATE} ${MODULE_DEFINITION} ${EXPORT_FILES})
 
 set(SRC_FILES)
 
-set(INC_FILES
-  inc/MantidPythonInterface/geometry/ComponentInfoPythonIterator.h
-  inc/MantidPythonInterface/geometry/DetectorInfoPythonIterator.h)
+set(INC_FILES inc/MantidPythonInterface/geometry/ComponentInfoPythonIterator.h
+              inc/MantidPythonInterface/geometry/DetectorInfoPythonIterator.h
+)
+
+# Add a precompiled header where they are supported
+list (APPEND ALL_FILES ${EXPORT_FILES} ${SRC_FILES})
+enable_precompiled_headers(inc/MantidPythonInterface/geometry/PrecompiledHeader.h ALL_FILES)
 
 # Create the target for this directory
-add_library(PythonGeometryModule
-            ${EXPORT_FILES}
-            ${MODULE_DEFINITION}
-            ${SRC_FILES}
-            ${INC_FILES}
-            ${PYTHON_INSTALL_FILES})
+add_library(
+  PythonGeometryModule ${ALL_FILES} ${MODULE_DEFINITION}
+                       ${INC_FILES} ${PYTHON_INSTALL_FILES}
+)
 set_python_properties(PythonGeometryModule _geometry)
 
 target_include_directories(PythonGeometryModule PUBLIC inc)
 
 # Add the required dependencies
-target_link_libraries(PythonGeometryModule
-                      PRIVATE ${TCMALLOC_LIBRARIES_LINKTIME}
-                              PythonInterfaceCore
-                              PythonKernelModule
-                              Geometry
-                              Beamline
-                              Types
-                              Kernel
-                              ${PYTHON_LIBRARIES}			      
-                              ${POCO_LIBRARIES}
-                              ${Boost_LIBRARIES}
-                              ${TBB_LIBRARIES}
-                              ${TBB_MALLOC_LIBRARIES})
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set_target_properties(
-    PythonGeometryModule
-    PROPERTIES INSTALL_RPATH
-               "@loader_path/../../../MacOS;@loader_path/../kernel/")
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  set_target_properties(
-    PythonGeometryModule
-    PROPERTIES INSTALL_RPATH "\$ORIGIN/../../../${LIB_DIR};\$ORIGIN/../kernel/")
-endif()
+target_link_libraries(
+  PythonGeometryModule
+  PRIVATE
+          PythonInterfaceCore
+          PythonKernelModule
+          Geometry
+          Beamline
+          Types
+          Kernel
+          ${POCO_LIBRARIES}
+          ${Boost_LIBRARIES}
+          ${TBB_LIBRARIES}
+          ${TBB_MALLOC_LIBRARIES}
+)
 
 # Installation settings
-mtd_install_targets(TARGETS
-                    PythonGeometryModule
-                    INSTALL_DIRS
-                    ${LIB_DIR}/mantid/geometry
-                    ${WORKBENCH_LIB_DIR}/mantid/geometry)
+set_target_properties(PythonGeometryModule
+    PROPERTIES INSTALL_RPATH "${EXT_INSTALL_RPATH};${DL_ORIGIN_TAG}/../kernel/")
+mtd_install_targets(
+  TARGETS PythonGeometryModule INSTALL_DIRS ${SITE_PACKAGES}/mantid/geometry
+  ${WORKBENCH_SITE_PACKAGES}/mantid/geometry
+)

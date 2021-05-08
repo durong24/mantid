@@ -34,19 +34,16 @@ class IDecoder;
 MainWindowPresenter is the concrete main window presenter implementing the
 functionality defined by the interface IMainWindowPresenter.
 */
-class MANTIDQT_ISISREFLECTOMETRY_DLL MainWindowPresenter
-    : public MainWindowSubscriber,
-      public IMainWindowPresenter,
-      public OptionsDialogPresenterSubscriber {
+class MANTIDQT_ISISREFLECTOMETRY_DLL MainWindowPresenter : public MainWindowSubscriber,
+                                                           public IMainWindowPresenter,
+                                                           public OptionsDialogPresenterSubscriber {
 public:
   /// Constructor
-  MainWindowPresenter(
-      IMainWindowView *view, IMessageHandler *messageHandler,
-      IFileHandler *fileHandler, std::unique_ptr<IEncoder> encoder,
-      std::unique_ptr<IDecoder> decoder,
-      std::unique_ptr<MantidWidgets::ISlitCalculator> slitCalculator,
-      std::unique_ptr<IOptionsDialogPresenter> optionsDialogPresenter,
-      std::unique_ptr<IBatchPresenterFactory> batchPresenterFactory);
+  MainWindowPresenter(IMainWindowView *view, IMessageHandler *messageHandler, IFileHandler *fileHandler,
+                      std::unique_ptr<IEncoder> encoder, std::unique_ptr<IDecoder> decoder,
+                      std::unique_ptr<MantidWidgets::ISlitCalculator> slitCalculator,
+                      std::unique_ptr<IOptionsDialogPresenter> optionsDialogPresenter,
+                      std::unique_ptr<IBatchPresenterFactory> batchPresenterFactory);
   ~MainWindowPresenter();
   MainWindowPresenter(MainWindowPresenter const &) = delete;
   MainWindowPresenter(MainWindowPresenter &&);
@@ -58,17 +55,18 @@ public:
   bool isAnyBatchAutoreducing() const override;
   bool isCloseEventPrevented() override;
   bool isOverwriteBatchPrevented(int tabIndex) const override;
+  bool isOverwriteBatchPrevented(IBatchPresenter const *batchPresenter) const override;
   bool isProcessAllPrevented() const override;
   bool isProcessPartialGroupPrevented() const override;
   void notifyAnyBatchAutoreductionResumed() override;
   void notifyAnyBatchAutoreductionPaused() override;
   void notifyAnyBatchReductionResumed() override;
   void notifyAnyBatchReductionPaused() override;
-  void
-  notifyChangeInstrumentRequested(std::string const &instrumentName) override;
+  void notifyChangeInstrumentRequested(std::string const &instrumentName) override;
   void notifyUpdateInstrumentRequested() override;
   Mantid::Geometry::Instrument_const_sptr instrument() const override;
   std::string instrumentName() const override;
+  bool discardChanges(std::string const &message) const override;
 
   // MainWindowSubscriber overrides
   void notifyHelpPressed() override;
@@ -97,20 +95,19 @@ private:
   std::unique_ptr<IBatchPresenterFactory> m_batchPresenterFactory;
 
   bool isBatchUnsaved(int batchIndex) const override;
-  bool isAnyBatchUnsaved() override;
-  bool isWarnDiscardChangesChecked() const override;
+  bool isAnyBatchUnsaved() const override;
   bool isRoundChecked() const override;
   int &getRoundPrecision() const override;
   boost::optional<int> roundPrecision() const override;
   bool isWarnProcessAllChecked() const override;
   bool isWarnProcessPartialGroupChecked() const override;
   bool isCloseBatchPrevented(int batchIndex) const override;
+  bool isWarnDiscardChangesChecked() const;
+  bool discardChanges() const;
   void optionsChanged() const;
   void showHelp();
   void addNewBatch(IBatchView *batchView);
-  void initNewBatch(IBatchPresenter *batchPresenter,
-                    std::string const &instrument,
-                    boost::optional<int> precision);
+  void initNewBatch(IBatchPresenter *batchPresenter, std::string const &instrument, boost::optional<int> precision);
   void updateInstrument(const std::string &instrumentName);
   void setDefaultInstrument(const std::string &newInstrument);
   void onInstrumentChanged();

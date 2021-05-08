@@ -1,18 +1,15 @@
 # Subdirectories from which ui files need processing to py files FilterEvents
 # doesn't need any special work
 add_subdirectory(Interface/ui)
-add_subdirectory(ErrorReporter)
 
 # Chain all required interface custom targets into CompilePyUI
 add_custom_target(CompilePyUI
-		  DEPENDS CompileUIUI
-		          CompileUIErrorReporter)
+		  DEPENDS CompileUIUI)
 
 # Put them into the 'CompileUI' folder or group in VS and the like, for
 # convenience
 set_property(TARGET CompilePyUI PROPERTY FOLDER "CompilePyUI")
 set_property(TARGET CompileUIUI PROPERTY FOLDER "CompilePyUI")
-set_property(TARGET CompileUIErrorReporter PROPERTY FOLDER "CompilePyUI")
 
 # External GUIs
 add_subdirectory(ExternalInterfaces)
@@ -33,7 +30,7 @@ set(_pth_dirs .
     SANS
     SCD_Reduction
     TemporaryREF_MScripts
-    Vates)
+)
 
 set(_pth_list_dev)
 set(_pth_list_install)
@@ -73,12 +70,9 @@ string(REPLACE ";"
                "${_pth_list_install}")
 file(WRITE ${_scripts_pth_install} "${_pth_list_install}\n")
 
-install(FILES ${_scripts_pth_install}
-        DESTINATION ${BIN_DIR}
-        RENAME mantid-scripts.pth)
-install(FILES ${_scripts_pth_install}
-        DESTINATION ${WORKBENCH_BIN_DIR}
-        RENAME mantid-scripts.pth)
+mtd_install_files(FILES ${_scripts_pth_install}
+                  INSTALL_DIRS ${BIN_DIR} ${WORKBENCH_BIN_DIR}
+                  RENAME mantid-scripts.pth)
 
 # Testing
 add_subdirectory(test)

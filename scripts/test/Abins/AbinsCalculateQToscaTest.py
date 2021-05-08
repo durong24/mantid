@@ -17,25 +17,23 @@ from abins import KpointsData
 class CalculateQToscaTest(unittest.TestCase):
     def setUp(self):
         self._tosca_instrument = abins.instruments.get_instrument("TOSCA")
-        self._raw_data = KpointsData(num_k=1, num_atoms=2)
-        self._raw_data.set({"k_vectors": np.asarray([[0.0, 0.0, 0.0]]),
-                            "weights": np.asarray([0.3]),
-                            # 6 frequencies, globally frequencies are in hartree units if necessary
-                            # they are converted to cm^-1
-                            "frequencies": (np.asarray([[100.0, 200.0, 300.0, 400.0, 500.0, 600.0]])
-                                            * CM1_2_HARTREE),
 
-                            "atomic_displacements":
-                            # 12 atomic displacements
-                            np.asarray([[[[1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0],
-                                          [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0]],
-                                         [[1.0, 1.0, 1.0], [1.0, 1.0, 111.0], [1.0, 1.0, 1.0],
-                                          [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0]]]]).astype(complex),
-                           "unit_cell": np.asarray([[7.44, 0., 0.],
-                                                    [0., 9.55, 0.],
-                                                    [0., 0., 6.92]])
-                            }
-                           )
+        atomic_displacements = np.asarray([[[[1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0],
+                                             [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0]],
+                                            [[1.0, 1.0, 1.0], [1.0, 1.0, 111.0], [1.0, 1.0, 1.0],
+                                             [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],  [1.0, 1.0, 1.0]]]]).astype(complex)
+
+        self._raw_data = KpointsData(k_vectors=np.asarray([[0.0, 0.0, 0.0]]),
+                                     weights=np.asarray([0.3]),
+                                     # 6 frequencies, globally frequencies are in hartree units if necessary
+                                     # they are converted to cm^-1
+                                     frequencies=(np.asarray([[100.0, 200.0, 300.0, 400.0, 500.0, 600.0]])
+                                                  * CM1_2_HARTREE),
+                                     # 12 atomic displacements
+                                     atomic_displacements=atomic_displacements,
+                                     unit_cell=np.asarray([[7.44, 0., 0.],
+                                                           [0., 9.55, 0.],
+                                                           [0., 0., 6.92]]))
 
     # Use case: TOSCA instrument
     def test_TOSCA(self):
@@ -51,7 +49,9 @@ class CalculateQToscaTest(unittest.TestCase):
         # noinspection PyTypeChecker
         correct_q_data = k2_i + k2_f - 2 * np.power(k2_i * k2_f, 0.5) * tosca_params['cos_scattering_angle']
 
-        q2 = self._tosca_instrument.calculate_q_powder(freq)
+        q2 = self._tosca_instrument.calculate_q_powder(
+            input_data=freq,
+            angle=tosca_params['settings']['Forward (TOSCA)']['angles'][0])
 
         # noinspection PyTypeChecker
         self.assertEqual(True, np.allclose(correct_q_data, q2))

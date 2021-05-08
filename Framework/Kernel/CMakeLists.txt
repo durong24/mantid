@@ -1,4 +1,5 @@
 set(SRC_FILES
+    src/SetValueWhenProperty.cpp
     src/ANN_complete.cpp
     src/ArrayBoundedValidator.cpp
     src/ArrayLengthValidator.cpp
@@ -23,7 +24,6 @@ set(SRC_FILES
     src/DateTimeValidator.cpp
     src/DateValidator.cpp
     src/DeltaEMode.cpp
-    src/Diffraction.cpp
     src/DirectoryValidator.cpp
     src/DiskBuffer.cpp
     src/DllOpen.cpp
@@ -80,7 +80,6 @@ set(SRC_FILES
     src/NexusHDF5Descriptor.cpp
     src/NullValidator.cpp
     src/OptionalBool.cpp
-    src/ParaViewVersion.cpp
     src/ProgressBase.cpp
     src/Property.cpp
     src/PropertyHistory.cpp
@@ -141,6 +140,7 @@ set(SRC_UNITY_IGNORE_FILES
     src/System.cpp)
 
 set(INC_FILES
+    inc/MantidKernel/SetValueWhenProperty.h
     inc/MantidKernel/ANN/ANN.h
     inc/MantidKernel/ANN/ANNperf.h
     inc/MantidKernel/ANN/ANNx.h
@@ -174,7 +174,6 @@ set(INC_FILES
     inc/MantidKernel/DateTimeValidator.h
     inc/MantidKernel/DateValidator.h
     inc/MantidKernel/DeltaEMode.h
-    inc/MantidKernel/Diffraction.h
     inc/MantidKernel/DirectoryValidator.h
     inc/MantidKernel/DiskBuffer.h
     inc/MantidKernel/DllConfig.h
@@ -247,7 +246,6 @@ set(INC_FILES
     inc/MantidKernel/NexusHDF5Descriptor.h
     inc/MantidKernel/NullValidator.h
     inc/MantidKernel/OptionalBool.h
-    inc/MantidKernel/ParaViewVersion.h
     inc/MantidKernel/PhysicalConstants.h
     inc/MantidKernel/PocoVersion.h
     inc/MantidKernel/ProgressBase.h
@@ -345,7 +343,6 @@ set(TEST_FILES
     DateTimeValidatorTest.h
     DateValidatorTest.h
     DeltaEModeTest.h
-    DiffractionTest.h
     DirectoryValidatorTest.h
     DiskBufferISaveableTest.h
     DiskBufferTest.h
@@ -508,11 +505,6 @@ endif()
 # Add to the 'Framework' group in VS
 set_property(TARGET Kernel PROPERTY FOLDER "MantidFramework")
 
-# For older gcc versions (<4.5) if we do not put stdc++ first then things crash
-# when an exceptions are thrown in Python.
-if(GCC_COMPILER_VERSION AND GCC_COMPILER_VERSION VERSION_LESS "4.5")
-  target_link_libraries(Kernel LINK_PRIVATE stdc++)
-endif()
 target_link_libraries(Kernel
                       PUBLIC
                       ${NEXUS_LIBRARIES}
@@ -521,7 +513,6 @@ target_link_libraries(Kernel
                       ${TBB_LIBRARIES}
                       ${TBB_MALLOC_LIBRARIES}
                       PRIVATE
-                      ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${GSL_LIBRARIES}
                       ${MANTIDLIBS}
                       ${NETWORK_LIBRARIES}
@@ -552,18 +543,9 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/inc/MantidKernel/PocoVersion.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/inc/MantidKernel/PocoVersion.h)
 
-# This section deals with creating the ParaViewVersion implementation
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/ParaViewVersion.cpp.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaViewVersion.cpp)
 # This section deals with creating the GithubApiHelper implementation
-
-if(WIN32)
-  set(GITHUB_AUTHORIZATION_TOKEN "8ec7afc857540ee60af78cba1cf7779a6ed0b6b9")
-elseif(APPLE)
-  set(GITHUB_AUTHORIZATION_TOKEN "9f1c1acd61ecb87b21ad0382f6b403c8294992c5")
-else()
-  set(GITHUB_AUTHORIZATION_TOKEN "ccacbaf39a7ad8151fca03b4ea99a29b28f0993b")
-endif()
+set (GITHUB_AUTHORIZATION_TOKEN ""
+     CACHE STRING "token used for authenticated read access to github")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/inc/MantidKernel/GitHubApiHelper.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/inc/MantidKernel/GitHubApiHelper.h)
 
@@ -580,26 +562,12 @@ endif()
 set(FRAMEWORK_PLUGINS_DIR ".")
 set(QT_PLUGINS_DIR ".")
 # %V will be replaced with the major version of Qt at runtime
-if(MAKE_VATES)
-  set(PV_PLUGINS_DIR "./plugins/paraview/qt%V")
-  if(MSVC)
-    set(
-      PARAVIEW_PYTHON_PATHS
-      "${ParaView_DIR}/bin/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>;${ParaView_DIR}/lib/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>;${ParaView_DIR}/lib/site-packages;"
-      )
-  else()
-    set(PARAVIEW_PYTHON_PATHS
-        "${ParaView_DIR}/lib;${ParaView_DIR}/lib/site-packages;")
-  endif()
-else()
-  set(PV_PLUGINS_DIR "")
-  set(PARAVIEW_PYTHON_PATHS "")
-endif()
-set(IGNORE_PARAVIEW "0")
+set(PV_PLUGINS_DIR "")
 set(UPDATE_INSTRUMENT_DEFINTITIONS "0")
 set(CHECK_FOR_NEW_MANTID_VERSION "0")
 set(ENABLE_USAGE_REPORTS "0")
 set(PYTHONPLUGIN_DIRS "${MANTID_ROOT}/Framework/PythonInterface/plugins")
+set(PYTHONPLUGIN_MANIFEST "${CMAKE_BINARY_DIR}/Framework/PythonInterface/plugins/python-plugin-manifest.txt")
 set(
   DATADIRS
   ${ExternalData_BINARY_ROOT}/Testing/Data/UnitTest;${ExternalData_BINARY_ROOT}/Testing/Data/DocTest;${MANTID_ROOT}/instrument
@@ -613,8 +581,6 @@ set(HTML_ROOT ${DOCS_BUILDDIR}/html)
 # configuration below
 if(MPI_BUILD)
   set(CONSOLEPATTERN "%H:%M:%S,%i [%N:%P] %p %s - %t")
-  set(PV_PLUGINS_DIR "")
-  set(IGNORE_PARAVIEW "1")
 else()
   set(CONSOLEPATTERN "%s-[%p] %t")
 endif()
@@ -654,20 +620,7 @@ else()
 endif()
 set(FRAMEWORK_PLUGINS_DIR ${MANTID_ROOT}/plugins)
 set(PYTHONPLUGIN_DIRS "${FRAMEWORK_PLUGINS_DIR}/python")
-if(MAKE_VATES)
-  if(APPLE)
-    set(PARAVIEW_PYTHON_PATHS "../Libraries;../Python;")
-  elseif(WIN32)
-    set(PV_LIBS
-        "../lib/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}")
-    set(PARAVIEW_PYTHON_PATHS "${PV_LIBS}/site-packages;")
-  else() # Linux
-    set(PV_LIBS "${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_VERSION}")
-    set(PARAVIEW_PYTHON_PATHS "${PV_LIBS};${PV_LIBS}/site-packages;")
-  endif()
-else()
-  set(PARAVIEW_PYTHON_PATHS "")
-endif()
+set(PYTHONPLUGIN_MANIFEST "${PYTHONPLUGIN_DIRS}/python-plugin-manifest.txt")
 set(UPDATE_INSTRUMENT_DEFINTITIONS "${ENABLE_NETWORK_ACCESS}")
 set(CHECK_FOR_NEW_MANTID_VERSION "${ENABLE_NETWORK_ACCESS}")
 set(ENABLE_USAGE_REPORTS "${ENABLE_NETWORK_ACCESS}")
@@ -680,21 +633,16 @@ set(HTML_ROOT ../share/doc/html)
 if(${CMAKE_PROJECT_NAME} MATCHES "MantidFramework")
   set(QT_PLUGINS_DIR "")
   set(COLORMAPS_FOLDER "")
-  set(PV_PLUGINS_DIR "")
-  set(IGNORE_PARAVIEW "1")
 else()
   set(QT_PLUGINS_DIR "${MANTID_ROOT}/plugins/qt%V")
-  set(PV_PLUGINS_DIR "${MANTID_ROOT}/plugins/${PVPLUGINS_SUBDIR}/qt%V")
   set(COLORMAPS_FOLDER ${MANTID_ROOT}/colormaps)
 endif()
 
 set(CONSOLECHANNELCLASS "StdoutChannel")
 configure_file(../Properties/Mantid.properties.template
                ${CMAKE_CURRENT_BINARY_DIR}/Mantid.properties.install)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Mantid.properties.install
-        DESTINATION ${BIN_DIR}
-        RENAME Mantid.properties)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Mantid.properties.install
-        DESTINATION ${WORKBENCH_BIN_DIR}
-        RENAME Mantid.properties)
+mtd_install_files(FILES ${CMAKE_CURRENT_BINARY_DIR}/Mantid.properties.install
+                  INSTALL_DIRS ${BIN_DIR} ${WORKBENCH_BIN_DIR}
+                  RENAME Mantid.properties)
+

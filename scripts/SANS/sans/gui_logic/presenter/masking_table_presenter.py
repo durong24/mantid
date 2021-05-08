@@ -86,9 +86,8 @@ def perform_load(serialized_state):
 
 
 def perform_move(state, workspace):
-    move_info = state.move
-    move_component(move_info=move_info, component_name='', workspace=workspace, move_type=MoveTypes.RESET_POSITION)
-    move_component(component_name=None, move_info=move_info, workspace=workspace, move_type=MoveTypes.INITIAL_MOVE)
+    move_component(state=state, component_name='', workspace=workspace, move_type=MoveTypes.RESET_POSITION)
+    move_component(component_name=None, state=state, workspace=workspace, move_type=MoveTypes.INITIAL_MOVE)
 
 
 def store_in_ads_as_hidden(workspace_name, workspace):
@@ -149,7 +148,6 @@ class MaskingTablePresenter(object):
         # Get the state information for the selected row.
         # Disable the button
         self._view.set_display_mask_button_to_processing()
-
         try:
             row_index = self._view.get_current_row()
             state = self.get_state(row_index)
@@ -158,7 +156,7 @@ class MaskingTablePresenter(object):
             raise e  # propagate errors for run_tab_presenter to deal with
 
         if not state:
-            self._logger.error("You can only show a masked workspace if a user file has been loaded and there"
+            self._logger.error("You can only show a masked workspace if a user file has been loaded and a"
                                "valid sample scatter entry has been provided in the selected row.")
             self._view.set_display_mask_button_to_normal()
             return

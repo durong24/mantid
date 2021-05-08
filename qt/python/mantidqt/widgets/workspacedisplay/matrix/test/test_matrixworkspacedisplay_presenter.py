@@ -52,7 +52,7 @@ class MatrixWorkspaceDisplayPresenterTest(unittest.TestCase):
         container = Mock(spec=StatusBarView)
         container.status_bar = Mock(spec=QStatusBar)
         MatrixWorkspaceDisplay(ws, view=view, container=container)
-        self.assertEqual(3, view.set_context_menu_actions.call_count)
+        self.assertEqual(4, view.set_context_menu_actions.call_count)
         self.assertEqual(1, view.set_model.call_count)
 
     @patch(show_mouse_toast_package)
@@ -146,13 +146,14 @@ class MatrixWorkspaceDisplayPresenterTest(unittest.TestCase):
 
         # two columns are selected at different positions
         mock_index = MockQModelIndex(None, None)
+        mock_model = mock_table.model()
         mock_table.mock_selection_model.currentIndex = Mock(return_value=mock_index)
 
         presenter.action_copy_cells(mock_table)
 
         mock_table.selectionModel.assert_called_once_with()
         self.assertEqual(1, mock_copy.call_count)
-        self.assertEqual(9, mock_index.sibling.call_count)
+        self.assertEqual(9, mock_model.createIndex.call_count)
         mock_show_mouse_toast.assert_called_once_with(MatrixWorkspaceDisplay.COPY_SUCCESSFUL_MESSAGE)
 
     @patch(show_mouse_toast_package)
@@ -324,6 +325,92 @@ class MatrixWorkspaceDisplayPresenterTest(unittest.TestCase):
         self.assertNotCalled(mock_table.mock_selection_model.selectedColumns)
         self.assertNotCalled(mock_plot)
 
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.MatrixWorkspaceDisplay.notify_no_selection_to_copy")
+    def test_action_copy_bin_to_table_no_selection(self, mock_notify):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=False)
+        self.setup_mock_selection(mock_table, num_selected_cols=None, num_selected_rows=None)
+        mock_table.selectionModel().selectedColumns.return_value = []
+
+        presenter.action_copy_bin_to_table(mock_table)
+
+        self.assertEqual(mock_notify.call_count, 1)
+        self.assertEqual(mock_table.model.call_count, 0)
+
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.MatrixWorkspaceDisplay.notify_no_selection_to_copy")
+    def test_action_copy_bin_to_table_only_spectra_selected(self, mock_notify):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=True)
+        self.setup_mock_selection(mock_table, num_selected_cols=None, num_selected_rows=2)
+        mock_table.selectionModel().selectedColumns.return_value = []
+
+        presenter.action_copy_bin_to_table(mock_table)
+
+        self.assertEqual(mock_notify.call_count, 1)
+        self.assertEqual(mock_table.model.call_count, 0)
+
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.CreateEmptyTableWorkspace")
+    def test_action_copy_bin_to_table(self, mock_create_table):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=False)
+        self.setup_mock_selection(mock_table, num_selected_cols=2, num_selected_rows=None)
+        mock_table_ws = Mock()
+        mock_create_table.return_value = mock_table_ws
+        mock_input_ws = Mock()
+        mock_input_ws.name.return_value = "mock_ws"
+        mock_input_ws.getNumberHistograms.return_value = 2
+        mock_input_ws.axes.return_value = 1
+        mock_input_ws.readY.return_value = [2, 2]
+        mock_input_ws.readE.return_value = [1, 1]
+        mock_input_ws.readDx.return_value = [3, 3]
+
+        mock_table.model().ws = mock_input_ws
+
+        presenter.action_copy_bin_to_table(mock_table)
+
+        # (2 Selected Bins * 2 Spectra * 3 Cols per bin) + 2 spectra names
+        self.assertEqual(mock_table_ws.setCell.call_count, 14)
+
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.MatrixWorkspaceDisplay.notify_no_selection_to_copy")
+    def test_action_copy_spectrum_to_table_no_selection(self, mock_notify):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=False)
+        self.setup_mock_selection(mock_table, num_selected_cols=None, num_selected_rows=None)
+        mock_table.selectionModel().selectedRows.return_value = []
+
+        presenter.action_copy_spectrum_to_table(mock_table)
+
+        self.assertEqual(mock_notify.call_count, 1)
+        self.assertEqual(mock_table.model.call_count, 0)
+
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.MatrixWorkspaceDisplay.notify_no_selection_to_copy")
+    def test_action_copy_spectra_to_table_only_bins_selected(self, mock_notify):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=True)
+        self.setup_mock_selection(mock_table, num_selected_cols=2, num_selected_rows=None)
+        mock_table.selectionModel().selectedRows.return_value = []
+
+        presenter.action_copy_spectrum_to_table(mock_table)
+
+        self.assertEqual(mock_notify.call_count, 1)
+        self.assertEqual(mock_table.model.call_count, 0)
+
+    @patch("mantidqt.widgets.workspacedisplay.matrix.presenter.CreateEmptyTableWorkspace")
+    def test_action_copy_spectrum_to_table(self, mock_create_table):
+        _, mock_table, _, presenter = self.common_setup_action_plot(table_has_selection=False)
+        self.setup_mock_selection(mock_table, num_selected_cols=None, num_selected_rows=2)
+        mock_table_ws = Mock()
+        mock_create_table.return_value = mock_table_ws
+        mock_input_ws = Mock()
+        mock_input_ws.name.return_value = "mock_ws"
+        mock_input_ws.blocksize.return_value = 2
+        mock_input_ws.readX.return_value = [3, 3]
+        mock_input_ws.readY.return_value = [2, 2]
+        mock_input_ws.readE.return_value = [1, 1]
+        mock_input_ws.readDx.return_value = [4, 4]
+
+        mock_table.model().ws = mock_input_ws
+
+        presenter.action_copy_spectrum_to_table(mock_table)
+
+        # 2 Selected Bins * 2 Spectra * 4 Cols per bin
+        self.assertEqual(mock_table_ws.setCell.call_count, 16)
+
     @with_mock_presenter
     def test_close_incorrect_workspace(self, ws, view, presenter):
         presenter.close(ws.TEST_NAME + "123")
@@ -360,9 +447,9 @@ class MatrixWorkspaceDisplayPresenterTest(unittest.TestCase):
     def test_replace(self, ws, view, presenter):
         view.set_model.reset_mock()
 
-        presenter.replace_workspace(ws.TEST_NAME, ws)
+        presenter.action_replace_workspace(ws.TEST_NAME, ws)
 
-        self.assertEqual(3, view.set_context_menu_actions.call_count)
+        self.assertEqual(4, view.set_context_menu_actions.call_count)
         self.assertEqual(1, view.set_model.call_count)
 
 

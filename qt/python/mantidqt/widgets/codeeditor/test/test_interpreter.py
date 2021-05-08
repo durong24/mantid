@@ -5,8 +5,6 @@
 #   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 # SPDX - License - Identifier: GPL - 3.0 +
 #    This file is part of the mantid workbench.
-#
-#
 import unittest
 
 from unittest import mock
@@ -55,6 +53,43 @@ class PythonFileInterpreterTest(unittest.TestCase):
             else:
                 self.assertEqual(w.clear_key_binding(key_combo), None,
                                  msg=fail_msg)
+
+    def test_variables_reset(self):
+        w = PythonFileInterpreter(content='x=\'this is a string\'\r\nprint(x)')
+        w.execute_async()
+        self.assertTrue('x' in w._presenter.model._globals_ns.keys())
+
+        w._presenter.is_executing = False
+        w._presenter.view.editor.hasSelectedText = mock.MagicMock()
+        w._presenter.view.editor.hasSelectedText.return_value = True
+        w._presenter.view.editor.selectedText = mock.MagicMock()
+        w._presenter.view.editor.selectedText.return_value = 'print(x)'
+        w._presenter.view.editor.getSelection = mock.MagicMock()
+        w._presenter.view.editor.getSelection.return_value = [0, 0, 0, 0]
+        w.execute_async()
+        self.assertTrue('x' in w._presenter.model._globals_ns.keys())
+
+        w._presenter.view.editor.text = mock.MagicMock()
+        w._presenter.view.editor.text.return_value = 'print(x)'
+        w._presenter.is_executing = False
+        w._presenter.view.editor.hasSelectedText.return_value = False
+        w.execute_async()
+        self.assertFalse('x' in w._presenter.model._globals_ns.keys())
+
+    def test_connect_to_progress_reports_connects_sig_process_to_the_code_editor_progress(self):
+        w = PythonFileInterpreter()
+        w.editor = mock.MagicMock()
+        this = mock.MagicMock()
+
+        w.connect_to_progress_reports(this)
+        w.editor.progressMade.connect.assert_called_once()
+
+    def test_disconnect_from_progress_reports_attempts_to_disconnect_sig_process_from_the_code_editor(self):
+        w = PythonFileInterpreter()
+        w.editor = mock.MagicMock()
+
+        w.disconnect_from_progress_reports()
+        w.editor.progressMade.disconnect.assert_called_once()
 
 
 if __name__ == '__main__':

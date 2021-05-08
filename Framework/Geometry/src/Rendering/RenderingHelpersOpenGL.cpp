@@ -147,7 +147,7 @@ void renderSphere(const detail::ShapeInfo &shapeInfo) {
   glPushMatrix();
   auto center = shapeInfo.points()[0];
   glTranslated(center[0], center[1], center[2]);
-  gluSphere(qobj, shapeInfo.radius(), Sphere::g_nslices, Sphere::g_nstacks);
+  gluSphere(qobj, shapeInfo.radius(), Sphere::g_NSLICES, Sphere::g_NSTACKS);
   glPopMatrix();
   gluDeleteQuadric(qobj);
 }
@@ -179,9 +179,7 @@ void renderCuboid(const detail::ShapeInfo &shapeInfo) {
   // first face
   glBegin(GL_QUADS);
   for (auto &row : faceindex) {
-    const auto normal =
-        normalize((vertex[row[0]] - vertex[row[1]])
-                      .cross_prod((vertex[row[0]] - vertex[row[2]])));
+    const auto normal = normalize((vertex[row[0]] - vertex[row[1]]).cross_prod((vertex[row[0]] - vertex[row[2]])));
     glNormal3d(normal[0], normal[1], normal[2]);
     for (const int ij : row) {
       if (ij == 0)
@@ -258,10 +256,9 @@ void renderCone(const detail::ShapeInfo &shapeInfo) {
   glMultMatrixd(mat);
   auto radius = shapeInfo.radius();
   auto height = shapeInfo.height();
-  gluCylinder(qobj, 0, radius, height, Geometry::Cone::g_nslices,
-              Geometry::Cone::g_nstacks);
+  gluCylinder(qobj, 0, radius, height, Geometry::Cone::g_NSLICES, Geometry::Cone::g_NSTACKS);
   glTranslated(0.0, 0.0, height);
-  gluDisk(qobj, 0, radius, Geometry::Cone::g_nslices, 1);
+  gluDisk(qobj, 0, radius, Geometry::Cone::g_NSLICES, 1);
   glPopMatrix();
 }
 
@@ -281,12 +278,11 @@ void renderCylinder(const detail::ShapeInfo &shapeInfo) {
   glMultMatrixd(mat);
   auto radius = shapeInfo.radius();
   auto height = shapeInfo.height();
-  gluCylinder(qobj, radius, radius, height, Cylinder::g_nslices,
-              Cylinder::g_nstacks);
+  gluCylinder(qobj, radius, radius, height, Cylinder::g_NSLICES, Cylinder::g_NSTACKS);
   gluQuadricTexture(qobj, false);
-  gluDisk(qobj, 0, radius, Cylinder::g_nslices, 1);
+  gluDisk(qobj, 0, radius, Cylinder::g_NSLICES, 1);
   glTranslated(0.0, 0.0, height);
-  gluDisk(qobj, 0, radius, Cylinder::g_nslices, 1);
+  gluDisk(qobj, 0, radius, Cylinder::g_NSLICES, 1);
   glPopMatrix();
 }
 } // namespace

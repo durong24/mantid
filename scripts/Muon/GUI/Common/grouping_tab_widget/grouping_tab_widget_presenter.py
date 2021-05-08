@@ -4,7 +4,7 @@
 #   NScD Oak Ridge National Laboratory, European Spallation Source,
 #   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 # SPDX - License - Identifier: GPL - 3.0 +
-from mantidqt.utils.observer_pattern import Observer, Observable, GenericObservable, GenericObserver
+from mantidqt.utils.observer_pattern import Observer, Observable, GenericObservable,GenericObserver
 import Muon.GUI.Common.utilities.muon_file_utils as file_utils
 import Muon.GUI.Common.utilities.xml_utils as xml_utils
 import Muon.GUI.Common.utilities.algorithm_utils as algorithm_utils
@@ -12,6 +12,14 @@ from Muon.GUI.Common import thread_model
 from Muon.GUI.Common.run_selection_dialog import RunSelectionDialog
 from Muon.GUI.Common.thread_model_wrapper import ThreadModelWrapper
 from Muon.GUI.Common.utilities.run_string_utils import run_string_to_list
+from Muon.GUI.Common.muon_period_info_widget import MuonPeriodInfoWidget, PERIOD_INFO_NOT_FOUND
+
+CONTEXT_MAP = {"Name": 6,
+               "Type": 1,
+               "Frames": 2,
+               "Total Good Frames": 3,
+               "Counts": 5,
+               "Tag": 4}
 
 
 class GroupingTabPresenter(object):
@@ -26,27 +34,24 @@ class GroupingTabPresenter(object):
 
     def __init__(self, view, model,
                  grouping_table_widget=None,
-                 pairing_table_widget=None):
+                 pairing_table_widget=None,
+                 diff_table=None,
+                 parent=None):
         self._view = view
         self._model = model
 
         self.grouping_table_widget = grouping_table_widget
         self.pairing_table_widget = pairing_table_widget
+        self.diff_table = diff_table
+        self.period_info_widget = MuonPeriodInfoWidget(parent=parent)
 
-        # Synchronize the two tables
-        self._view.on_grouping_table_changed(self.pairing_table_widget.update_view_from_model)
-        self._view.on_pairing_table_changed(self.grouping_table_widget.update_view_from_model)
-
-        self._view.set_description_text(self.text_for_description())
+        self._view.set_description_text('')
         self._view.on_add_pair_requested(self.add_pair_from_grouping_table)
         self._view.on_clear_grouping_button_clicked(self.on_clear_requested)
         self._view.on_load_grouping_button_clicked(self.handle_load_grouping_from_file)
         self._view.on_save_grouping_button_clicked(self.handle_save_grouping_file)
         self._view.on_default_grouping_button_clicked(self.handle_default_grouping_button_clicked)
-
-        # multi period
-        self._view.on_summed_periods_changed(self.handle_periods_changed)
-        self._view.on_subtracted_periods_changed(self.handle_periods_changed)
+        self._view.on_period_information_button_clicked(self.handle_period_information_button_clicked)
 
         # monitors for loaded data changing
         self.loadObserver = GroupingTabPresenter.LoadObserver(self)
@@ -55,6 +60,7 @@ class GroupingTabPresenter(object):
         # notifiers
         self.groupingNotifier = GroupingTabPresenter.GroupingNotifier(self)
         self.grouping_table_widget.on_data_changed(self.group_table_changed)
+        self.diff_table.on_data_changed(self.diff_table_changed)
         self.pairing_table_widget.on_data_changed(self.pair_table_changed)
         self.enable_editing_notifier = GroupingTabPresenter.EnableEditingNotifier(self)
         self.disable_editing_notifier = GroupingTabPresenter.DisableEditingNotifier(self)
@@ -67,14 +73,15 @@ class GroupingTabPresenter(object):
         self.enable_observer = GroupingTabPresenter.EnableObserver(self)
         self.disable_observer = GroupingTabPresenter.DisableObserver(self)
 
+        self.disable_tab_observer = GenericObserver(self.disable_editing_without_notifying_subscribers)
+        self.enable_tab_observer = GenericObserver(self.enable_editing_without_notifying_subscribers)
+
         self.update_view_from_model_observer = GenericObserver(self.update_view_from_model)
 
     def update_view_from_model(self):
         self.grouping_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
         self.pairing_table_widget.update_view_from_model()
-        self.hide_multiperiod_widget_if_data_single_period()
-        n_periods = self._model.number_of_periods()
-        self._view.set_period_number_in_period_label(n_periods)
 
     def show(self):
         self._view.show()
@@ -86,14 +93,19 @@ class GroupingTabPresenter(object):
         instrument = self._model.instrument
         n_detectors = self._model.num_detectors
         main_field = self._model.main_field_direction
-        text = "{} , {} detectors, main field : {} to muon polarization".format(
-            instrument, n_detectors, main_field)
+        text = "{}, {} detectors".format(
+            instrument, n_detectors)
+        if main_field:
+            text += ", main field : {} to muon polarization".format(main_field)
         return text
 
     def update_description_text(self, description_text=''):
         if not description_text:
             description_text = self.text_for_description()
         self._view.set_description_text(description_text)
+
+    def update_description_text_to_empty(self):
+        self._view.set_description_text('')
 
     def add_pair_from_grouping_table(self, group_name1="", group_name2=""):
 
@@ -141,7 +153,7 @@ class GroupingTabPresenter(object):
         if filename == '':
             return
 
-        groups, pairs, description, default = xml_utils.load_grouping_from_XML(filename)
+        groups, pairs, diffs, description, default = xml_utils.load_grouping_from_XML(filename)
 
         self._model.clear()
         for group in groups:
@@ -151,13 +163,33 @@ class GroupingTabPresenter(object):
                 self._view.display_warning_box(str(error))
 
         for pair in pairs:
-            if pair.forward_group in self._model.group_names and pair.backward_group in self._model.group_names:
-                self._model.add_pair(pair)
+            try:
+                if pair.forward_group in self._model.group_names and pair.backward_group in self._model.group_names:
+                    self._model.add_pair(pair)
+            except ValueError as error:
+                self._view.display_warning_box(str(error))
+        for diff in diffs:
+            try:
+                if diff.positive in self._model.group_names and diff.negative in self._model.group_names:
+                    self._model.add_diff(diff)
+                elif diff.positive in self._model.pair_names and diff.negative in self._model.pair_names:
+                    self._model.add_diff(diff)
+            except ValueError as error:
+                self._view.display_warning_box(str(error))
+        # Sets the default from file if it exists, if not selected groups/pairs are set on the logic
+        # Select all pairs if there are any pairs otherwise select all groups.
+        if default:
+            if default in self._model.group_names:
+                self._model.add_group_to_analysis(default)
+            elif default in self._model.pair_names:
+                self._model.add_pair_to_analysis(default)
 
         self.grouping_table_widget.update_view_from_model()
         self.pairing_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
         self.update_description_text(description)
         self._model._context.group_pair_context.selected = default
+        self.plot_default_groups_or_pairs()
         self.groupingNotifier.notify_subscribers()
 
         self.handle_update_all_clicked()
@@ -165,14 +197,28 @@ class GroupingTabPresenter(object):
     def disable_editing(self):
         self._view.set_buttons_enabled(False)
         self.grouping_table_widget.disable_editing()
+        self.diff_table.disable_editing()
         self.pairing_table_widget.disable_editing()
         self.disable_editing_notifier.notify_subscribers()
 
     def enable_editing(self, result=None):
         self._view.set_buttons_enabled(True)
         self.grouping_table_widget.enable_editing()
+        self.diff_table.enable_editing()
         self.pairing_table_widget.enable_editing()
         self.enable_editing_notifier.notify_subscribers()
+
+    def disable_editing_without_notifying_subscribers(self):
+        self._view.set_buttons_enabled(False)
+        self.grouping_table_widget.disable_editing()
+        self.diff_table.disable_editing()
+        self.pairing_table_widget.disable_editing()
+
+    def enable_editing_without_notifying_subscribers(self):
+        self._view.set_buttons_enabled(True)
+        self.grouping_table_widget.enable_editing()
+        self.diff_table.enable_editing()
+        self.pairing_table_widget.enable_editing()
 
     def calculate_all_data(self):
         self._model.show_all_groups_and_pairs()
@@ -185,7 +231,7 @@ class GroupingTabPresenter(object):
         self.update_thread.start()
 
     def error_callback(self, error_message):
-        self.enable_editing_notifier.notify_subscribers()
+        self.enable_editing()
         self._view.display_warning_box(error_message)
 
     def handle_update_finished(self):
@@ -194,9 +240,13 @@ class GroupingTabPresenter(object):
         self.calculation_finished_notifier.notify_subscribers()
 
     def handle_default_grouping_button_clicked(self):
-        self._model.reset_groups_and_pairs_to_default()
+        status = self._model.reset_groups_and_pairs_to_default()
+        if status == "failed":
+            self._view.display_warning_box("The default may depend on the instrument. Please load a run.")
+            return
         self._model.reset_selected_groups_and_pairs()
         self.grouping_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
         self.pairing_table_widget.update_view_from_model()
         self.update_description_text()
         self.groupingNotifier.notify_subscribers()
@@ -206,63 +256,27 @@ class GroupingTabPresenter(object):
     def on_clear_requested(self):
         self._model.clear()
         self.grouping_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
         self.pairing_table_widget.update_view_from_model()
-        self.update_description_text()
+        self.update_description_text_to_empty()
 
     def handle_new_data_loaded(self):
+        self.period_info_widget.clear()
         if self._model.is_data_loaded():
             self._model._context.show_raw_data()
             self.update_view_from_model()
             self.update_description_text()
             self.handle_update_all_clicked()
             self.plot_default_groups_or_pairs()
+            if self.period_info_widget.isVisible():
+                self._add_period_info_to_widget()
         else:
             self.on_clear_requested()
-
-    def hide_multiperiod_widget_if_data_single_period(self):
-        if self._model.is_data_multi_period():
-            self._view.multi_period_widget_hidden(False)
-        else:
-            self._view.multi_period_widget_hidden(True)
-
-    def update_period_edits(self):
-        summed_periods = self._model.get_summed_periods()
-        subtracted_periods = self._model.get_subtracted_periods()
-
-        self._view.set_summed_periods(",".join([str(p) for p in summed_periods]))
-        self._view.set_subtracted_periods(",".join([str(p) for p in subtracted_periods]))
-
-    def handle_periods_changed(self):
-        self._view.summed_period_edit.blockSignals(True)
-        self._view.subtracted_period_edit.blockSignals(True)
-        summed = self.string_to_list(self._view.get_summed_periods())
-        subtracted = self.string_to_list(self._view.get_subtracted_periods())
-
-        subtracted = [i for i in subtracted if i not in summed]
-
-        n_periods = self._model.number_of_periods()
-        bad_periods = [period for period in summed if (period > n_periods) or period == 0] + \
-                      [period for period in subtracted if (period > n_periods) or period == 0]
-        if len(bad_periods) > 0:
-            self._view.display_warning_box(
-                "The following periods are invalid : " + ",".join([str(period) for period in bad_periods]))
-
-        summed = [p for p in summed if (p <= n_periods) and p > 0 and p not in bad_periods]
-        if not summed:
-            summed = [1]
-
-        subtracted = [p for p in subtracted if (p <= n_periods) and p > 0 and p not in bad_periods]
-
-        self._model.update_periods(summed, subtracted)
-
-        self.update_period_edits()
-        self._view.summed_period_edit.blockSignals(False)
-        self._view.subtracted_period_edit.blockSignals(False)
 
     def handle_save_grouping_file(self):
         filename = self._view.show_file_save_browser_and_return_selection()
         if filename != "":
-            xml_utils.save_grouping_to_XML(self._model.groups, self._model.pairs, filename,
+            xml_utils.save_grouping_to_XML(self._model.groups, self._model.pairs, self._model.diffs, filename,
                                            description=self._view.get_description_text())
 
     def create_update_thread(self):
@@ -271,20 +285,81 @@ class GroupingTabPresenter(object):
 
     def plot_default_groups_or_pairs(self):
         # if we have no pairs or groups selected, generate a default plot
-        if len(self._model.selected_pairs + self._model.selected_groups) == 0:
+        if len(self._model.selected_groups_and_pairs) == 0:
             if len(self._model.pairs) > 0:  # if we have pairs - then plot all pairs
                 self.pairing_table_widget.plot_default_case()
             else:  # else plot groups
                 self.grouping_table_widget.plot_default_case()
+
+    def handle_period_information_button_clicked(self):
+        if self._model.is_data_loaded() and self.period_info_widget.is_empty():
+            self._add_period_info_to_widget()
+        self.period_info_widget.show()
+        self.period_info_widget.raise_()
+
+    def _add_period_info_to_widget(self):
+
+        def _parse_logs(log_name):
+            sample_log = self._model._data.get_sample_log(log_name)
+            return sample_log.value.split(";") if sample_log else []
+
+        runs = self._model._data.current_runs
+        runs_string = ""
+        for run_list in runs:
+            for run in run_list:
+                if runs_string:
+                    runs_string += ", "
+                runs_string += str(run)
+        self.period_info_widget.set_title_runs(self._model.instrument + runs_string)
+
+        period_sequences_log = self._model._data.get_sample_log("period_sequences")
+        self.period_info_widget.number_of_sequences = str(period_sequences_log.value) if period_sequences_log else None
+        names = _parse_logs("period_labels")
+        types = _parse_logs("period_type")
+        frames = _parse_logs("frames_period_requested")
+        total_frames = _parse_logs("frames_period_Raw")
+        counts = _parse_logs("total_counts_period")
+        tags = _parse_logs("period_output")
+
+        names, types, frames, total_frames, counts, tags, count = self._fix_up_period_info_lists([names, types, frames,
+                                                                                                  total_frames, counts,
+                                                                                                  tags])
+        for i in range(count):
+            self.period_info_widget.add_period_to_table(names[i], types[i], frames[i], total_frames[i],
+                                                        counts[self.period_info_widget.daq_count], tags[i])
+
+    def closePeriodInfoWidget(self):
+        self.period_info_widget.close()
+
+    def _fix_up_period_info_lists(self, info_list):
+        # First find number of periods
+        lengths_list = [len(i) for i in info_list]
+        count = max(lengths_list)
+        # Then make sure lists are correct size
+        for i, info in enumerate(info_list):
+            if info:
+                info_list[i] += [PERIOD_INFO_NOT_FOUND] * (count - len(info))
+            else:
+                info_list[i] = [PERIOD_INFO_NOT_FOUND] * count
+        return (*info_list, count)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Observer / Observable
     # ------------------------------------------------------------------------------------------------------------------
 
     def group_table_changed(self):
+        self.pairing_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
         self.handle_update_all_clicked()
 
     def pair_table_changed(self):
+        self.grouping_table_widget.update_view_from_model()
+        self.diff_table.update_view_from_model()
+        self.handle_update_all_clicked()
+
+    def diff_table_changed(self):
+        self.grouping_table_widget.update_view_from_model()
+        self.pairing_table_widget.update_view_from_model()
         self.handle_update_all_clicked()
 
     class LoadObserver(Observer):

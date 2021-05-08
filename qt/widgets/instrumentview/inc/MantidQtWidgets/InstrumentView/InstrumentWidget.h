@@ -43,6 +43,7 @@ class QDragEnterEvent;
 class QDropEvent;
 class QStackedLayout;
 class QSettings;
+class QVBoxLayout;
 
 namespace MantidQt {
 namespace MantidWidgets {
@@ -137,6 +138,11 @@ public:
   void selectTab(Tab tab) { selectTab(int(tab)); }
   InstrumentWidgetTab *getTab(const QString &title = "") const;
   InstrumentWidgetTab *getTab(const Tab tab) const;
+  /// Get a specific tab
+  InstrumentWidgetRenderTab *getRenderTab(const Tab tab) const;
+  /// Get a Pick tab
+  InstrumentWidgetPickTab *getPickTab(const Tab tab) const;
+
   /// Get a filename for saving
   QString getSaveFileName(const QString &title, const QString &filters,
                           QString *selectedFilter = nullptr);
@@ -149,9 +155,13 @@ public:
   void handleWorkspaceReplacement(
       const std::string &wsName,
       const std::shared_ptr<Mantid::API::Workspace> &workspace);
+  void replaceWorkspace(const std::string &newWs,
+                        const std::string &newInstrumentWindowName);
 
   /// Get the currently selected tab index
   int getCurrentTab() const;
+  /// Decides whether the given tab is the tab currently open
+  bool isCurrentTab(InstrumentWidgetTab* tab) const;
   /// Load the widget from a Mantid project file.
   void loadFromProject(const std::string &lines);
   /// Save the widget to a Mantid projecy file.
@@ -159,7 +169,9 @@ public:
   void removeTab(const std::string &tabName);
   void addTab(const std::string &tabName);
   void hideHelp();
-  InstrumentWidgetPickTab *getPickTab() { return m_pickTab; };
+  InstrumentWidgetPickTab *getPickTab() { return m_pickTab; }
+  /// Determine if the workspace requires an integration bar
+  bool isIntegrable();
 
 signals:
   void enableLighting(bool /*_t1*/);
@@ -210,6 +222,7 @@ public slots:
 
   void setViewDirection(const QString & /*input*/);
   void pickBackgroundColor();
+  void freezeRotation(bool);
   void saveImage(QString filename);
   void setInfoText(const QString & /*text*/);
   void set3DAxesState(bool /*on*/);
@@ -228,7 +241,7 @@ public slots:
   /// Enable OpenGL. Slot called from render tab only - doesn't update the
   /// checkbox.
   void enableGL(bool on);
-  void updateInfoText();
+  void updateInfoText(const QString &text = QString());
 
 private slots:
   void helpClicked();
@@ -249,10 +262,8 @@ protected:
   void setBackgroundColor(const QColor &color);
   /// Get the surface info string
   QString getSurfaceInfoText() const;
-  /// Return the width of the instrunemt display
-  int getInstrumentDisplayWidth() const;
-  /// Return the height of the instrunemt display
-  int getInstrumentDisplayHeight() const;
+  /// Return the size of the OpenGL display widget in device pixels
+  QSize glWidgetDimensions();
   /// Select the OpenGL or simple widget for instrument display
   void selectOpenGLDisplay(bool yes);
   /// Set the surface type.
@@ -261,6 +272,9 @@ protected:
   QString getSaveGroupingFilename();
   /// add the selected tabs
   void addSelectedTabs();
+  /// update integration widget visibility and range
+  void updateIntegrationWidget(bool init = false);
+
   // GUI elements
   QLabel *mInteractionInfo;
   QTabWidget *mControlsTab;
@@ -341,6 +355,7 @@ private:
 
   bool m_wsReplace;
   QPushButton *m_help;
+  QVBoxLayout *m_mainLayout;
 };
 
 } // namespace MantidWidgets

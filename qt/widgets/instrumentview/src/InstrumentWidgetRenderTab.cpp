@@ -53,6 +53,11 @@ InstrumentWidgetRenderTab::InstrumentWidgetRenderTab(
 
   setupSurfaceTypeOptions();
 
+  // Reset view button
+  m_resetView = new QPushButton(tr("Reset View"));
+  m_resetView->setToolTip("Reset the instrument view to default");
+  connect(m_resetView, SIGNAL(clicked()), this, SLOT(resetView()));
+
   // Save image control
   mSaveImage = new QPushButton(tr("Save image"));
   mSaveImage->setToolTip("Save the instrument image to a file");
@@ -76,6 +81,7 @@ InstrumentWidgetRenderTab::InstrumentWidgetRenderTab(
   renderControlsLayout->addWidget(m_surfaceTypeButton);
   renderControlsLayout->addLayout(unwrappedControlsLayout);
   renderControlsLayout->addWidget(axisViewFrame);
+  renderControlsLayout->addWidget(m_resetView);
   renderControlsLayout->addWidget(displaySettings);
   renderControlsLayout->addWidget(mSaveImage);
   renderControlsLayout->addWidget(m_colorBarWidget);
@@ -318,10 +324,20 @@ QFrame *InstrumentWidgetRenderTab::setupAxisFrame() {
   mAxisCombo->addItem("Y-");
 
   axisViewLayout->addWidget(mAxisCombo);
+
+  axisViewLayout->addWidget(new QLabel("Freeze rotation"));
+  m_freezeRotation = new QCheckBox();
+  m_freezeRotation->setChecked(false);
+  m_freezeRotation->setToolTip("Freeze the screen rotation.");
+  axisViewLayout->addWidget(m_freezeRotation);
+
   m_resetViewFrame->setLayout(axisViewLayout);
 
   connect(mAxisCombo, SIGNAL(currentIndexChanged(const QString &)),
           m_instrWidget, SLOT(setViewDirection(const QString &)));
+
+  connect(m_freezeRotation, SIGNAL(toggled(bool)), m_instrWidget,
+          SLOT(freezeRotation(bool)));
 
   return m_resetViewFrame;
 }
@@ -531,17 +547,27 @@ bool InstrumentWidgetRenderTab::areAxesOn() const {
 }
 
 /**
- * Show ResetView combo box only with 3D view
- * @param iv Index of a render mode in RenderMode combo box. iv == 0 is 3D view
+ * Change the type of the legend scale.
+ * @param index :: Index selected in the color scale type combo box.
  */
-void InstrumentWidgetRenderTab::showResetView(int iv) {
-  m_resetViewFrame->setVisible(iv == 0);
+void InstrumentWidgetRenderTab::setLegendScaleType(int index) {
+  if ((int)m_colorBarWidget->getScaleType() != index) {
+    m_colorBarWidget->setScaleType(index);
+  }
 }
 
-void InstrumentWidgetRenderTab::showFlipControl(int iv) {
-  bool vis = iv != 0;
-  m_flipCheckBox->setVisible(vis);
-  m_peakOverlaysButton->setVisible(vis);
+/**
+ * Show or hide boxes depending if the current render mode is Full3D view
+ * @param iv Index of a render mode in RenderMode combo box. iv == 0 is 3D view
+ */
+void InstrumentWidgetRenderTab::showOrHideBoxes(int iv) {
+  bool isFull3D = iv == 0;
+  m_resetViewFrame->setVisible(isFull3D);
+  m_flipCheckBox->setVisible(!isFull3D);
+  m_peakOverlaysButton->setVisible(!isFull3D);
+
+  if (isFull3D)
+    m_freezeRotation->setChecked(false);
 }
 
 /**
@@ -603,6 +629,16 @@ void InstrumentWidgetRenderTab::flipUnwrappedView(bool on) {
   m_flipCheckBox->blockSignals(true);
   m_flipCheckBox->setChecked(on);
   m_flipCheckBox->blockSignals(false);
+}
+
+/**
+ * Resets the render tab view to its default position and zoom.
+ */
+void InstrumentWidgetRenderTab::resetView() {
+  // just recreate the surface from scratch
+  m_instrWidget->setSurfaceType(int(m_instrWidget->getSurfaceType()));
+  m_instrWidget->getSurface()->setInteractionMode(ProjectionSurface::MoveMode);
+  m_instrWidget->getSurface()->freezeRotation(m_freezeRotation->isChecked());
 }
 
 /**
@@ -746,8 +782,7 @@ void InstrumentWidgetRenderTab::surfaceTypeChanged(int index) {
     // checking action calls setSurfaceType slot
     action->setChecked(true);
   }
-  showFlipControl(index);
-  showResetView(index);
+  showOrHideBoxes(index);
 }
 
 /**

@@ -45,6 +45,9 @@ class InstrumentWidgetPresenter(HomeTabSubWidget):
 
         self._view.on_instrument_changed(self.handle_instrument_changed)
 
+        self._view.on_double_pulse_time_changed(self.handle_double_pulse_time_changed)
+        self._view.on_double_pulse_checkState_changed(self.handle_double_pulse_enabled)
+
         self.handle_loaded_time_zero_checkState_change()
         self.handle_loaded_first_good_data_checkState_change()
         self.handle_loaded_last_good_data_checkState_change()
@@ -61,7 +64,10 @@ class InstrumentWidgetPresenter(HomeTabSubWidget):
             first_good_data = self._model.get_user_first_good_data()
             self._view.set_first_good_data(first_good_data)
 
-        last_good_data = self._model.get_last_good_data()
+        if self._view.last_good_data_state():
+            last_good_data = self._model.get_file_last_good_data()
+        else:
+            last_good_data = self._model.get_last_good_data()
         self._view.set_last_good_data(last_good_data)
 
         if self._view.time_zero_state():
@@ -130,7 +136,7 @@ class InstrumentWidgetPresenter(HomeTabSubWidget):
     def handle_loaded_last_good_data_checkState_change(self):
         if self._view.last_good_data_state():
             self._model.set_last_good_data_source(True)
-            last_good_data = self._model.get_last_good_data()
+            last_good_data = self._model.get_file_last_good_data()
             self._view.set_last_good_data(last_good_data)
         else:
             self._model.set_last_good_data_source(False)
@@ -168,6 +174,17 @@ class InstrumentWidgetPresenter(HomeTabSubWidget):
         if instrument != self._model._data.instrument:
             self._model._data.instrument = instrument
             self._view.set_instrument(instrument, block=True)
+            self._model.set_dead_time_from_data()
+
+    def handle_double_pulse_time_changed(self):
+        double_pulse_time = self._view.get_double_pulse_time()
+        self._model.set_double_pulse_time(double_pulse_time)
+
+    def handle_double_pulse_enabled(self):
+        pulseType = self._view.double_pulse_state()
+        enabled = pulseType == 'Double Pulse'
+        self._view.double_pulse_edit_enabled(enabled)
+        self._model.set_double_pulse_enabled(enabled)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Dead Time

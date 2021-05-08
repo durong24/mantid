@@ -25,7 +25,6 @@ set _EXTRA_PATH_DIRS=%_INSTALL_DIR%\bin;%_INSTALL_DIR%\plugins\qt4
 :: Required environment variables for Mantid
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 set PATH=%_EXTRA_PATH_DIRS%;%PATH%
-set PV_PLUGIN_PATH=%_INSTALL_DIR%\plugins\paraview\qt4
 :: Matplotlib backend should default to Qt if not set (requires matplotlib >= 1.5)
 if "%MPLBACKEND%"=="" (
   set MPLBACKEND=qt4agg
@@ -48,5 +47,5 @@ set QT_API=pyqt4
 :: sip is now private inside PyQt4 folder but qtpy tries to "import sip" plain. Fixup the path so
 :: it can find the private sip.
 set PYTHONPATH=%_INSTALL_DIR%\bin\Lib\site-packages\PyQt4;%PYTHONPATH%
-python %_INSTALL_DIR%\scripts\ErrorReporter\error_dialog_app.py --exitcode=%errorlevel% --directory=%_BIN_DIR% --application=mantidplot
+python %_BIN_DIR%\mantidqt\dialogs\errorreports\main.py --exitcode=%errorlevel% --application=mantidplot
 )

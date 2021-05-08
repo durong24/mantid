@@ -4,38 +4,35 @@
 #   NScD Oak Ridge National Laboratory, European Spallation Source,
 #   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 # SPDX - License - Identifier: GPL - 3.0 +
-from Muon.GUI.Common.fitting_tab_widget.fitting_tab_view import FittingTabView
-from Muon.GUI.Common.fitting_tab_widget.fitting_tab_presenter import FittingTabPresenter
-from Muon.GUI.Common.fitting_tab_widget.fitting_tab_model import FittingTabModel
+from Muon.GUI.Common.contexts.frequency_domain_analysis_context import FrequencyDomainAnalysisContext
+from Muon.GUI.Common.fitting_widgets.general_fitting.general_fitting_model import GeneralFittingModel
+from Muon.GUI.Common.fitting_widgets.general_fitting.general_fitting_presenter import GeneralFittingPresenter
+from Muon.GUI.Common.fitting_widgets.general_fitting.general_fitting_view import GeneralFittingView
+from Muon.GUI.Common.fitting_widgets.tf_asymmetry_fitting.tf_asymmetry_fitting_model import TFAsymmetryFittingModel
+from Muon.GUI.Common.fitting_widgets.tf_asymmetry_fitting.tf_asymmetry_fitting_presenter \
+    import TFAsymmetryFittingPresenter
+from Muon.GUI.Common.fitting_widgets.tf_asymmetry_fitting.tf_asymmetry_fitting_view import TFAsymmetryFittingView
 
 
 class FittingTabWidget(object):
+    """
+    The FittingTabWidget creates the tab used for fitting. Muon Analysis uses the TF Asymmetry fitting widget, and
+    Frequency Domain Analysis uses the General fitting widget.
+    """
+
     def __init__(self, context, parent):
-        self.fitting_tab_view = FittingTabView(parent)
-        self.fitting_tab_model = FittingTabModel(context)
-        self.fitting_tab_presenter = FittingTabPresenter(self.fitting_tab_view, self.fitting_tab_model, context)
+        is_frequency_domain = isinstance(context, FrequencyDomainAnalysisContext)
 
-        self.fitting_tab_view.set_slot_for_select_workspaces_to_fit(self.fitting_tab_presenter.handle_select_fit_data_clicked)
-        self.fitting_tab_view.set_slot_for_display_workspace_changed(self.fitting_tab_presenter.handle_display_workspace_changed)
-        self.fitting_tab_view.set_slot_for_display_workspace_changed(self.fitting_tab_presenter.handle_plot_guess_changed)
-        self.fitting_tab_view.set_slot_for_simul_fit_by_changed(self.fitting_tab_presenter.handle_fit_by_changed)
-        self.fitting_tab_view.set_slot_for_simul_fit_specifier_changed(self.fitting_tab_presenter.handle_fit_specifier_changed)
-        self.fitting_tab_view.set_slot_for_use_raw_changed(self.fitting_tab_presenter.handle_use_rebin_changed)
-        self.fitting_tab_view.set_slot_for_fit_type_changed(self.fitting_tab_presenter.handle_fit_type_changed)
-        self.fitting_tab_view.set_slot_for_fit_button_clicked(self.fitting_tab_presenter.handle_fit_clicked)
-        self.fitting_tab_view.set_slot_for_start_x_updated(self.fitting_tab_presenter.handle_start_x_updated)
-        self.fitting_tab_view.set_slot_for_end_x_updated(self.fitting_tab_presenter.handle_end_x_updated)
-        self.fitting_tab_view.set_slot_for_minimiser_changed(self.fitting_tab_presenter.handle_minimiser_changed)
-        self.fitting_tab_view.set_slot_for_evaluation_type_changed(self.fitting_tab_presenter.handle_evaluation_type_changed)
+        if is_frequency_domain:
+            self.fitting_tab_view = GeneralFittingView(parent, is_frequency_domain)
+            self.fitting_tab_model = GeneralFittingModel(context, is_frequency_domain)
+            self.fitting_tab_presenter = GeneralFittingPresenter(self.fitting_tab_view, self.fitting_tab_model)
+        else:
+            self.fitting_tab_view = TFAsymmetryFittingView(parent, is_frequency_domain)
+            self.fitting_tab_model = TFAsymmetryFittingModel(context, is_frequency_domain)
+            self.fitting_tab_presenter = TFAsymmetryFittingPresenter(self.fitting_tab_view, self.fitting_tab_model)
 
-        self.fitting_tab_view.function_browser.functionStructureChanged.connect(
-            self.fitting_tab_presenter.handle_function_structure_changed)
-        self.fitting_tab_view.function_browser.functionStructureChanged.connect(
-            self.fitting_tab_presenter.handle_plot_guess_changed)
-        self.fitting_tab_view.function_name_line_edit.textChanged.connect(
-            self.fitting_tab_presenter.handle_fit_name_changed_by_user)
-        self.fitting_tab_view.undo_fit_button.clicked.connect(self.fitting_tab_presenter.handle_undo_fit_clicked)
-        context.update_view_from_model_notifier.add_subscriber(self.fitting_tab_presenter.update_view_from_model_observer)
-        self.fitting_tab_view.tf_asymmetry_mode_checkbox.stateChanged.connect(self.fitting_tab_presenter.handle_tf_asymmetry_mode_changed)
-        self.fitting_tab_view.plot_guess_checkbox.stateChanged.connect(self.fitting_tab_presenter.handle_plot_guess_changed)
-        self.fitting_tab_view.function_browser.parameterChanged.connect(self.fitting_tab_presenter.handle_function_parameter_changed)
+        self.fitting_tab_presenter.disable_fitting_notifier.add_subscriber(self.fitting_tab_view.disable_tab_observer)
+
+        context.update_view_from_model_notifier.add_subscriber(
+            self.fitting_tab_presenter.update_view_from_model_observer)

@@ -6,7 +6,6 @@ set(SRC_FILES
     src/BinMD.cpp
     src/BinaryOperationMD.cpp
     src/BooleanBinaryOperationMD.cpp
-    src/BoxControllerSettingsAlgorithm.cpp
     src/CalculateCoverageDGS.cpp
     src/CentroidPeaksMD.cpp
     src/CentroidPeaksMD2.cpp
@@ -32,7 +31,6 @@ set(SRC_FILES
     src/ConvertToMDMinMaxGlobal.cpp
     src/ConvertToMDMinMaxLocal.cpp
     src/ConvertToMDParent.cpp
-    src/ConvertToReflectometryQ.cpp
     src/ConvertHFIRSCDtoMDE.cpp
     src/CreateMD.cpp
     src/CreateMDHistoWorkspace.cpp
@@ -54,6 +52,7 @@ set(SRC_FILES
     src/ImportMDHistoWorkspace.cpp
     src/ImportMDHistoWorkspaceBase.cpp
     src/Integrate3DEvents.cpp
+    src/IntegrateQLabEvents.cpp
     src/IntegrateEllipsoids.cpp
     src/IntegrateEllipsoidsTwoStep.cpp
     src/IntegrateFlux.cpp
@@ -87,16 +86,12 @@ set(SRC_FILES
     src/MinusMD.cpp
     src/MultiplyMD.cpp
     src/NotMD.cpp
-    src/OneStepMDEW.cpp
     src/OrMD.cpp
     src/PlusMD.cpp
     src/PowerMD.cpp
     src/PreprocessDetectorsToMD.cpp
     src/QueryMDWorkspace.cpp
     src/RecalculateTrajectoriesExtents.cpp
-    src/ReflectometryTransformKiKf.cpp
-    src/ReflectometryTransformP.cpp
-    src/ReflectometryTransformQxQz.cpp
     src/ReplicateMD.cpp
     src/SaveIsawQvector.cpp
     src/SaveMD.cpp
@@ -126,7 +121,6 @@ set(
   inc/MantidMDAlgorithms/BinMD.h
   inc/MantidMDAlgorithms/BinaryOperationMD.h
   inc/MantidMDAlgorithms/BooleanBinaryOperationMD.h
-  inc/MantidMDAlgorithms/BoxControllerSettingsAlgorithm.h
   inc/MantidMDAlgorithms/CalculateCoverageDGS.h
   inc/MantidMDAlgorithms/CentroidPeaksMD.h
   inc/MantidMDAlgorithms/CentroidPeaksMD2.h
@@ -149,7 +143,6 @@ set(
   inc/MantidMDAlgorithms/ConvertToMDMinMaxGlobal.h
   inc/MantidMDAlgorithms/ConvertToMDMinMaxLocal.h
   inc/MantidMDAlgorithms/ConvertToMDParent.h
-  inc/MantidMDAlgorithms/ConvertToReflectometryQ.h
   inc/MantidMDAlgorithms/ConvertHFIRSCDtoMDE.h
   inc/MantidMDAlgorithms/CreateMD.h
   inc/MantidMDAlgorithms/CreateMDHistoWorkspace.h
@@ -173,6 +166,7 @@ set(
   inc/MantidMDAlgorithms/ImportMDHistoWorkspace.h
   inc/MantidMDAlgorithms/ImportMDHistoWorkspaceBase.h
   inc/MantidMDAlgorithms/Integrate3DEvents.h
+  inc/MantidMDAlgorithms/IntegrateQLabEvents.h
   inc/MantidMDAlgorithms/IntegrateEllipsoids.h
   inc/MantidMDAlgorithms/IntegrateEllipsoidsTwoStep.h
   inc/MantidMDAlgorithms/IntegrateFlux.h
@@ -189,6 +183,7 @@ set(
   inc/MantidMDAlgorithms/LoadSQW.h
   inc/MantidMDAlgorithms/LoadSQW2.h
   inc/MantidMDAlgorithms/LogarithmMD.h
+  inc/MantidMDAlgorithms/MDBoxMaskFunction.h
   inc/MantidMDAlgorithms/MDEventTreeBuilder.h
   inc/MantidMDAlgorithms/MDEventWSWrapper.h
   inc/MantidMDAlgorithms/MDNorm.h
@@ -208,16 +203,12 @@ set(
   inc/MantidMDAlgorithms/MinusMD.h
   inc/MantidMDAlgorithms/MultiplyMD.h
   inc/MantidMDAlgorithms/NotMD.h
-  inc/MantidMDAlgorithms/OneStepMDEW.h
   inc/MantidMDAlgorithms/OrMD.h
   inc/MantidMDAlgorithms/PlusMD.h
   inc/MantidMDAlgorithms/PowerMD.h
   inc/MantidMDAlgorithms/PreprocessDetectorsToMD.h
   inc/MantidMDAlgorithms/QueryMDWorkspace.h
   inc/MantidMDAlgorithms/RecalculateTrajectoriesExtents.h
-  inc/MantidMDAlgorithms/ReflectometryTransformKiKf.h
-  inc/MantidMDAlgorithms/ReflectometryTransformP.h
-  inc/MantidMDAlgorithms/ReflectometryTransformQxQz.h
   inc/MantidMDAlgorithms/ReplicateMD.h
   inc/MantidMDAlgorithms/SaveIsawQvector.h
   inc/MantidMDAlgorithms/SaveMD.h
@@ -244,7 +235,6 @@ set(TEST_FILES
     AccumulateMDTest.h
     AndMDTest.h
     BooleanBinaryOperationMDTest.h
-    BoxControllerSettingsAlgorithmTest.h
     CalculateCoverageDGSTest.h
     CentroidPeaksMD2Test.h
     CentroidPeaksMDTest.h
@@ -268,7 +258,6 @@ set(TEST_FILES
     ConvertToMDMinMaxLocalTest.h
     ConvertToMDTest.h
     ConvertToQ3DdETest.h
-    ConvertToReflectometryQTest.h
     ConvertHFIRSCDtoMDETest.h
     CreateMDHistoWorkspaceTest.h
     CreateMDTest.h
@@ -288,6 +277,7 @@ set(TEST_FILES
     ImportMDEventWorkspaceTest.h
     ImportMDHistoWorkspaceTest.h
     Integrate3DEventsTest.h
+    IntegrateQLabEventsTest.h
     IntegrateEllipsoidsTest.h
     IntegrateEllipsoidsTwoStepTest.h
     IntegrateEllipsoidsWithSatellitesTest.h
@@ -305,6 +295,7 @@ set(TEST_FILES
     LoadSQW2Test.h
     LoadSQWTest.h
     LogarithmMDTest.h
+    MDBoxMaskFunctionTest.h
     MDEventWSWrapperTest.h
     MDNormDirectSCTest.h
     MDNormSCDTest.h
@@ -320,16 +311,12 @@ set(TEST_FILES
     MinusMDTest.h
     MultiplyMDTest.h
     NotMDTest.h
-    OneStepMDEWTest.h
     OrMDTest.h
     PlusMDTest.h
     PowerMDTest.h
     PreprocessDetectorsToMDTest.h
     QueryMDWorkspaceTest.h
     RecalculateTrajectoriesExtentsTest.h
-    ReflectometryTransformKiKfTest.h
-    ReflectometryTransformPTest.h
-    ReflectometryTransformQxQzTest.h
     ReplicateMDTest.h
     SaveIsawQvectorTest.h
     SaveMD2Test.h
@@ -393,7 +380,6 @@ set_property(TARGET MDAlgorithms PROPERTY FOLDER "MantidFramework")
 target_include_directories(MDAlgorithms PUBLIC inc SYSTEM ${Boost_INCLUDE_DIRS})
 target_link_libraries(MDAlgorithms
                       LINK_PRIVATE
-                      ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${MANTIDLIBS}
                       ${GSL_LIBRARIES}
                       ${NEXUS_LIBRARIES})

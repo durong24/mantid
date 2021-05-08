@@ -130,8 +130,6 @@ class PythonCodeExecutionTest(unittest.TestCase):
         executor.execute(code, line_offset=0)
         self.assertEqual("This should have no brackets\n", mock_stdout.getvalue())
 
-    @unittest.skipIf(sys.version_info < (3,),
-                     "Unable to get this working on Python 2 and we are closing to dropping it")
     @patch('sys.stdout', new_callable=StringIO)
     def test_scripts_can_print_unicode_if_unicode_literals_imported(self, mock_stdout):
         code = ("from __future__ import unicode_literals\n"
@@ -220,7 +218,7 @@ foo()
         executor.sig_exec_error.connect(recv.on_error)
         task = executor.execute_async(code, line_no, filename)
         task.join()
-        QCoreApplication.processEvents()
+        QCoreApplication.sendPostedEvents()
 
         return executor, recv
 

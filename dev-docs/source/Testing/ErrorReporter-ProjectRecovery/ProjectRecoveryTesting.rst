@@ -26,7 +26,7 @@ Project Recovery test
 
 1. Simple tests
 
-- Open MantidPlot 
+- Open MantidWorkbench
 - Right-click in the Results Log and set `Log level` to `Debug`
 - The Results Log should be printing `Nothing to save`
 - Run the following command to create a simple workspace:
@@ -41,41 +41,41 @@ Project Recovery test
 .. code-block:: python
 
    Load(Filename='INTER00013464.nxs', OutputWorkspace='INTER1')
-   Load(Filename='INTER00013469.nxs', OutputWorkspace='INTER2')  
-   Load(Filename='INTER00013469.nxs', OutputWorkspace='INTER3')  
-   RenameWorkspace(InputWorkspace='INTER2', OutputWorkspace='Rename2')  
-   RenameWorkspace(InputWorkspace='INTER1', OutputWorkspace='Rename1') 
-   RenameWorkspace(InputWorkspace='INTER3', OutputWorkspace='Rename3')  
-   Fit(Function='name=DynamicKuboToyabe,BinWidth=0.05,' 'Asym=5.83382,Delta=5.63288,Field=447.873,Nu=8.53636e-09', InputWorkspace='Rename1', IgnoreInvalidData=True, Output='Rename1_fit', OutputCompositeMembers=True, ConvolveMembers=True)  
-   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename2', IgnoreInvalidData=True, Output='Rename2_fit', OutputCompositeMembers=True, ConvolveMembers=True) 
+   Load(Filename='INTER00013469.nxs', OutputWorkspace='INTER2')
+   Load(Filename='INTER00013469.nxs', OutputWorkspace='INTER3')
+   RenameWorkspace(InputWorkspace='INTER2', OutputWorkspace='Rename2')
+   RenameWorkspace(InputWorkspace='INTER1', OutputWorkspace='Rename1')
+   RenameWorkspace(InputWorkspace='INTER3', OutputWorkspace='Rename3')
+   Fit(Function='name=DynamicKuboToyabe,BinWidth=0.05,' 'Asym=5.83382,Delta=5.63288,Field=447.873,Nu=8.53636e-09', InputWorkspace='Rename1', IgnoreInvalidData=True, Output='Rename1_fit', OutputCompositeMembers=True, ConvolveMembers=True)
+   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename2', IgnoreInvalidData=True, Output='Rename2_fit', OutputCompositeMembers=True, ConvolveMembers=True)
    Fit(Function='name=Abragam,A=-500.565,Omega=944.105,Phi=-2.97876,Sigma=230.906,Tau=5.54415e+06', InputWorkspace='Rename1_fit_Workspace', CreateOutput=True, Output='Rename1_fit_Workspace_1', CalcErrors=True)
    Fit(Function='name=Abragam,A=343210,Omega=-91853.1,Phi=-1.51509,Sigma=11920.5,Tau=2.80013e+13', InputWorkspace='Rename2_fit_Workspace', CreateOutput=True, Output='Rename2_fit_Workspace_1', CalcErrors=True)
-   GroupWorkspaces(InputWorkspaces='Rename1_fit_Workspace_1_Workspace,Rename2_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces')  
+   GroupWorkspaces(InputWorkspaces='Rename1_fit_Workspace_1_Workspace,Rename2_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces')
    RenameWorkspace(InputWorkspace='Rename1_fit_Workspace_1_Workspace', OutputWorkspace='Sequential1')
    RenameWorkspace(InputWorkspace='Rename2_fit_Workspace_1_Workspace', OutputWorkspace='Sequential2')
-   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3', IgnoreInvalidData=True, Output='Rename3_fit', OutputCompositeMembers=True, ConvolveMembers=True)  
-   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename2_fit_Workspace', CreateOutput=True, Output='Rename2_fit_Workspace_1', CalcErrors=True) 
-   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3_fit_Workspace', CreateOutput=True, Output='Rename3_fit_Workspace_1', CalcErrors=True)  
-   GroupWorkspaces(InputWorkspaces='Rename2_fit_Workspace_1_Workspace,Rename3_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces') 
+   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3', IgnoreInvalidData=True, Output='Rename3_fit', OutputCompositeMembers=True, ConvolveMembers=True)
+   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename2_fit_Workspace', CreateOutput=True, Output='Rename2_fit_Workspace_1', CalcErrors=True)
+   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3_fit_Workspace', CreateOutput=True, Output='Rename3_fit_Workspace_1', CalcErrors=True)
+   GroupWorkspaces(InputWorkspaces='Rename2_fit_Workspace_1_Workspace,Rename3_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces')
    RenameWorkspace(InputWorkspace='Rename3_fit_Workspace_1_Workspace', OutputWorkspace='Sequential3')
    RenameWorkspace(InputWorkspace='Rename2_fit_Workspace_1_Workspace', OutputWorkspace='Sequential4')
-   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3_fit_Workspace', CreateOutput=True, Output='Rename3_fit_Workspace_1', CalcErrors=True) 
+   Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename3_fit_Workspace', CreateOutput=True, Output='Rename3_fit_Workspace_1', CalcErrors=True)
    Fit(Function='name=ExpDecayMuon,A=4306.05,Lambda=0.458289', InputWorkspace='Rename1_fit_Workspace', CreateOutput=True, Output='Rename1_fit_Workspace_1', CalcErrors=True)
-   GroupWorkspaces(InputWorkspaces='Rename3_fit_Workspace_1_Workspace,Rename1_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces') 
+   GroupWorkspaces(InputWorkspaces='Rename3_fit_Workspace_1_Workspace,Rename1_fit_Workspace_1_Workspace', OutputWorkspace='Rename3_fit_Workspaces')
    RenameWorkspace(InputWorkspace='Rename3_fit_Workspace_1_Workspace', OutputWorkspace='Sequential5')
    RenameWorkspace(InputWorkspace='Rename1_fit_Workspace_1_Workspace', OutputWorkspace='Sequential6')
 
 - Wait a few seconds, then provoke a crash by running `Segfault` from the algorithm window
-- Re-start MantidPlot
+- Restart MantidWorkbench
 - You should be presented with the Project Recovery dialog
 - Choose `Yes`
 - This should re-populate your workspace dialog and pop up a recovery script in the script window
 
--------- 
+--------
 
 2. Testing many workspaces
 
-- Open up MantidPlot
+- Open up MantidWorkbench
 - Run the following script:
 
 .. code-block:: python
@@ -89,7 +89,7 @@ Project Recovery test
    SaveCSV(InputWorkspace='299Clone', Filename=testing_directory + 'Clone.csv')
 
 - Wait a few seconds, then provoke a crash by running `Segfault` from the algorithm window
-- Re-start MantidPlot
+- Restart MantidWorkbench
 - You should be presented with the Project Recovery dialog
 - Choose `Yes`
 - This should re-populate your workspace dialog and pop up a recovery script in the script window
@@ -106,7 +106,7 @@ Project Recovery test
 
 3. Testing workspaces of different types
 
-- Open up MantidPlot
+- Open up MantidWorkbench
 - Run the following script:
 
 .. code-block:: python
@@ -163,7 +163,7 @@ Project Recovery test
 
 4. Recovering plots and windows
 
-- Open MantidPlot - make sure no other instances of MantidPlot are running
+- Open MantidWorkbench - make sure no other instances of MantidWorkbench are running
 - Run the second script from test 1
 - In the workspace window right-click the ``Sequential3`` workspace and choose `Plot spectrum`
 - Choose `Plot All`
@@ -175,7 +175,7 @@ Project Recovery test
 
 
 - Crash Mantid with `Segfault` from the algorithm window
-- Reopen Mantid
+- Restart MantidWorkbench
 - You should be presented with the Project Recovery dialog
 - Choose `Yes`
 - Mantid should reload the workspaces and open windows, so you should see the plots and the data in the main screen.
@@ -184,7 +184,7 @@ Project Recovery test
 
 5. Test multiple instances of Mantid running
 
-- Launch 2 instances of mantid
+- Launch 2 instances of MantidWorkbench
 - Run the script on the first instance:
 
 .. code-block:: python
@@ -199,20 +199,20 @@ Project Recovery test
 
 - Crash the first instance of Mantid with `Segfault`; choose `Do not share information` in the error dialog
 - Do not exit the second instance of Mantid
-- Restart Mantid
+- Restart MantidWorkbench
 - You should be presented with a dialog offering to attempt a recovery - choose `Yes`
-- `NewWorkspace1` should appear in the workspace dialog
+- `Instance 1` should appear in the workspace dialog
 
 ---------
 
 6. Opening script only
 
-- Open MantidPlot
+- Open MantidWorkbench
 - Run the second script from test 1
 - In the workspace window right-click the ``Sequential3`` workspace and choose `Plot spectrum`
 - Choose `Plot All`
 - Crash Mantid with `Segfault` from the algorithm window
-- Reopen Mantid
+- Restart MantidWorkbench
 - You should be presented with the Project Recovery dialog
 - Choose `Only open in script editor`
 - Mantid should open the script editor, with a script named `ordered_recovery.py`
@@ -222,12 +222,12 @@ Project Recovery test
 
 7. Not attempting recovery
 
-- Open MantidPlot
+- Open MantidWorkbench
 - Run the second script from test 1
 - In the workspace window right-click the ``Sequential3`` workspace and choose `Plot spectrum`
 - Choose `Plot All`
 - Crash Mantid with `Segfault` from the algorithm window
-- Reopen Mantid
+- Restart MantidWorkbench
 - You should be presented with the Project Recovery dialog
 - Choose `Start mantid normally`
 - Mantid should open as normal
@@ -237,20 +237,20 @@ Project Recovery test
 
 8. Check old history is purged
 
-- Open MantidPlot
+- Open MantidWorkbench
 
 .. code-block:: python
 
   CreateWorkspace(DataX=range(12), DataY=range(12), DataE=range(12), NSpec=4, OutputWorkspace='NewWorkspace')
-  RenameWorkspace(InputWorkspace='NewWorkspace', OutputWorkspace='Rename2')  
+  RenameWorkspace(InputWorkspace='NewWorkspace', OutputWorkspace='Rename2')
 
 - Save the workspace as a `.nxs` file
 - Close Mantid normally
-- Re-open Mantid
+- Restart MantidWorkbench
 - Re-open the workspace from the saved `.nxs` file
 - Wait for saving
 - Crash Mantid with `Segfault` from the algorithm window
-- Reopen Mantid
+- Restart MantidWorkbench
 - Choose `Only open in script editor`
 - Mantid should open the script editor, with a script named `ordered_recovery.py`
 - This file should contain only the ``Load`` command and no previous history

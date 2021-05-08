@@ -6,6 +6,7 @@ set(TEST_PY_FILES
     BayesQuasiTest.py
     BayesStretchTest.py
     CalculateMonteCarloAbsorptionTest.py
+    CorelliPowderCalibrationCreateTest.py
     DetectorFloodWeightingTest.py
     DirectILLApplySelfShieldingTest.py
     DirectILLCollectDataTest.py
@@ -13,6 +14,7 @@ set(TEST_PY_FILES
     DirectILLIntegrateVanadiumTest.py
     DirectILLReductionTest.py
     DirectILLSelfShieldingTest.py
+    ElasticWindowMultipleTest.py
     EnergyWindowScanTest.py
     FitGaussianPeaksTest.py
     FindPeakAutomaticTest.py
@@ -26,6 +28,7 @@ set(TEST_PY_FILES
     IndirectFlatPlateAbsorptionTest.py
     IndirectFlatPlateAbsorption2Test.py
     IndirectILLEnergyTransferTest.py
+    IndirectILLReductionDIFFTest.py
     IndirectILLReductionFWSTest.py
     IndirectILLReductionQENSTest.py
     IndirectReplaceFitResultTest.py
@@ -38,11 +41,15 @@ set(TEST_PY_FILES
     ISISIndirectDiffractionReductionTest.py
     ISISIndirectEnergyTransferTest.py
     ISISIndirectEnergyTransferWrapperTest.py
+    D7YIGPositionCalibrationTest.py
+    D7AbsoluteCrossSectionsTest.py
     LoadWANDTest.py
     MDNormSCDPreprocessIncoherentTest.py
     MolDynTest.py
     MSDFitTest.py
     OSIRISDiffractionReductionTest.py
+    PaalmanPingsMonteCarloAbsorptionTest.py
+    PolDiffILLReductionTest.py
     PowderILLDetectorScanTest.py
     PowderILLParameterScanTest.py
     ReflectometryILLAutoProcessTest.py
@@ -55,8 +62,10 @@ set(TEST_PY_FILES
     ResNorm2Test.py
     SANSDarkRunBackgroundCorrectionTest.py
     SANSFitShiftScaleTest.py
+    SANSILLAutoProcessTest.py
     SANSILLIntegrationTest.py
     SANSILLReductionTest.py
+    SANSILLParameterScanTest.py
     SANSMaskTest.py
     SANSStitchTest.py
     SavePlot1DTest.py

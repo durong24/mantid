@@ -10,6 +10,7 @@
 #include "IndirectSpectrumSelectionView.h"
 
 #include "DllConfig.h"
+#include "MantidQtWidgets/Common/FunctionModelSpectra.h"
 #include "MantidQtWidgets/Common/UserInputValidator.h"
 
 #include <boost/optional.hpp>
@@ -22,12 +23,10 @@ namespace MantidQt {
 namespace CustomInterfaces {
 namespace IDA {
 
-class MANTIDQT_INDIRECT_DLL IndirectSpectrumSelectionPresenter
-    : public QObject {
+class MANTIDQT_INDIRECT_DLL IndirectSpectrumSelectionPresenter : public QObject {
   Q_OBJECT
 public:
-  IndirectSpectrumSelectionPresenter(IndirectFittingModel *model,
-                                     IndirectSpectrumSelectionView *view);
+  IndirectSpectrumSelectionPresenter(IndirectFittingModel *model, IndirectSpectrumSelectionView *view);
   ~IndirectSpectrumSelectionPresenter() override;
   UserInputValidator &validate(UserInputValidator &validator);
 
@@ -56,7 +55,7 @@ private slots:
 
 private:
   void setSpectraRange(WorkspaceIndex minimum, WorkspaceIndex maximum);
-  void setModelSpectra(Spectra const &spectra);
+  void setModelSpectra(MantidWidgets::FunctionModelSpectra const &spectra);
 
   UserInputValidator validateSpectraString();
   UserInputValidator &validateSpectraString(UserInputValidator &validator);

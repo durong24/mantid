@@ -20,8 +20,11 @@ class PlotConfigDialogView(QDialog):
 
         self.ui = load_ui(__file__, 'plot_config_dialog.ui', baseinstance=self)
         self.setWindowIcon(QIcon(':/images/MantidIcon.ico'))
-        self.setModal(True)
+        self.setWindowModality(Qt.WindowModal)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
     def add_tab_widget(self, tab_widget):
         self.main_tab_widget.addTab(*tab_widget)
+
+    def set_current_tab_widget(self, tab_widget):
+        self.main_tab_widget.setCurrentWidget(tab_widget)

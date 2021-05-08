@@ -80,7 +80,7 @@ if(COVERALLS)
   endforeach(loop_var)
 endif()
 
-# Add a precompiled header where they are supported 
+# Add a precompiled header where they are supported
 # enable_precompiled_headers (inc/MantidAlgorithms/PrecompiledHeader.h SRC_FILES )
 # Add the target for this directory
 add_library(Muon ${SRC_FILES} ${C_SRC_FILES} ${INC_FILES})
@@ -106,7 +106,6 @@ include_directories(inc)
 
 target_link_libraries(Muon
                       LINK_PRIVATE
-                      ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${MANTIDLIBS}
                       ${GSL_LIBRARIES})
 

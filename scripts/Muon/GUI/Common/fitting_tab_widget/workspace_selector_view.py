@@ -10,6 +10,7 @@ from mantidqt.utils.qt import load_ui
 from Muon.GUI.Common.list_selector.list_selector_presenter import ListSelectorPresenter
 from Muon.GUI.Common.list_selector.list_selector_view import ListSelectorView
 from Muon.GUI.FrequencyDomainAnalysis.frequency_context import FREQUENCY_EXTENSIONS
+from Muon.GUI.Common.contexts.frequency_domain_analysis_context import FrequencyDomainAnalysisContext
 
 ui_workspace_selector, _ = load_ui(__file__, "workspace_selector.ui")
 
@@ -49,7 +50,7 @@ class WorkspaceSelectorView(QtWidgets.QDialog, ui_workspace_selector):
         self.time_domain_combo.addItem(frequency_domain+FREQUENCY_EXTENSIONS["IM"])
 
         self.time_domain_combo.currentIndexChanged.connect(self.time_or_freq)
-        if self.context._frequency_context:
+        if isinstance(self.context, FrequencyDomainAnalysisContext):
             index = self.time_domain_combo.findText(plot_type)
             if index == -1:
                 index = 0
@@ -57,10 +58,10 @@ class WorkspaceSelectorView(QtWidgets.QDialog, ui_workspace_selector):
             self.time_domain_combo.setCurrentIndex(index)
 
     def get_workspace_list(self):
-        filtered_list = self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All', phasequad=True,
+        filtered_list = self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All',
                                                                     rebin=self.rebin, freq = "All")
 
-        filtered_list += self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All', phasequad=True,
+        filtered_list += self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All',
                                                                      rebin=self.rebin, freq = "None")
 
         filtered_list = [item for item in filtered_list if item not in self.current_workspaces]
@@ -78,12 +79,12 @@ class WorkspaceSelectorView(QtWidgets.QDialog, ui_workspace_selector):
 
         filtered_list = self.context.get_names_of_workspaces_to_fit(runs=self.runs,
                                                                     group_and_pair=self.groups_and_pairs,
-                                                                    phasequad=self.phasequad, rebin=self.rebin, freq = self.is_it_freq)
+                                                                    rebin=self.rebin, freq = self.is_it_freq)
 
-        excluded_list = self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All', phasequad=True,
+        excluded_list = self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All',
                                                                     rebin=self.rebin, freq="None")
         # add frequency list to excluded - needed for searching
-        excluded_list += self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All', phasequad=True,
+        excluded_list += self.context.get_names_of_workspaces_to_fit(runs='All', group_and_pair='All',
                                                                      rebin=self.rebin, freq="All")
 
         excluded_list = [item for item in excluded_list if item not in filtered_list]

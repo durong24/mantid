@@ -19,6 +19,7 @@ The Toolbar
 - |PickTabRectButton.png| - Draw a rectangle.
 - |PickTabElRingButton.png| - Draw an elliptical ring.
 - |PickTabRectRingButton.png| - Draw a rectangular ring.
+- |PickTabSectorButton.png| - Draw a circular sector.
 - |PickTabArbitraryShape.png| - Draw an arbitrary shape.
 - |PickTabPickPixelButton.png| - Select a single detector.
 - |PickTabPickTubeButton.png| - Select a tube/bank.
@@ -122,6 +123,8 @@ To select multiple shapes draw a rubber band around them.
    :alt: SelectMuplipleShapes.png
    :width: 300px
 
+#. Copy selected shapes using Ctrl+C. Then paste them as much as you like using Ctrl+V.
+
 The selected shapes are indicated by drawing a bounding box around each
 of them.
 
@@ -130,6 +133,7 @@ of them.
    :width: 300px
 
 Only translation is possible for a multiple selection.
+
 
 
 Sum selected detectors
@@ -146,6 +150,7 @@ the shapes and plots this vs time of flight.
 .. |PickTabRectButton.png| image:: /images/PickTabRectButton.png
 .. |PickTabElRingButton.png| image:: /images/PickTabElRingButton.png
 .. |PickTabRectRingButton.png| image:: /images/PickTabRectRingButton.png
+.. |PickTabSectorButton.png| image:: /images/PickTabSectorButton.png
 .. |PickTabPickPixelButton.png| image:: /images/PickTabPickPixelButton.png
 .. |PickTabPickTubeButton.png| image:: /images/PickTabPickTubeButton.png
 .. |PickTabAddPeakButton.png| image:: /images/PickTabAddPeakButton.png

@@ -6,9 +6,8 @@
 # SPDX - License - Identifier: GPL - 3.0 +
 import os
 import mantid.simpleapi as mantid
-from mantid.api import WorkspaceGroup, AnalysisDataService
-from mantid.api import ITableWorkspace
-from mantid.simpleapi import mtd, UnGroupWorkspace, Plus, DeleteWorkspace, CloneWorkspace
+from mantid.api import AnalysisDataService, ITableWorkspace, WorkspaceGroup
+from mantid.simpleapi import CloneWorkspace, DeleteWorkspace, mtd, Plus, UnGroupWorkspace
 from mantid import api
 from mantid.kernel import ConfigServiceImpl
 import Muon.GUI.Common.utilities.muon_file_utils as file_utils
@@ -180,7 +179,7 @@ def load_dead_time_from_filename(filename):
     :param filename: The full path to the .nxs file.
     :return: The name of the workspace in the ADS.
     """
-    loaded_data, run, _, __ = load_workspace_from_filename(filename)
+    loaded_data, run, _, _ = load_workspace_from_filename(filename)
 
     if is_workspace_group(loaded_data["OutputWorkspace"]):
         dead_times = loaded_data["DataDeadTimeTable"][0]
@@ -218,7 +217,7 @@ def load_workspace_from_filename(filename,
         for table in deadtime_tables[1:]:
             DeleteWorkspace(Workspace=table)
 
-        load_result["FirstGoodData"] = round(load_result["FirstGoodData"] - load_result['TimeZero'], 2)
+        load_result["FirstGoodData"] = round(load_result["FirstGoodData"] - load_result['TimeZero'], 3)
         UnGroupWorkspace(load_result["DeadTimeTable"])
         load_result["DeadTimeTable"] = None
         UnGroupWorkspace(workspace.name())
@@ -231,7 +230,7 @@ def load_workspace_from_filename(filename,
 
         load_result["DataDeadTimeTable"] = load_result["DeadTimeTable"]
         load_result["DeadTimeTable"] = None
-        load_result["FirstGoodData"] = round(load_result["FirstGoodData"] - load_result['TimeZero'], 2)
+        load_result["FirstGoodData"] = round(load_result["FirstGoodData"] - load_result['TimeZero'], 3)
 
     return load_result, run, filename, psi_data
 
@@ -275,10 +274,14 @@ def get_table_workspace_names_from_ADS():
 
 
 def combine_loaded_runs(model, run_list, delete_added=False):
+    period_list = [model._data_context.num_periods([run]) for run in run_list]
+    if max(period_list) != min(period_list):
+        raise RuntimeError('Inconsistent periods across co-added runs. This is not supported.')
     return_ws = model._loaded_data_store.get_data(run=[run_list[0]])["workspace"]
     running_total = []
 
-    for index, workspace in enumerate(return_ws["OutputWorkspace"]):
+    for index in range(min(period_list)):
+        workspace = return_ws["OutputWorkspace"][index]
         running_total_item = workspace.workspace.name() + 'CoAdd'
         CloneWorkspace(InputWorkspace=workspace.workspace.name(), OutputWorkspace=running_total_item)
         for run in run_list[1:]:

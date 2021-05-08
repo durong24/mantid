@@ -52,6 +52,8 @@ set(SRC_FILES
     src/PredictPeaks.cpp
     src/PredictSatellitePeaks.cpp
     src/SCDCalibratePanels.cpp
+    src/SCDCalibratePanels2.cpp
+    src/SCDCalibratePanels2ObjFunc.cpp
     src/SCDPanelErrors.cpp
     src/SaveHKL.cpp
     src/SaveIsawPeaks.cpp
@@ -128,6 +130,8 @@ set(INC_FILES
     inc/MantidCrystal/PredictPeaks.h
     inc/MantidCrystal/PredictSatellitePeaks.h
     inc/MantidCrystal/SCDCalibratePanels.h
+    inc/MantidCrystal/SCDCalibratePanels2.h
+    inc/MantidCrystal/SCDCalibratePanels2ObjFunc.h
     inc/MantidCrystal/SCDPanelErrors.h
     inc/MantidCrystal/SaveHKL.h
     inc/MantidCrystal/SaveIsawPeaks.h
@@ -196,6 +200,7 @@ set(TEST_FILES
     PredictFractionalPeaksTest.h
     PredictPeaksTest.h
     PredictSatellitePeaksTest.h
+    SCDCalibratePanels2Test.h
     SCDCalibratePanelsTest.h
     SaveHKLTest.h
     SaveIsawPeaksTest.h
@@ -227,6 +232,9 @@ if(COVERALLS)
   endforeach(loop_var)
 endif()
 
+# Add a precompiled header where they are supported
+enable_precompiled_headers(inc/MantidCrystal/PrecompiledHeader.h SRC_FILES)
+
 # Add the target for this directory
 add_library(Crystal ${SRC_FILES} ${INC_FILES})
 # Set the name of the generated library
@@ -247,7 +255,6 @@ include_directories(inc)
 
 target_link_libraries(Crystal
                       LINK_PRIVATE
-                      ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${MANTIDLIBS}
                       ${GSL_LIBRARIES})
 
@@ -256,6 +263,9 @@ add_subdirectory(test)
 
 # Auto-generate exports header
 target_include_directories(Crystal PUBLIC ${CMAKE_BINARY_DIR}/Framework/Crystal)
+target_include_directories( Crystal PUBLIC
+                           ${CMAKE_SOURCE_DIR}/Framework/Geometry/inc/MantidGeometry/Crystal )
+
 generate_mantid_export_header(Crystal FALSE)
 
 # Installation settings

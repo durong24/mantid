@@ -15,6 +15,7 @@ import tempfile
 import time
 import unittest
 import datetime
+import psutil
 
 from mantid.api import AnalysisDataService as ADS
 from mantid.kernel import ConfigService
@@ -22,8 +23,7 @@ from unittest import mock
 from workbench.projectrecovery.projectrecovery import ProjectRecovery, SAVING_TIME_KEY, NO_OF_CHECKPOINTS_KEY, \
     RECOVERY_ENABLED_KEY
 
-if sys.version_info.major >= 3:
-    unicode = str
+unicode = str
 
 
 def is_macOS():
@@ -144,6 +144,13 @@ class ProjectRecoveryTest(unittest.TestCase):
         result = self.pr.get_pid_folder_to_load_a_checkpoint_from()
         self.assertEqual(one, result)
 
+    def test_get_pid_folder_returns_pid_if_access_denied(self):
+        pid = os.path.join(self.pr.recovery_directory_hostname, "10000000")
+        os.makedirs(pid)
+        with mock.patch('psutil.Process.cmdline', side_effect=psutil.AccessDenied()):
+            result = self.pr.get_pid_folder_to_load_a_checkpoint_from()
+        self.assertEqual(pid, result)
+
     def test_list_dir_full_path(self):
         one = os.path.join(self.working_directory, "10000000")
         two = os.path.join(self.working_directory, "20000000")
@@ -151,12 +158,7 @@ class ProjectRecoveryTest(unittest.TestCase):
         os.makedirs(two)
 
         # There is no concern for list order in this equality assertion
-        if sys.version_info.major < 3:
-            # Python 2.7 way of doing it
-            self.assertItemsEqual([one, two], self.pr.listdir_fullpath(self.working_directory))
-        else:
-            # Python 3.2+ way of doing it
-            self.assertCountEqual([one, two], self.pr.listdir_fullpath(self.working_directory))
+        self.assertCountEqual([one, two], self.pr.listdir_fullpath(self.working_directory))
 
     def test_recovery_save_when_nothing_is_present(self):
         self.pr.saver._spin_off_another_time_thread = mock.MagicMock()

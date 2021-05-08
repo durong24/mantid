@@ -20,12 +20,14 @@ const unsigned int BankPulseTimes::FirstPeriod = 1;
  * @param file :: nexus file open in the right bank entry
  * @param pNumbers :: Period numbers to index into. Index via frame/pulse
  */
-BankPulseTimes::BankPulseTimes(::NeXus::File &file,
-                               const std::vector<int> &pNumbers)
-    : periodNumbers(pNumbers) {
+BankPulseTimes::BankPulseTimes(::NeXus::File &file, const std::vector<int> &pNumbers) : periodNumbers(pNumbers) {
   file.openData("event_time_zero");
   // Read the offset (time zero)
-  file.getAttr("offset", startTime);
+  // If the offset is not present, use Unix epoch
+  if (!file.hasAttr("offset"))
+    startTime = "1970-01-01T00:00:00Z";
+  else
+    file.getAttr("offset", startTime);
   Mantid::Types::Core::DateAndTime start(startTime);
   // Load the seconds offsets
 
@@ -72,15 +74,13 @@ BankPulseTimes::BankPulseTimes(::NeXus::File &file,
  *  Handles a zero-sized vector
  *  @param times
  */
-BankPulseTimes::BankPulseTimes(
-    const std::vector<Mantid::Types::Core::DateAndTime> &times) {
+BankPulseTimes::BankPulseTimes(const std::vector<Mantid::Types::Core::DateAndTime> &times) {
   numPulses = times.size();
   pulseTimes = nullptr;
   if (numPulses == 0)
     return;
   pulseTimes = new Mantid::Types::Core::DateAndTime[numPulses];
-  periodNumbers = std::vector<int>(
-      numPulses, FirstPeriod); // TODO we are fixing this at 1 period for all
+  periodNumbers = std::vector<int>(numPulses, FirstPeriod); // TODO we are fixing this at 1 period for all
   for (size_t i = 0; i < numPulses; i++)
     pulseTimes[i] = times[i];
 }
@@ -98,8 +98,6 @@ BankPulseTimes::~BankPulseTimes() { delete[] this->pulseTimes; }
  * @return true if the pulse times are the same and so don't need to be
  * reloaded.
  */
-bool BankPulseTimes::equals(size_t otherNumPulse,
-                            const std::string &otherStartTime) {
-  return ((this->startTime == otherStartTime) &&
-          (this->numPulses == otherNumPulse));
+bool BankPulseTimes::equals(size_t otherNumPulse, const std::string &otherStartTime) {
+  return ((this->startTime == otherStartTime) && (this->numPulses == otherNumPulse));
 }

@@ -9,14 +9,11 @@
 
 namespace MantidQt {
 namespace MantidWidgets {
-AlgorithmProgressPresenter::AlgorithmProgressPresenter(
-    QWidget *parent, IAlgorithmProgressWidget *view)
-    : AlgorithmProgressPresenterBase(parent), m_model{AlgorithmProgressModel(
-                                                  this)},
-      m_algorithm(nullptr), m_view(view), m_timer() {}
+AlgorithmProgressPresenter::AlgorithmProgressPresenter(QWidget *parent, IAlgorithmProgressWidget *view)
+    : AlgorithmProgressPresenterBase(parent), m_model{AlgorithmProgressModel(this)}, m_algorithm(nullptr), m_view(view),
+      m_timer() {}
 
-void AlgorithmProgressPresenter::algorithmStartedSlot(
-    Mantid::API::AlgorithmID alg) {
+void AlgorithmProgressPresenter::algorithmStartedSlot(Mantid::API::AlgorithmID alg) {
   // only allow the tracking of one algorithm at a time
   // this makes the progress bar stutter less and it looks better overall
   if (!m_algorithm) {
@@ -25,8 +22,7 @@ void AlgorithmProgressPresenter::algorithmStartedSlot(
   }
 }
 
-void AlgorithmProgressPresenter::algorithmEndedSlot(
-    Mantid::API::AlgorithmID alg) {
+void AlgorithmProgressPresenter::algorithmEndedSlot(Mantid::API::AlgorithmID alg) {
   if (alg == this->m_algorithm) {
     m_algorithm = nullptr;
     m_view->algorithmEnded();
@@ -43,9 +39,11 @@ void AlgorithmProgressPresenter::algorithmEndedSlot(
 /// @param progress The progress that the algorithm has reported
 /// @param message The message that the algorithm has reported. It can be
 /// emitted from another thread, so a copy of the message is forced
-void AlgorithmProgressPresenter::updateProgressBarSlot(
-    Mantid::API::AlgorithmID algorithm, const double progress,
-    QString message) {
+/// @param estimatedTime :: estimated time to completion in seconds
+/// @param progressPrecision :: number of digits after the decimal
+void AlgorithmProgressPresenter::updateProgressBarSlot(Mantid::API::AlgorithmID algorithm, const double progress,
+                                                       const QString message, const double estimatedTime,
+                                                       const int progressPrecision) {
   if (algorithm == this->m_algorithm) {
     // this needs to be a call to the view
     // so that it can be mocked out for testing
@@ -53,7 +51,7 @@ void AlgorithmProgressPresenter::updateProgressBarSlot(
     float timeInterval = m_timer.elapsed_no_reset();
     if (timeInterval > maxRefreshInterval) {
       m_timer.reset();
-      m_view->updateProgress(progress, message);
+      m_view->updateProgress(progress, message, estimatedTime, progressPrecision);
     }
   }
 }

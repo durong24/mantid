@@ -12,22 +12,20 @@ our custom window.
 """
 
 # std imports
+import matplotlib
 import numpy as np
-
-# 3rd party imports
-try:
-    from matplotlib.cm import viridis as DEFAULT_CMAP
-except ImportError:
-    from matplotlib.cm import jet as DEFAULT_CMAP
 
 # local imports
 from mantid.api import AnalysisDataService, MatrixWorkspace
-from mantid.plots.plotfunctions import manage_workspace_names, figure_title, plot,\
-                                       create_subplots,raise_if_not_sequence
-from mantid.kernel import Logger
+from mantid.plots.plotfunctions import manage_workspace_names, figure_title, plot, \
+    create_subplots, raise_if_not_sequence, plot_md_histo_ws
+
+from mantid.kernel import Logger, ConfigService
+from mantid.plots.datafunctions import add_colorbar_label
 from mantid.plots.utility import get_single_workspace_log_value
 from mantidqt.plotting.figuretype import figure_type, FigureType
 from mantidqt.dialogs.spectraselectorutils import get_spectra_selection
+from mantid.api import IMDHistoWorkspace
 
 # -----------------------------------------------------------------------------
 # Constants
@@ -41,6 +39,7 @@ LOGGER = Logger("workspace.plotting.functions")
 DEFAULT_CONTOUR_LEVELS = 2
 DEFAULT_CONTOUR_COLOUR = 'k'
 DEFAULT_CONTOUR_WIDTH = 0.5
+
 
 # -----------------------------------------------------------------------------
 # 'Public' Functions
@@ -57,15 +56,13 @@ def can_overplot():
     compatible.
     """
     compatible = False
-    msg = "Unable to overplot on currently active plot type.\n" \
-          "Please select another plot."
     fig = current_figure_or_none()
     if fig is not None:
         figtype = figure_type(fig)
-        if figtype is FigureType.Line or figtype is FigureType.Errorbar:
-            compatible, msg = True, None
+        if figtype in [FigureType.Line, FigureType.Errorbar, FigureType.Waterfall]:
+            compatible = True
 
-    return compatible, msg
+    return compatible
 
 
 def current_figure_or_none():
@@ -78,6 +75,31 @@ def current_figure_or_none():
         return plt.gcf()
     else:
         return None
+
+
+def plot_md_ws_from_names(names, errors, overplot, fig=None):
+    """
+    Given a list of names of 1-dimensional IMDHistoWorkspaces and plot
+
+    :param names: A list of workspaces names
+    :param errors: If true then error bars will be plotted on the points
+    :param overplot: If true then the add to the current figure if one
+                     exists and it is a compatible figure
+    :param fig: If not None then use this figure object to plot
+    :return: The figure containing the plot or None if selection was cancelled
+    """
+    # Get workspaces
+    workspaces = AnalysisDataService.Instance().retrieveWorkspaces(names, unrollGroups=True)
+
+    # Check input workspace type
+    for ws in workspaces:
+        if not isinstance(ws, IMDHistoWorkspace):
+            raise RuntimeError(f'Workspace {str(ws)} is {type(ws)} but not an IMDHistoWorkspace')
+
+    # Plot for various cases
+    if len(workspaces) > 0:
+        return plot_md_histo_ws(workspaces, errors=errors, overplot=overplot, fig=fig,
+                                ax_properties=None, window_title=None)
 
 
 def plot_from_names(names, errors, overplot, fig=None, show_colorfill_btn=False, advanced=False):
@@ -93,8 +115,11 @@ def plot_from_names(names, errors, overplot, fig=None, show_colorfill_btn=False,
     :param advanced: If true then the advanced options will be shown in the spectra selector dialog.
     :return: The figure containing the plot or None if selection was cancelled
     """
+    # Get workspaces from ADS with names
     workspaces = AnalysisDataService.Instance().retrieveWorkspaces(names, unrollGroups=True)
+
     try:
+        # Get selected spectra from all MatrixWorkspaces
         selection = get_spectra_selection(workspaces, show_colorfill_btn=show_colorfill_btn, overplot=overplot,
                                           advanced=advanced)
     except Exception as exc:
@@ -104,6 +129,7 @@ def plot_from_names(names, errors, overplot, fig=None, show_colorfill_btn=False,
     if selection is None:
         return None
     elif selection == 'colorfill':
+        # plot mesh for color fill
         return pcolormesh_from_names(names)
 
     log_values = None
@@ -169,6 +195,9 @@ def pcolormesh_from_names(names, fig=None, ax=None):
 
 def use_imshow(ws):
     y = ws.getAxis(1).extractValues()
+    if ws.getAxis(1).isText():
+        nhist = ws.getNumberHistograms()
+        y = np.arange(nhist)
     difference = np.diff(y)
     try:
         commonLogBins = hasattr(ws, 'isCommonLogBins') and ws.isCommonLogBins()
@@ -178,12 +207,14 @@ def use_imshow(ws):
 
 
 @manage_workspace_names
-def pcolormesh(workspaces, fig=None):
+def pcolormesh(workspaces, fig=None, normalize_by_bin_width=None):
     """
     Create a figure containing pcolor subplots
 
     :param workspaces: A list of workspace handles
     :param fig: An optional figure to contain the new plots. Its current contents will be cleared
+    :param normalize_by_bin_width: Optional and only to be used in the event that the function is being called as part
+    of a plot restore
     :returns: The figure containing the plots
     """
     # check inputs
@@ -195,30 +226,43 @@ def pcolormesh(workspaces, fig=None):
     workspaces_len = len(workspaces)
     fig, axes, nrows, ncols = create_subplots(workspaces_len, fig=fig)
 
+    plots = []
     row_idx, col_idx = 0, 0
     for subplot_idx in range(nrows * ncols):
         ax = axes[row_idx][col_idx]
         if subplot_idx < workspaces_len:
             ws = workspaces[subplot_idx]
-            pcm = pcolormesh_on_axis(ax, ws)
-            if pcm:  # Colour bar limits are wrong if workspace is ragged. Set them manually.
-                colorbar_min = np.nanmin(pcm.get_array())
-                colorbar_max = np.nanmax(pcm.get_array())
-                pcm.set_clim(colorbar_min, colorbar_max)
+            pcm = pcolormesh_on_axis(ax, ws, normalize_by_bin_width)
+            plots.append(pcm)
             if col_idx < ncols - 1:
                 col_idx += 1
             else:
                 row_idx += 1
                 col_idx = 0
+
+            if ConfigService.getString("plots.ShowMinorTicks").lower() == "on":
+                ax.minorticks_on()
+
+            ax.show_minor_gridlines = ConfigService.getString("plots.ShowMinorGridlines").lower() == "on"
         else:
             # nothing here
             ax.axis('off')
 
+    # If there are multiple plots limits are the min and max of all the plots
+    colorbar_min = min(pt.norm.vmin for pt in plots)
+    colorbar_max = max(pt.norm.vmax for pt in plots)
+    for pt in plots:
+        pt.set_clim(colorbar_min, colorbar_max)
+
     # Adjust locations to ensure the plots don't overlap
     fig.subplots_adjust(wspace=SUBPLOT_WSPACE, hspace=SUBPLOT_HSPACE)
-    fig.colorbar(pcm, ax=axes.ravel().tolist(), pad=0.06)
+
+    axes = axes.ravel()
+    colorbar = fig.colorbar(pcm, ax=axes.tolist(), pad=0.06)
+    add_colorbar_label(colorbar, axes)
+
     fig.canvas.set_window_title(figure_title(workspaces, fig.number))
-    #assert a minimum size, otherwise we can lose axis labels
+    # assert a minimum size, otherwise we can lose axis labels
     size = fig.get_size_inches()
     if (size[0] <= COLORPLOT_MIN_WIDTH) or (size[1] <= COLORPLOT_MIN_HEIGHT):
         fig.set_size_inches(COLORPLOT_MIN_WIDTH, COLORPLOT_MIN_HEIGHT, forward=True)
@@ -227,19 +271,25 @@ def pcolormesh(workspaces, fig=None):
     return fig
 
 
-def pcolormesh_on_axis(ax, ws):
+def pcolormesh_on_axis(ax, ws, normalize_by_bin_width=None):
     """
     Plot a pcolormesh plot of the given workspace on the given axis
     :param ax: A matplotlib axes instance
     :param ws: A mantid workspace instance
+    :param normalize_by_bin_width: Optional keyword argument to pass to imshow in the event of a plot restoration
     :return:
     """
     ax.clear()
     ax.set_title(ws.name())
+    scale = _get_colorbar_scale()
     if use_imshow(ws):
-        pcm = ax.imshow(ws, cmap=DEFAULT_CMAP, aspect='auto', origin='lower')
+        pcm = ax.imshow(ws, cmap=ConfigService.getString("plots.images.Colormap"), aspect='auto', origin='lower',
+                        norm=scale(), normalize_by_bin_width=normalize_by_bin_width)
+        # remove normalize_by_bin_width from cargs if present so that this can be toggled in future
+        for cargs in pcm.axes.creation_args:
+            cargs.pop('normalize_by_bin_width')
     else:
-        pcm = ax.pcolormesh(ws, cmap=DEFAULT_CMAP)
+        pcm = ax.pcolormesh(ws, cmap=ConfigService.getString("plots.images.Colormap"), norm=scale())
 
     return pcm
 
@@ -247,6 +297,15 @@ def pcolormesh_on_axis(ax, ws):
 def _validate_pcolormesh_inputs(workspaces):
     """Raises a ValueError if any arguments have the incorrect types"""
     raise_if_not_sequence(workspaces, 'workspaces', MatrixWorkspace)
+
+
+def _get_colorbar_scale():
+    """Get the scale type (Linear, Log) for the colorbar in image type plots"""
+    scale = ConfigService.getString("plots.images.ColorBarScale")
+    if scale == "Log":
+        return matplotlib.colors.LogNorm
+    else:
+        return matplotlib.colors.Normalize
 
 
 @manage_workspace_names
@@ -260,7 +319,7 @@ def plot_surface(workspaces, fig=None):
         else:
             fig, ax = plt.subplots(subplot_kw={'projection': 'mantid3d'})
 
-        surface = ax.plot_surface(ws, cmap=DEFAULT_CMAP)
+        surface = ax.plot_surface(ws, cmap=ConfigService.getString("plots.images.Colormap"))
         ax.set_title(ws.name())
         fig.colorbar(surface, ax=[ax])
         fig.show()
@@ -295,7 +354,6 @@ def plot_contour(workspaces, fig=None):
                    colors=DEFAULT_CONTOUR_COLOUR,
                    linewidths=DEFAULT_CONTOUR_WIDTH)
 
-        ax.set_title(ws.name())
         fig.show()
 
     return fig

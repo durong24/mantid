@@ -25,6 +25,9 @@ General
   and projects and error notifications.
 - Project Recovery: These settings enable project recovery in case of a crash (recommended).
 - Main Font: Edit the font type and size used for all of Workbench, except for the script editor and messages box.
+- Additional Window Behavior: This setting controls the behavior of additional windows in Workbench.
+  When it is set to ontop, additional windows such as plot will be kept ontop of the workbench main window.
+  For further details of this setting, such as OS specific behavior, see :ref:`Window Behavior <WorkbenchWindowBehavior>`.
 - Layouts: You can save and load layouts from this area. Save layout will save the current
   arrangement of widgets in the main window that can be loaded using load layout.
 
@@ -44,7 +47,7 @@ Categories
 - Choose which Interface categories to show in the Interfaces menu.
 
 
-.. image:: ../images/SettingsPlots.png
+.. image:: ../images/PlotSettings.png
    :scale: 60%
    :align: right
    :alt: SettingsPlots
@@ -58,11 +61,13 @@ Categories
 Plots
 =====
 
-- General: Choose whether to plot workspaces normalised by their bin width and whether to show their title.
+- General: Choose whether to plot workspaces normalised by their bin width, whether to show their title, and whether to show minor ticks and gridlines.
 - Axes: Should the Axes on plots be linear or logarithmic?
 - Line: Choose a line style and width.
 - Marker: Choose a default marker for plots, such as 'point'.
 - Error Bars: Control the error bars, such as by setting Capsize > 0, or displaying the Error Every 5 data points.
+- Legend: Set the default location for legends in plots.
+- Images: Set the default colormap for image plots.
 
 For more information, see :ref:`06_formatting_plots`
 

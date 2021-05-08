@@ -15,6 +15,7 @@ set(TEST_PY_FILES
     CalculateSampleTransmissionTest.py
     CheckForSampleLogsTest.py
     ConjoinSpectraTest.py
+    ConvertQtoHKLMDHistoTest.py
     ConvertWANDSCDtoQTest.py
     CompareSampleLogsTest.py
     ComputeCalibrationCoefVanTest.py
@@ -24,7 +25,6 @@ set(TEST_PY_FILES
     CorrectTOFTest.py
     CreateWorkspaceTest.py
     CropWorkspaceForMDNormTest.py
-    CropWorkspaceRaggedTest.py
     CylinderPaalmanPingsCorrection2Test.py
     DakotaChiSquaredTest.py
     DeltaPDF3DTest.py
@@ -46,13 +46,21 @@ set(TEST_PY_FILES
     FitGaussianTest.py
     FitIncidentSpectrumTest.py
     FractionalIndexingTest.py
+    GenerateLogbookTest.py
     GetEiT0atSNSTest.py
     HB2AReduceTest.py
+    HB3AAdjustSampleNormTest.py
+    HB3AFindPeaksTest.py
+    HB3AIntegratePeaksTest.py
+    HB3APredictPeaksTest.py
+    HFIRCalculateGoniometerTest.py
     HFIRSANS2WavelengthTest.py
     IndirectTransmissionTest.py
     IndexSatellitePeaksTest.py
+    LeadPressureCalcTest.py
     LoadAndMergeTest.py
     LoadDNSLegacyTest.py
+    LoadElementalAnalysisRunTest.py
     LoadEmptyVesuvioTest.py
     LoadFullprofFileTest.py
     LoadGudrunOutputTest.py
@@ -64,6 +72,7 @@ set(TEST_PY_FILES
     LoadNMoldyn4Ascii1DTest.py
     LoadNMoldyn4AsciiTest.py
     LoadWANDSCDTest.py
+    LRDirectBeamSortTest.py
     LRPeakSelectionTest.py
     MatchSpectraTest.py
     MaskAngleTest.py
@@ -80,12 +89,16 @@ set(TEST_PY_FILES
     OptimizeCrystalPlacementByRunTest.py
     PDConvertRealSpaceTest.py
     PDConvertReciprocalSpaceTest.py
+    PeakMatchingTest.py
+    RebinRaggedTest.py
     ReflectometryReductionOneLiveDataTest.py
     ReflectometrySliceEventWorkspaceTest.py
     RetrieveRunInfoTest.py
     SANSWideAngleCorrectionTest.py
     SaveGEMMAUDParamFileTest.py
     SaveNexusPDTest.py
+    SaveGSSCWTest.py
+    SaveHKLCWTest.py
     SavePlot1DAsJsonTest.py
     SaveReflectionsTest.py
     ExtractMonitorsTest.py
@@ -107,14 +120,17 @@ set(TEST_PY_FILES
     VelocityCrossCorrelationsTest.py
     VelocityAutoCorrelationsTest.py
     SelectNexusFilesByMetadataTest.py
+    VesuvioAnalysisTest.py
     VesuvioPeakPredictionTest.py
     VesuvioPreFitTest.py
     VesuvioResolutionTest.py
     VesuvioThicknessTest.py
     VesuvioTOFFitTest.py
+    PEARLTransfitTest.py
     PoldiCreatePeaksFromFileTest.py
     LoadCIFTest.py
-    SaveYDATest.py)
+    SaveYDATest.py
+    SaveP2DTest.py)
 
 check_tests_valid(${CMAKE_CURRENT_SOURCE_DIR} ${TEST_PY_FILES})
 

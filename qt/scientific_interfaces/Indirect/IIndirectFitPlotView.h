@@ -7,8 +7,8 @@
 #pragma once
 
 #include "DllConfig.h"
-#include "IndexTypes.h"
 #include "MantidAPI/MatrixWorkspace.h"
+#include "MantidQtWidgets/Common/IndexTypes.h"
 #include "MantidQtWidgets/Common/MantidWidget.h"
 
 #include <QObject>
@@ -16,6 +16,7 @@
 namespace MantidQt {
 namespace CustomInterfaces {
 namespace IDA {
+using namespace MantidWidgets;
 
 class MANTIDQT_INDIRECT_DLL IIndirectFitPlotView : public API::MantidWidget {
   Q_OBJECT
@@ -35,28 +36,21 @@ public:
   virtual void hideMultipleDataSelection() = 0;
   virtual void showMultipleDataSelection() = 0;
 
-  virtual void setAvailableSpectra(WorkspaceIndex minimum,
-                                   WorkspaceIndex maximum) = 0;
-  virtual void setAvailableSpectra(
-      const std::vector<WorkspaceIndex>::const_iterator &from,
-      const std::vector<WorkspaceIndex>::const_iterator &to) = 0;
+  virtual void setAvailableSpectra(WorkspaceIndex minimum, WorkspaceIndex maximum) = 0;
+  virtual void setAvailableSpectra(const std::vector<WorkspaceIndex>::const_iterator &from,
+                                   const std::vector<WorkspaceIndex>::const_iterator &to) = 0;
 
   virtual void setMinimumSpectrum(int minimum) = 0;
   virtual void setMaximumSpectrum(int maximum) = 0;
   virtual void setPlotSpectrum(WorkspaceIndex spectrum) = 0;
   virtual void appendToDataSelection(const std::string &dataName) = 0;
-  virtual void setNameInDataSelection(const std::string &dataName,
-                                      TableDatasetIndex index) = 0;
+  virtual void setNameInDataSelection(const std::string &dataName, TableDatasetIndex index) = 0;
   virtual void clearDataSelection() = 0;
 
-  virtual void plotInTopPreview(const QString &name,
-                                Mantid::API::MatrixWorkspace_sptr workspace,
-                                WorkspaceIndex spectrum,
-                                Qt::GlobalColor colour) = 0;
-  virtual void plotInBottomPreview(const QString &name,
-                                   Mantid::API::MatrixWorkspace_sptr workspace,
-                                   WorkspaceIndex spectrum,
-                                   Qt::GlobalColor colour) = 0;
+  virtual void plotInTopPreview(const QString &name, Mantid::API::MatrixWorkspace_sptr workspace,
+                                WorkspaceIndex spectrum, Qt::GlobalColor colour) = 0;
+  virtual void plotInBottomPreview(const QString &name, Mantid::API::MatrixWorkspace_sptr workspace,
+                                   WorkspaceIndex spectrum, Qt::GlobalColor colour) = 0;
 
   virtual void removeFromTopPreview(const QString &name) = 0;
   virtual void removeFromBottomPreview(const QString &name) = 0;
@@ -73,12 +67,16 @@ public:
   virtual void setFitRange(double minimum, double maximum) = 0;
   virtual void setFitRangeMinimum(double minimum) = 0;
   virtual void setFitRangeMaximum(double maximum) = 0;
+  virtual void setFitRangeBounds(std::pair<double, double> const &bounds) = 0;
 
   virtual void setBackgroundRangeVisible(bool visible) = 0;
   virtual void setHWHMRangeVisible(bool visible) = 0;
 
   virtual void displayMessage(const std::string &message) const = 0;
   virtual void disableSpectrumPlotSelection() = 0;
+
+  virtual void allowRedraws(bool state) = 0;
+  virtual void redrawPlots() = 0;
 
 public slots:
   virtual void clearTopPreview() = 0;

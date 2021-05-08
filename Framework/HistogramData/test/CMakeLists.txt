@@ -7,12 +7,16 @@ if(CXXTEST_FOUND)
   target_include_directories(HistogramDataTest SYSTEM
                              PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(HistogramDataTest
-                        LINK_PRIVATE
-                        ${TCMALLOC_LIBRARIES_LINKTIME}
+                        PRIVATE
                         HistogramData
+                        Kernel
                         ${Boost_LIBRARIES}
                         gmock
-)
+  )
+  if(OpenMP_CXX_FOUND)
+    # Access to config service is required
+    target_link_libraries(HistogramDataTest PRIVATE Kernel)
+  endif()
 
   add_dependencies(FrameworkTests HistogramDataTest)
   # Add to the 'FrameworkTests' group in VS

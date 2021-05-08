@@ -12,6 +12,11 @@ from matplotlib.patches import Circle, Ellipse, Patch, PathPatch, Wedge
 from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
+# Pad the zoom view by this extra fraction of the view width
+ZOOM_PAD_FRAC = 0.2
+# Minimum padding in case the view width is very small. This is quite arbitrary.
+MIN_PAD = 0.05
+
 
 class EllipticalShell(Patch):
     """
@@ -19,19 +24,21 @@ class EllipticalShell(Patch):
     """
 
     def __str__(self):
-        return f"EllipticalShell(center={self.center}, width={self.width}, height={self.height}, thick={self.thick}, angle={self.angle})"
+        return f"EllipticalShell(center={self.center}, width={self.width}, height={self.height}, " \
+               f"frac_thick={self.frac_thick}, angle={self.angle})"
 
-    def __init__(self, center, width, height, thick, angle=0.0, **kwargs):
+    def __init__(self, center, width, height, frac_thick, angle=0.0, **kwargs):
         """
         Draw an elliptical ring centered at *x*, *y* center with outer width (horizontal diameter)
-        *width* and outer height (vertical diameter) *height* with a ring thickness of *thick*
+        *width* and outer height (vertical diameter) *height* with a fractional ring thickness of *thick*
+        ( [r_outer - r_inner]/r_outer where r is the major radius).
         Valid kwargs are:
         %(Patch)s
         """
         super().__init__(**kwargs)
         self.center = center
         self.height, self.width = height, width
-        self.thick = thick
+        self.frac_thick = frac_thick
         self.angle = angle
         self._recompute_path()
         # Note: This cannot be calculated until this is added to an Axes
@@ -42,7 +49,9 @@ class EllipticalShell(Patch):
         arc = Path.arc(theta1=0.0, theta2=360.0)
         # Draw the outer unit circle followed by a reversed and scaled inner circle
         v1 = arc.vertices
-        v2 = arc.vertices[::-1] * float(1.0 - self.thick)
+        v2 = np.zeros_like(v1)
+        v2[:, 0] = v1[::-1, 0] * float(1.0 - self.frac_thick[0])
+        v2[:, 1] = v1[::-1, 1] * float(1.0 - self.frac_thick[1])
         v = np.vstack([v1, v2, v1[0, :], (0, 0)])
         c = np.hstack([arc.codes, arc.codes, Path.MOVETO, Path.CLOSEPOLY])
         c[len(arc.codes)] = Path.MOVETO
@@ -73,23 +82,23 @@ class EllipticalShell(Patch):
         return self._path
 
 
-class MplPainter(object):
+class MplPainter():
     """
     Implementation of a PeakPainter that uses matplotlib to draw
     """
-    ZOOM_PAD_FRAC = 0.2
 
-    def __init__(self, axes):
+    def __init__(self, view):
         """
-        :param axes: A matplotlib.axes.Axes instance to draw on
+        :param view: An object defining an axes property.
         """
-        if not hasattr(axes, "scatter"):
-            raise ValueError("Expected matplotlib.axes.Axes instance. Found {}.".format(type(axes)))
-        self._axes = axes
+        self._view = view
+        if not hasattr(self._view, "ax"):
+            raise ValueError("Expected to find an 'ax' attribute on the view. Found {}.".format(
+                type(view)))
 
     @property
     def axes(self):
-        return self._axes
+        return self._view.ax
 
     def remove(self, artist):
         """
@@ -109,7 +118,7 @@ class MplPainter(object):
         :param radius: Radius of the circle
         :param kwargs: Additional matplotlib properties to pass to the call
         """
-        return self._axes.add_patch(Circle((x, y), radius, **kwargs))
+        return self.axes.add_patch(Circle((x, y), radius, **kwargs))
 
     def cross(self, x, y, half_width, **kwargs):
         """Draw a cross at the given location
@@ -121,7 +130,7 @@ class MplPainter(object):
         verts = ((x - half_width, y + half_width), (x + half_width, y - half_width),
                  (x + half_width, y + half_width), (x - half_width, y - half_width))
         codes = (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO)
-        return self._axes.add_patch(PathPatch(Path(verts, codes), **kwargs))
+        return self.axes.add_patch(PathPatch(Path(verts, codes), **kwargs))
 
     def ellipse(self, x, y, width, height, angle=0.0, **kwargs):
         """Draw an ellipse at the given location
@@ -132,9 +141,9 @@ class MplPainter(object):
         :param angle: Angle in degrees w.r.t X axis
         :param kwargs: Additional matplotlib properties to pass to the call
         """
-        return self._axes.add_patch(Ellipse((x, y), width, height, angle, **kwargs))
+        return self.axes.add_patch(Ellipse((x, y), width, height, angle, **kwargs))
 
-    def elliptical_shell(self, x, y, outer_width, outer_height, thick, angle=0.0, **kwargs):
+    def elliptical_shell(self, x, y, outer_width, outer_height, frac_thick, angle=0.0, **kwargs):
         """Draw an ellipse at the given location
         :param x: X coordinate of the center
         :param y: Y coordinate of the center
@@ -144,8 +153,8 @@ class MplPainter(object):
         :param angle: Angle in degrees w.r.t X axis
         :param kwargs: Additional matplotlib properties to pass to the call
         """
-        return self._axes.add_patch(
-            EllipticalShell((x, y), outer_width, outer_height, thick, angle, **kwargs))
+        return self.axes.add_patch(
+            EllipticalShell((x, y), outer_width, outer_height, frac_thick, angle, **kwargs))
 
     def shell(self, x, y, outer_radius, thick, **kwargs):
         """Draw a wedge on the Axes
@@ -155,32 +164,36 @@ class MplPainter(object):
         :param thick: The thickness of the shell
         :param kwargs: Additional matplotlib properties to pass to the call
         """
-        return self._axes.add_patch(
+        return self.axes.add_patch(
             Wedge((x, y), outer_radius, theta1=0.0, theta2=360., width=thick, **kwargs))
 
-    def zoom_to(self, artist):
-        """Set the view such that the given artist is in the center
+    def bbox(self, artist):
+        """Determine the lower-left and upper-right coordinates of
+        a box that encompasses the given artist
+        :param artist: An artist to inspect
         """
         # Use the bounding box of the artist with small amount of padding
         # to set the axis limits
-        to_data_coords = self._axes.transData.inverted()
+        to_data_coords = self.axes.transData.inverted()
         artist_bbox = artist.get_extents()
-        ll, ur = to_data_coords.transform(artist_bbox.min), \
+        return to_data_coords.transform(artist_bbox.min), \
             to_data_coords.transform(artist_bbox.max)
-        # pad by fraction of maximum width so the artist is still in the center
-        xl, xr = ll[0], ur[0]
-        yb, yt = ll[1], ur[1]
-        padding = max(xr - xl, yt - yb) * self.ZOOM_PAD_FRAC
-        self._axes.set_xlim(xl - padding, xr + padding)
-        self._axes.set_ylim(yb - padding, yt + padding)
 
 
-class Painted(object):
+class Painted():
     """Combine a collection of artists with the painter that created them"""
 
-    def __init__(self, painter, artists):
+    def __init__(self, painter, artists, effective_bbox=None):
+        """
+        :param painter: A reference to the painter responsible for
+                        drawing the artists.
+        :param artists: A list of drawn artists
+        :param effective_bbox: An optional bounding box for artists that
+                               represent something with no real extent
+        """
         self._painter = painter
         self._artists = artists
+        self._effective_bbox = effective_bbox
 
     @property
     def artists(self):
@@ -194,10 +207,17 @@ class Painted(object):
         for artist in self._artists:
             self._painter.remove(artist)
 
-    def zoom_to(self):
+    def viewlimits(self):
         """
-        Place the painted objects at the center of the view.
-        There is an assumption that the final artist represents the "largest"
-        object painted on the screen
+        Determine the view limits such that the artists are in the center
+        with some padding.
         """
-        self._painter.zoom_to(self._artists[-1])
+        if self._effective_bbox is None:
+            ll, ur = self._painter.bbox(self._artists[-1])
+        else:
+            ll, ur = self._effective_bbox
+        # pad by fraction of maximum width so the artist is still in the center
+        xl, xr = ll[0], ur[0]
+        yb, yt = ll[1], ur[1]
+        padding = max(max(xr - xl, yt - yb) * ZOOM_PAD_FRAC, MIN_PAD)
+        return ((xl - padding, xr + padding), (yb - padding, yt + padding))

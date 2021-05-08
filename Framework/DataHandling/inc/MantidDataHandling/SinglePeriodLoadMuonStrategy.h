@@ -14,10 +14,8 @@ namespace DataHandling {
 class SinglePeriodLoadMuonStrategy : public LoadMuonStrategy {
 public:
   // Constructor
-  SinglePeriodLoadMuonStrategy(Kernel::Logger &g_log,
-                               const std::string filename,
-                               NeXus::NXEntry &entry,
-                               DataObjects::Workspace2D_sptr workspace,
+  SinglePeriodLoadMuonStrategy(Kernel::Logger &g_log, const std::string filename,
+                               LoadMuonNexusV2NexusHelper &nexusLoader, DataObjects::Workspace2D &workspace,
                                int entryNumber, bool isFileMultiPeriod);
   // Loads the muon log data
   void loadMuonLogData() override;
@@ -27,14 +25,13 @@ public:
   void applyTimeZeroCorrection() override;
   // Load detector grouping
   API::Workspace_sptr loadDetectorGrouping() const override;
-  // Load default grouping from ID
-  API::Workspace_sptr loadDefaultDetectorGrouping() const;
   // Load dead time table
   API::Workspace_sptr loadDeadTimeTable() const override;
+  // Get time zero table
+  API::Workspace_sptr getTimeZeroTable() override;
 
 private:
-  NeXus::NXEntry &m_entry;
-  DataObjects::Workspace2D_sptr m_workspace;
+  DataObjects::Workspace2D &m_workspace;
   int m_entryNumber;
   bool m_isFileMultiPeriod;
   std::vector<detid_t> m_detectors;

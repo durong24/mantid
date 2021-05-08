@@ -19,6 +19,8 @@ from mantidqt.utils.testing.mocks.mock_mantid import AXIS_INDEX_FOR_HORIZONTAL, 
 from mantidqt.utils.testing.mocks.mock_qt import MockQModelIndex
 from mantidqt.widgets.workspacedisplay.matrix.table_view_model import MatrixWorkspaceTableViewModel, \
     MatrixWorkspaceTableViewModelType
+from mantid.simpleapi import CreateWorkspace
+from mantid.kernel import UnitLabel
 
 
 def setup_common_for_test_data():
@@ -97,7 +99,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model = MatrixWorkspaceTableViewModel(ws, model_type)
         index = MockQModelIndex(row, column)
         output = model.data(index, Qt.DisplayRole)
-        model.relevant_data.assert_called_once_with(row)
+        model.relevant_data.assert_called_with(row)
         self.assertEqual(str(mock_data[column]), output)
 
     def test_row_and_column_count(self):
@@ -105,8 +107,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model_type = MatrixWorkspaceTableViewModelType.x
         MatrixWorkspaceTableViewModel(ws, model_type)
         # these are called when the TableViewModel is initialised
-        ws.getNumberHistograms.assert_called_once_with()
-        ws.blocksize.assert_called_once_with()
+        ws.getNumberHistograms.assert_called()
 
     def test_data_background_role_masked_row(self):
         ws, model, row, index = setup_common_for_test_data()
@@ -119,7 +120,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
 
         index.row.assert_called_once_with()
-        self.assertFalse(index.column.called)
+        index.column.assert_called_once_with()
 
         self.assertEqual(model.masked_color, output)
 
@@ -134,7 +135,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
 
         # assert that the row was called twice with no parameters
         self.assertEqual(2, index.row.call_count)
-        self.assertFalse(index.column.called)
+        self.assertEqual(2, index.column.call_count)
 
     def test_data_background_role_monitor_row(self):
         ws, model, row, index = setup_common_for_test_data()
@@ -148,8 +149,8 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        index.row.assert_called_once_with()
-        self.assertFalse(index.column.called)
+        index.row.assert_called_once()
+        index.column.assert_called_once()
 
         self.assertEqual(model.monitor_color, output)
 
@@ -167,7 +168,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
 
         # assert that the row was called twice with no parameters
         self.assertEqual(2, index.row.call_count)
-        self.assertFalse(index.column.called)
+        self.assertEqual(2, index.column.call_count)
 
     def test_data_background_role_masked_bin(self):
         ws, model, row, index = setup_common_for_test_data()
@@ -183,8 +184,8 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         ws.hasMaskedBins.assert_called_once_with(row)
         ws.maskedBinsIndices.assert_called_once_with(row)
 
-        index.row.assert_called_once_with()
-        index.column.assert_called_once_with()
+        index.row.assert_called_once()
+        index.column.assert_called_once()
 
         self.assertEqual(model.masked_color, output)
         # Just do it a second time -> This time it's cached and should be read off the cache.
@@ -221,7 +222,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_ROW_TOOLTIP, output)
 
         output = model.data(index, Qt.ToolTipRole)
 
@@ -232,7 +233,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         self.assertEqual(3, model.ws_spectrum_info.hasDetectors.call_count)
         self.assertEqual(2, model.ws_spectrum_info.isMonitor.call_count)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_ROW_TOOLTIP, output)
 
     def test_data_tooltip_role_masked_monitor_row(self):
         if not qtpy.PYQT5:
@@ -248,7 +249,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_MONITOR_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_MONITOR_ROW_TOOLTIP, output)
 
         # Doing the same thing a second time should hit the cache, so no additional calls will have been made
         output = model.data(index, Qt.ToolTipRole)
@@ -256,7 +257,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_MONITOR_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_MONITOR_ROW_TOOLTIP, output)
 
     def test_data_tooltip_role_monitor_row(self):
         if not qtpy.PYQT5:
@@ -275,7 +276,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MONITOR_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MONITOR_ROW_TOOLTIP, output)
 
         # Doing the same thing a second time should hit the cache, so no additional calls will have been made
         output = model.data(index, Qt.ToolTipRole)
@@ -284,7 +285,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         # This was called only once because the monitor was cached
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MONITOR_ROW_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MONITOR_ROW_TOOLTIP, output)
 
     def test_data_tooltip_role_masked_bin_in_monitor_row(self):
         if not qtpy.PYQT5:
@@ -304,7 +305,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
         self.assertEqual(
-            MatrixWorkspaceTableViewModel.MONITOR_ROW_STRING + MatrixWorkspaceTableViewModel.MASKED_BIN_STRING, output)
+            MatrixWorkspaceTableViewModel.MONITOR_ROW_TOOLTIP + MatrixWorkspaceTableViewModel.MASKED_BIN_TOOLTIP, output)
 
         # Doing the same thing a second time should hit the cache, so no additional calls will have been made
         output = model.data(index, Qt.ToolTipRole)
@@ -314,7 +315,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
         self.assertEqual(
-            MatrixWorkspaceTableViewModel.MONITOR_ROW_STRING + MatrixWorkspaceTableViewModel.MASKED_BIN_STRING, output)
+            MatrixWorkspaceTableViewModel.MONITOR_ROW_TOOLTIP + MatrixWorkspaceTableViewModel.MASKED_BIN_TOOLTIP, output)
 
     def test_data_tooltip_role_masked_bin(self):
         if not qtpy.PYQT5:
@@ -333,7 +334,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model.ws_spectrum_info.isMasked.assert_called_once_with(row)
         model.ws_spectrum_info.isMonitor.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_BIN_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_BIN_TOOLTIP, output)
 
         # Doing the same thing a second time should hit the cache, so no additional calls will have been made
         output = model.data(index, Qt.ToolTipRole)
@@ -344,7 +345,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         ws.hasMaskedBins.assert_called_once_with(row)
         ws.maskedBinsIndices.assert_called_once_with(row)
 
-        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_BIN_STRING, output)
+        self.assertEqual(MatrixWorkspaceTableViewModel.MASKED_BIN_TOOLTIP, output)
 
     def test_headerData_not_display_or_tooltip(self):
         if not qtpy.PYQT5:
@@ -413,7 +414,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         # single spectrum with length 2 axis
         ws.getNumberHistograms.return_value = 1
         mock_axis.length.return_value = 2
-        mock_axis.label = MagicMock(side_effect=["0", "1"])
+        mock_axis.label = MagicMock(side_effect=["0.5"])
         mock_axis.getUnit().symbol().utf8.return_value = dummy_unit
         ws.getAxis.return_value = mock_axis
 
@@ -457,7 +458,7 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         mock_axis.isNumeric.return_value = True
         ws.getNumberHistograms.return_value = 1
         mock_axis.length.return_value = 2
-        mock_axis.label = MagicMock(side_effect=["0", "1"])
+        mock_axis.label = MagicMock(side_effect=["0.5"])
         mock_axis.getUnit().symbol().utf8.return_value = dummy_unit
         ws.getAxis.return_value = mock_axis
 
@@ -617,6 +618,24 @@ class MatrixWorkspaceDisplayTableViewModelTest(unittest.TestCase):
         model = MatrixWorkspaceTableViewModel(ws, model_type)
 
         self.assertEqual(data_len, model.columnCount())
+
+    def test_set_unicode_unit_label(self):
+        """
+        Set the label of the x-axis using ascii only with a non-ascii character and make sure it's handled properly.
+        """
+        ws = CreateWorkspace(DataX=[0, 1, 2], DataY=[3, 7, 5], DataE=[0.2, 0.3, 0.1], NSpec=1)
+        label_unit = ws.getAxis(0).setUnit("Label")
+        microseconds = "\u00B5s"
+        # Second argument will implicitly call the ascii only constructor of UnitLabel.
+        # We are intentionally passing a non-ascii string to try and break it.
+        label_unit.setLabel("Time", microseconds)
+
+        model_type = MatrixWorkspaceTableViewModelType.y
+        model = MatrixWorkspaceTableViewModel(ws, model_type)
+        header = model.headerData(0, Qt.Horizontal, Qt.DisplayRole)
+
+        # Header should contain the microseconds unicode string.
+        self.assertTrue(microseconds in header)
 
 
 if __name__ == '__main__':

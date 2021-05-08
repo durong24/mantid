@@ -1,5 +1,4 @@
 set(SRC_FILES
-    MDFAddWorkspaceDialog.cpp
     MDFDataController.cpp
     MDFDatasetPlotData.cpp
     MDFFunctionPlotData.cpp
@@ -12,7 +11,6 @@ set(SRC_FILES
 # find it.
 set(INC_FILES
     DllConfig.h
-    MDFAddWorkspaceDialog.h
     MDFDataController.h
     MDFDatasetPlotData.h
     MDFFunctionPlotData.h
@@ -22,14 +20,12 @@ set(INC_FILES
 
 set(MOC_FILES
     MultiDatasetFit.h
-    MDFAddWorkspaceDialog.h
     MDFDataController.h
     MDFPlotController.h
 )
 
 set(UI_FILES
     MultiDatasetFit.ui
-    MDFAddWorkspaceDialog.ui
 )
 
 mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesMultiDatasetFit
@@ -46,7 +42,6 @@ mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesMultiDatasetFit
                    SYSTEM_INCLUDE_DIRS
                      ${Boost_INCLUDE_DIRS}
                    LINK_LIBS
-                     ${TCMALLOC_LIBRARIES_LINKTIME}
                      ${CORE_MANTIDLIBS}
                      ${POCO_LIBRARIES}
                      ${Boost_LIBRARIES}

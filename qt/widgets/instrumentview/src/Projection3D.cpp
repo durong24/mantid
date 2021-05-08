@@ -13,7 +13,9 @@
 #include "MantidQtWidgets/InstrumentView/UnwrappedCylinder.h"
 #include "MantidQtWidgets/InstrumentView/UnwrappedSphere.h"
 
+#include "MantidAPI/ITableWorkspace.h"
 #include "MantidAPI/MatrixWorkspace.h"
+#include "MantidAPI/TableRow.h"
 #include "MantidGeometry/Instrument/ComponentInfo.h"
 #include "MantidGeometry/Objects/CSGObject.h"
 #include "MantidQtWidgets/Common/InputController.h"
@@ -45,11 +47,9 @@ using namespace Mantid::Geometry;
 
 namespace MantidQt {
 namespace MantidWidgets {
-Projection3D::Projection3D(const InstrumentActor *rootActor, int winWidth,
-                           int winHeight)
+Projection3D::Projection3D(const InstrumentActor *rootActor, QSize viewportSize)
     : ProjectionSurface(rootActor), m_drawAxes(true), m_wireframe(false),
-      m_viewport(0, 0) {
-  m_viewport.resize(winWidth, winHeight);
+      m_viewport(std::move(viewportSize)) {
   V3D minBounds, maxBounds;
   m_instrActor->getBoundingBox(minBounds, maxBounds);
 
@@ -76,15 +76,13 @@ Projection3D::Projection3D(const InstrumentActor *rootActor, int winWidth,
   connect(moveController, SIGNAL(finish()), this, SLOT(finishMove()));
 }
 
-Projection3D::~Projection3D() {}
-
 /**
  * Resize the surface on the screen.
  * @param w :: New width of the surface in pixels.
  * @param h :: New height of the surface in pixels.
  */
 void Projection3D::resize(int w, int h) {
-  m_viewport.resize(w, h);
+  m_viewport.resize(QSize(w, h));
   updateView();
 }
 
@@ -213,8 +211,8 @@ void Projection3D::getSelectedDetectors(std::vector<size_t> &detIndices) {
   double xmin, xmax, ymin, ymax, zmin, zmax;
   m_viewport.getInstantProjection(xmin, xmax, ymin, ymax, zmin, zmax);
   QRect rect = selectionRect();
-  int w, h;
-  m_viewport.getViewport(w, h);
+  auto size = m_viewport.dimensions();
+  const auto w(size.width()), h(size.height());
 
   double xLeft = xmin + (xmax - xmin) * rect.left() / w;
   double xRight = xmin + (xmax - xmin) * rect.right() / w;
@@ -373,7 +371,7 @@ void Projection3D::zoom(int x, int y) {
  */
 void Projection3D::wheelZoom(int x, int y, int d) {
   m_viewport.wheelZoom(x, y, d);
-  updateView(false);
+  updateView(true);
   emit finishedMove();
 }
 
@@ -494,6 +492,21 @@ std::string Projection3D::saveToProject() const {
   throw std::runtime_error(
       "Projection3D::saveToProject not implemented for Qt >= 5");
 #endif
+}
+
+void Projection3D::saveShapesToTableWorkspace() {
+  m_maskShapes.saveToTableWorkspace();
+
+  // WARNING: Q1DWeighted heavily depends on the format of this function's
+  // output.
+  // Modify with great caution.
+  std::shared_ptr<Mantid::API::ITableWorkspace> table =
+      AnalysisDataService::Instance()
+          .retrieveWS<typename Mantid::API::ITableWorkspace>(
+              std::string("MaskShapes"));
+  Mantid::API::TableRow row = table->appendRow();
+  auto viewPortStr = m_viewport.saveToProject();
+  row << std::to_string(-1) << viewPortStr;
 }
 
 } // namespace MantidWidgets

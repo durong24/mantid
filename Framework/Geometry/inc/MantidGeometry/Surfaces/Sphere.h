@@ -72,13 +72,12 @@ public:
   void setBaseEqn() override;
   /// Writes the sphere equatation in MCNP format
   void write(std::ostream &) const override;
-  void getBoundingBox(double &xmax, double &ymax, double &zmax, double &xmin,
-                      double &ymin, double &zmin) override;
+  void getBoundingBox(double &xmax, double &ymax, double &zmax, double &xmin, double &ymin, double &zmin) override;
 
   /// The number of slices to approximate a sphere
-  static int g_nslices;
+  constexpr static int g_NSLICES = 5;
   /// The number of stacks to approximate a sphere
-  static int g_nstacks;
+  constexpr static int g_NSTACKS = 5;
 #ifdef ENABLE_OPENCASCADE
   TopoDS_Shape createShape() override;
 #endif

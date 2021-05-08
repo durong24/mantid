@@ -217,10 +217,10 @@ class SANSBeamCentreFinderMassMethod(DataProcessorAlgorithm):
     def _move(self, state, workspace, component, is_transmission=False):
         # First we set the workspace to zero, since it might have been moved around by the user in the ADS
         # Second we use the initial move to bring the workspace into the correct position
-        move_component(move_info=state.move, component_name='',
+        move_component(state=state, component_name='',
                        workspace=workspace, move_type=MoveTypes.RESET_POSITION)
 
-        move_component(component_name=component, move_info=state.move, workspace=workspace,
+        move_component(component_name=component, state=state, workspace=workspace,
                        is_transmission_workspace=is_transmission, move_type=MoveTypes.INITIAL_MOVE)
         return workspace
 
@@ -234,10 +234,10 @@ class SANSBeamCentreFinderMassMethod(DataProcessorAlgorithm):
         wavelength_name = "SANSConvertToWavelengthAndRebin"
         wavelength_options = {"InputWorkspace": workspace,
                               "OutputWorkspace": EMPTY_NAME,
-                              "WavelengthLow": wavelength_state.wavelength_low[0],
-                              "WavelengthHigh": wavelength_state.wavelength_high[0],
-                              "WavelengthStep": wavelength_state.wavelength_step,
-                              "WavelengthStepType": wavelength_state.wavelength_step_type.value,
+                              "WavelengthLow": wavelength_state.wavelength_interval.wavelength_min,
+                              "WavelengthHigh": wavelength_state.wavelength_interval.wavelength_max,
+                              "WavelengthStep": wavelength_state.wavelength_interval.wavelength_step,
+                              "WavelengthStepType": wavelength_state.wavelength_step_type_lin_log.value,
                               "RebinMode": wavelength_state.rebin_type.value}
 
         wavelength_alg = create_child_algorithm(self, wavelength_name, **wavelength_options)

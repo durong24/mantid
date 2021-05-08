@@ -84,6 +84,19 @@ Browser <http://www.mantidproject.org/MantidPlot:_Data_Analysis_and_Curve_Fittin
 which allows all the settings to be specified via its graphical user
 interface.
 
+The confidence bands (CB) on the calculated fit curve (:math:`\mathbf{\hat{y}}`) are obtained using the method outlined in `kmpfit`.
+For a function, :math:`f(\mathbf{p})`, with fit parameters :math:`\mathbf{p}`, the confidence interval is given by,
+
+.. math:: CB=\mathbf{f}(\mathbf{p}) \pm \mathbf{\sigma_f}
+
+with :math:`\mathbf{\sigma_f}` defined as,
+
+.. math:: \mathbf{\sigma_f}^2= \chi_{\nu}^2 \sum_{j=0}^{j=n}\sum_{k=0}^{k=n}\frac{\partial f}{\partial p_j}\frac{\partial f}{\partial p_k}\, \mathbf{C}_{jk}
+
+where :math:`\mathbf{C}_{jk}` is the covriance matrix and :math:`\chi_{\nu}^2` the reduced chi squared value.
+This interval defines the region where there is a 68.3% chance to find the true value of :math:`f(\mathbf{p})`.
+For further details see reference [1].
+
 Setting a simple function
 #########################
 
@@ -211,7 +224,7 @@ The "Histogram" evaluation type will typically give more accurate results when f
 histograms with very large bins. It also less sensitive to a particular binning.
 
 For the next example a spectrum was generated and rebinned to different bin sizes.
-Each binned spectrum was fitted using both "CentrePoint" (left column) and "Histogram" 
+Each binned spectrum was fitted using both "CentrePoint" (left column) and "Histogram"
 evaluation (right column). As it can be seen form the plots the "Histogram" fitting
 gives more consistent results which are also closer to the correct values (Amplitude=20.0,
 PeakCentre=0.0, FWHM=1.0).
@@ -311,14 +324,14 @@ Multiple Fit
 It is possible to fit to multiple data sets using the fit algorithm. This
 can be either simultaneously or sequentially. There are a few differences
 to a single fit. Firstly is that the :ref:`CompositeFunction <func-CompositeFunction>`
-must be a :code:`MultiDomainFunction` and each of the individual fitting functions must include 
+must be a :code:`MultiDomainFunction` and each of the individual fitting functions must include
 :code:`$domain=i`. The extra workspaces can be added by placing an :code:`_i` after :code:`InputWorkspace` and
-:code:`InputWorkspaceIndex` starting with :math:`i=1` for the second workspace. It is also possible to 
-set the fitting range for each data set individually in the same way as the :code:`InputWorkspace`. 
-If a variable is to be fitted using data from multiple data sets then a :code:`tie` has 
+:code:`InputWorkspaceIndex` starting with :math:`i=1` for the second workspace. It is also possible to
+set the fitting range for each data set individually in the same way as the :code:`InputWorkspace`.
+If a variable is to be fitted using data from multiple data sets then a :code:`tie` has
 to be used. The values that are tied will have the same value and be calculated from multiple
-data sets. 
- 
+data sets.
+
 Examples
 --------
 
@@ -528,7 +541,7 @@ Output:
 
     Constant 1: 2.00
     Constant 2: 5.00
-   
+
 **Example - Fit to two data sets with shared parameter:**
 
 .. testcode:: shareFit
@@ -558,7 +571,7 @@ Output:
     # print results
     print("Constant 1: {0:.2f}".format(paramTable.column(1)[0]))
     print("Constant 2: {0:.2f}".format(paramTable.column(1)[1]))
-   
+
 Output:
 
 .. testoutput:: shareFit
@@ -610,6 +623,75 @@ Output:
     offsets:
     Constant 1: 2.86
     Constant 2: 14.14
+
+**Example - Fit to two data sets with one shared parameter, and different fit functions:**
+
+.. testcode:: shareFit3
+
+    from mantid.simpleapi import *
+    import numpy as np
+
+    # Create workspaces
+    x_values = np.linspace(start=1.0,stop=10.0,num=22)
+    y_values1 = [2.0*x + 10.0 for x in x_values]
+    y_values2 = [5.0/x + 10.0 for x in x_values]
+
+    input_workspace1 = CreateWorkspace(x_values, y_values1)
+    input_workspace2 = CreateWorkspace(x_values, y_values2)
+
+    # Create MultiDomainFunction where datasets have different fitting functions
+    multi_domain_function = FunctionFactory.createInitializedMultiDomainFunction('name=CompositeFunction', 2)
+
+    flat_background = FunctionFactory.createInitialized("name=FlatBackground")
+    linear_background = FunctionFactory.createInitialized("name=LinearBackground")
+    exp_decay = FunctionFactory.createInitialized("name=ExpDecay")
+
+    composite1 = multi_domain_function.getFunction(0)
+    composite1.add(flat_background)
+    composite1.add(linear_background)
+
+    composite2 = multi_domain_function.getFunction(1)
+    composite2.add(flat_background)
+    composite2.add(exp_decay)
+
+    # Tie the FlatBackground which is common for both datasets
+    function_string = str(multi_domain_function)
+    function_string += ";ties=(f1.f0.A0=f0.f0.A0)"
+
+    # Perform the fit
+    fit_output = Fit(Function=function_string,
+                     InputWorkspace=input_workspace1, WorkspaceIndex=0, StartX = 1.0, EndX=10.0,
+                     InputWorkspace_1=input_workspace2, WorkspaceIndex_1=0, StartX_1 = 1.0, EndX_1=10.0,
+                     Output='fit')
+
+    # Print Results
+    param_values = fit_output.OutputParameters.column(1)
+    print("Tied parameters (shared):")
+    print("Workspace1 FlatBackground.A0: {0:.2f}".format(param_values[0]))
+    print("Workspace2 FlatBackground.A0: {0:.2f}".format(param_values[3]))
+    print("Other Parameters:")
+    print("Workspace1 LinearBackground.A0: {0:.2f}".format(param_values[1]))
+    print("Workspace1 LinearBackground.A1: {0:.2f}".format(param_values[2]))
+    print("Workspace2 ExpDecay.Height: {0:.2f}".format(param_values[4]))
+    print("Workspace2 ExpDecay.Lifetime: {0:.2f}".format(param_values[5]))
+
+Output:
+
+.. testoutput:: shareFit3
+
+    Tied parameters (shared):
+    Workspace1 FlatBackground.A0: 10.64
+    Workspace2 FlatBackground.A0: 10.64
+    Other Parameters:
+    Workspace1 LinearBackground.A0: -0.64
+    Workspace1 LinearBackground.A1: 2.00
+    Workspace2 ExpDecay.Height: 8.44
+    Workspace2 ExpDecay.Lifetime: 1.40
+
+References
+----------
+
+[1] Vogelaar, M.G.R., kmpfit. University of Groningen, The Netherlands (https://www.astro.rug.nl/software/kapteyn/kmpfittutorial.html)
 
 .. categories::
 

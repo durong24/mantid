@@ -10,6 +10,9 @@ Mantid Git Workflow
 Summary
 -------
 
+Go to the :doc:`GitConfig` page to ensure that Git is set up correctly
+before starting.
+
 This page describes the workflow used in conjunction with `Git
 <http://git-scm.com>`_ and `GitHub <https://www.github.com/>`_ for
 those who have push access to the repository.
@@ -32,10 +35,13 @@ The steps for a new piece of work can be summarised as follows:
 
 1. Push up or `create <https://guides.github.com/features/issues>`_ an
    issue `here <https://github.com/mantidproject/mantid/issues>`__
-2. Create a branch from master, using the naming convention described
-   at :ref:`GitWorkflowPublicPrivateBranches`
-3. Do the work and commit changes to the branch. Push the branch
-   regularly to GitHub to make sure no work is accidentally lost
+2. Create a branch from master using the naming convention described
+   at :ref:`GitWorkflowNamingBranches`
+3. Do the work and commit changes to the branch. On commit, the
+   `pre-commit <https://pre-commit.com/>`_ framework will run, it will
+   check all your changes for formatting, linting, and perform static
+   analysis. Push the branch regularly to GitHub to make sure no work
+   is accidentally lost.
 4. When you are finished with the work, ensure that all of the unit
    tests, documentation tests and system tests if necessary pass on
    your own machine
@@ -48,27 +54,17 @@ The steps for a new piece of work can be summarised as follows:
    - If any issues come up, continue working on your branch and push
      to GitHub - the pull request will update automatically
 
-.. _GitWorkflowPublicPrivateBranches:
+.. _GitWorkflowNamingBranches:
 
-Public and Private Branches
----------------------------
+Naming Branches
+---------------
 
 When naming `public branches
 <http://github.com/mantidproject/mantid/branches>`_ that will be
 pushed to GitHub, please follow the convention of
 ``issuenumber_short_description``. This will allow others to discover
 what the branch is for (issue number) and quickly know what is being
-done there (short description). Please remember that public branches
-should not be rebased.
-
-For private branches please follow the convention
-``yourname/issuenumber_short_description``.  You can sync these with
-GitHub (for backup reasons) and rebase. Since the branch name is
-prefixed with your name people will know, by convention, that it is a
-private branch and can be rebased, deleted, etc at the owner's
-whim. Changing a private branch is done by simply renaming the branch
-to drop the prefix.
-
+done there (short description).
 
 .. _GitWorkflowPullRequests:
 
@@ -101,33 +97,25 @@ For further information about the review process see :ref:`reviewing a pull requ
 Checkout a Pull Request
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To check out a particular pull request for functional testing use the following commmands:
+To check out a particular pull request for functional testing use the ``test-pr`` alias that was set up in the :doc:`GitConfig` instructions.
 
 .. code-block:: sh
 
-   git fetch <main-remote-name>  +pull/<ID>/merge:pr/<ID>-merged
-   git checkout pr/<ID>-merged
+   git test-pr <remote-name> <ID>
 
-where ``<ID>`` is the pull request number given on GitHub and ``<main-remote-name>`` is the name
+where ``<ID>`` is the pull request number given on GitHub and ``<remote-name>`` is the name
 of the remote pointing to the original ``mantid`` repository. If you cloned directly from `mantid <https://github.com/mantidproject/mantid>`_
-then ``main-remote-name=origin`` else if you cloned from a fork then it is the name of remote that points
+then ``remote-name=origin`` else if you cloned from a fork then it is the name of remote that points
 back to the original repository.
 
 Note that these commands will checkout a temporary branch that has the development branch merged with master and not just
-the development branch on its own. This command can be aliased by adding the following to the ``[alias]`` section of your ``~/.gitconfig``
-file:
+the development branch on its own.
+
+The :doc:`GitConfig` page also provides the follow alias to delete all ``pr/`` prefixed branches, which is useful if you have several:
 
 .. code-block:: sh
 
-   test-pr="!f() { git fetch <main-remote-name> +pull/$1/merge:pr/$1-merged && git checkout pr/$1-merged; }; f"
-
-where again ``<main-remote-name>`` has the same meaning as above. A given pull request can now be checkout with
-
-.. code-block:: sh
-
-   git test-pr <ID>
-
-where ``<ID>`` is the pull request number given on GitHub.
+   git test-pr-remove-all
 
 Stale Pull Requests
 ^^^^^^^^^^^^^^^^^^^
@@ -216,4 +204,4 @@ To fix this situation we use the ``rebase`` command, providing the
 .. code-block:: bash
 
     git fetch
-    git rebase --onto origin/release-next origin/master topic
+    git rebase --onto origin/release-next $(git merge-base origin/master origin/topic) topic

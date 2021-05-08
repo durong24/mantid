@@ -24,13 +24,13 @@ class SampleLogsView(QSplitter):
     This contains a table of the logs, a plot of the currently
     selected logs, and the statistics of the selected log.
     """
-    def __init__(self, presenter, parent = None, name = '', isMD=False, noExp = 0):
+    def __init__(self, presenter, parent=None, window_flags=Qt.Window, name='', isMD=False, noExp = 0):
         super(SampleLogsView, self).__init__(parent)
 
         self.presenter = presenter
 
         self.setWindowTitle("{} sample logs".format(name))
-        self.setWindowFlags(Qt.Window)
+        self.setWindowFlags(window_flags)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # left hand side
@@ -48,6 +48,13 @@ class SampleLogsView(QSplitter):
             layout_mult_expt_info.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding))
             layout_left.addLayout(layout_mult_expt_info)
 
+        # create a line edit to allow for filtering keys
+        self.line_edit = QLineEdit()
+        self.line_edit.setClearButtonEnabled(True)
+        self.line_edit.setToolTip("Type here to filter the logs")
+        self.line_edit.setPlaceholderText("Search the logs")
+        self.line_edit.textEdited.connect(self.presenter.search_key_changed)
+        layout_left.addWidget(self.line_edit)
         # Create sample log table
         self.table = QTableView()
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)

@@ -19,9 +19,15 @@ set(TEST_PY_FILES
     # Focus
     engineering_diffraction/tabs/focus/test/test_focus_model.py
     engineering_diffraction/tabs/focus/test/test_focus_presenter.py
+    # IO
+    engineering_diffraction/test/engineering_diffraction_io_test.py
 )
 
 check_tests_valid(${CMAKE_CURRENT_SOURCE_DIR} ${TEST_PY_FILES})
 
-pyunittest_add_test(${CMAKE_CURRENT_SOURCE_DIR} python.EngineeringDiffraction
-                    ${TEST_PY_FILES})
+if (ENABLE_WORKBENCH)
+    set(PYUNITTEST_QT_API pyqt5)
+    pyunittest_add_test(${CMAKE_CURRENT_SOURCE_DIR} python.EngineeringDiffraction
+                        ${TEST_PY_FILES})
+    unset(PYUNITTEST_QT_API)
+endif()

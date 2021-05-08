@@ -10,12 +10,11 @@
 from qtpy.QtCore import Qt, Signal, Slot
 
 import matplotlib.pyplot
-
 from mantid import logger
 from mantid.api import AlgorithmManager, AnalysisDataService, ITableWorkspace, MatrixWorkspace
 from mantidqt.plotting.functions import plot
 from mantidqt.utils.qt import import_qt
-
+from .fitpropertybrowserplotinteraction import FitPropertyBrowserPlotInteraction
 from .interactive_tool import FitInteractiveTool
 
 BaseBrowser = import_qt('.._common', 'mantidqt.widgets', 'FitPropertyBrowser')
@@ -38,14 +37,13 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         super(FitPropertyBrowser, self).__init__(parent)
         self.setFeatures(self.DockWidgetMovable)
         self.canvas = canvas
+        self.plot_interaction_manager = FitPropertyBrowserPlotInteraction(self, canvas)
         # The toolbar state manager to be passed to the peak editing tool
         self.toolbar_manager = toolbar_manager
         # The peak editing tool
         self.tool = None
         # The name of the fit result workspace
         self.fit_result_ws_name = ""
-        # Pyplot line for the guess curve
-        self.guess_line = None
         # Pyplot line for the sequential fit curve
         self.sequential_fit_line = None
         # Map the indices of the markers in the peak editing tool to the peak function prefixes
@@ -58,7 +56,6 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         self.algorithmFinished.connect(self.fitting_done_slot)
         self.changedParameterOf.connect(self.peak_changed_slot)
         self.removeFitCurves.connect(self.clear_fit_result_lines_slot, Qt.QueuedConnection)
-        self.plotGuess.connect(self.plot_guess_slot, Qt.QueuedConnection)
         self.functionChanged.connect(self.function_changed_slot, Qt.QueuedConnection)
         # Update whether data needs to be normalised when a button on the Fit menu is clicked
         self.getFitMenu().aboutToShow.connect(self._set_normalise_data)
@@ -123,6 +120,18 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         should_normalise_before_fit = ws_artist.is_normalized and not ws_is_distribution
         self.normaliseData(should_normalise_before_fit)
 
+    def _set_peak_initial_fwhm(self, fun, fwhm):
+        """
+        Overwrite fwhm if has not been set already - this is for back to back exponential type funcs
+        which have had the width parameter (S) as func d-spacing refined for a standard sample (coefs stored in
+        instrument Paramters.xml) and has already been set.
+        :param fun: peak function prefix
+        :param fwhm: estimated fwhm of peak added
+        """
+        if not self.getWidthParameterNameOf(fun) or not \
+                self.isParameterExplicitlySetOf(fun, self.getWidthParameterNameOf(fun)):
+            self.setPeakFwhmOf(fun, fwhm)
+
     def closeEvent(self, event):
         """
         Emit self.closing signal used by figure manager to put the menu buttons
@@ -132,7 +141,6 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         BaseBrowser.closeEvent(self, event)
 
     def show(self):
-        import matplotlib.pyplot as plt
         """
         Override the base class method. Initialise the peak editing tool.
         """
@@ -166,13 +174,19 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
 
         self.setPeakToolOn(True)
         self.canvas.draw()
+        self.set_output_window_names()
 
-        # change the output name if more than one plot of the same workspace
+    def set_output_window_names(self):
+        import matplotlib.pyplot as plt  # unfortunately need to import again
+        """
+        Change the output name if more than one plot of the same workspace
+        """
         window_title = self.canvas.get_window_title()
         workspace_name = window_title.rsplit('-', 1)[0]
         for open_figures in plt.get_figlabels():
             if open_figures != window_title and open_figures.rsplit('-', 1)[0] == workspace_name:
                 self.setOutputName(window_title)
+        return None
 
     def get_fit_bounds(self):
         """
@@ -273,40 +287,6 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         if ax.get_legend():
             ax.make_legend()
 
-    def plot_guess(self):
-        """
-        Plot the guess curve.
-        """
-        fun = self.getFittingFunction()
-        ws_name = self.workspaceName()
-        if fun == '' or ws_name == '':
-            return
-        out_ws_name = '{}_guess'.format(ws_name)
-
-        try:
-            out_ws = self.evaluate_function(ws_name, fun, out_ws_name)
-        except RuntimeError:
-            return
-
-        ax = self.get_axes()
-        legend = ax.get_legend()
-
-        # Setting distribution=True prevents the guess being normalised
-        self.guess_line = ax.plot(out_ws,
-                                  wkspIndex=1,
-                                  label=out_ws_name,
-                                  distribution=True,
-                                  update_axes_labels=False,
-                                  autoscale_on_update=False)[0]
-
-        if legend:
-            ax.make_legend()
-
-        if self.guess_line:
-            self.setTextPlotGuess('Remove Guess')
-
-        self.canvas.draw()
-
     def evaluate_function(self, ws_name, fun, out_ws_name):
         ws_index = self.workspaceIndex()
         startX = self.startX()
@@ -331,27 +311,6 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
 
         return alg.getProperty('OutputWorkspace').value
 
-    def remove_guess(self):
-        """
-        Remove the guess curve from the plot.
-        """
-        if self.guess_line is None:
-            return
-        self.guess_line.remove()
-        self.guess_line = None
-        self.update_legend()
-        self.setTextPlotGuess('Plot Guess')
-        self.canvas.draw()
-
-    def update_guess(self):
-        """
-        Update the guess curve.
-        """
-        if self.guess_line is None:
-            return
-        self.remove_guess()
-        self.plot_guess()
-
     def add_to_menu(self, menu):
         """
         Add the relevant actions to a menu
@@ -366,7 +325,7 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
                                   other_names=self.registeredOthers())
         return menu
 
-    def do_plot(self, ws, plot_diff = False, **plot_kwargs):
+    def do_plot(self, ws, plot_diff=False, **plot_kwargs):
         ax = self.get_axes()
 
         self.clear_fit_result_lines()
@@ -437,8 +396,9 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         """
         fun = self.addFunction(self.defaultPeakType())
         self.setPeakCentreOf(fun, centre)
-        self.setPeakHeightOf(fun, height)
-        self.setPeakFwhmOf(fun, fwhm)
+        self._set_peak_initial_fwhm(fun, fwhm)
+        if height != 0:
+            self.setPeakHeightOf(fun, height)
         self.peak_ids[peak_id] = fun
 
     @Slot(int, float, float)
@@ -452,7 +412,7 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         fun = self.peak_ids[peak_id]
         self.setPeakCentreOf(fun, centre)
         self.setPeakHeightOf(fun, height)
-        self.update_guess()
+        self.plot_interaction_manager.update_guess()
 
     @Slot(int, float)
     def peak_fwhm_changed_slot(self, peak_id, fwhm):
@@ -463,7 +423,7 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         """
         fun = self.peak_ids[peak_id]
         self.setPeakFwhmOf(fun, fwhm)
-        self.update_guess()
+        self.plot_interaction_manager.update_guess()
 
     @Slot(str)
     def peak_changed_slot(self, fun):
@@ -476,7 +436,7 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
             if prefix == fun:
                 self.tool.update_peak(peak_id, self.getPeakCentreOf(prefix),
                                       self.getPeakHeightOf(prefix), self.getPeakFwhmOf(prefix))
-        self.update_guess()
+        self.plot_interaction_manager.update_guess()
 
     @Slot(str)
     def add_function_slot(self, fun_name):
@@ -485,16 +445,6 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         :param fun_name: A registered name of a fit function
         """
         self.addFunction(fun_name)
-
-    @Slot()
-    def plot_guess_slot(self):
-        """
-        Toggle the guess plot.
-        """
-        if self.guess_line is None:
-            self.plot_guess()
-        else:
-            self.remove_guess()
 
     @Slot()
     def function_changed_slot(self):
@@ -507,6 +457,9 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
         for prefix in self.getPeakPrefixes():
             c, h, w = self.getPeakCentreOf(prefix), self.getPeakHeightOf(
                 prefix), self.getPeakFwhmOf(prefix)
+            if w > (self.endX() - self.startX()):
+                w = (self.endX() - self.startX()) / 20.
+                self.setPeakFwhmOf(prefix, w)
             if prefix in peaks:
                 self.tool.update_peak(peaks[prefix], c, h, w)
                 del peaks[prefix]
@@ -522,7 +475,7 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
                 if prefix is None:
                     need_update_markers = True
                     break
-                if self.getPeakCentreOf(prefix) != c or self.getPeakHeightOf(prefix) != h or\
+                if self.getPeakCentreOf(prefix) != c or self.getPeakHeightOf(prefix) != h or \
                         self.getPeakFwhmOf(prefix) != w:
                     need_update_markers = True
                     break
@@ -532,9 +485,9 @@ class FitPropertyBrowser(FitPropertyBrowserBase):
             self.peak_ids.update(peak_ids)
             for prefix, c, h, w in peak_updates:
                 self.setPeakCentreOf(prefix, c)
-                self.setPeakHeightOf(prefix, h)
                 self.setPeakFwhmOf(prefix, w)
-        self.update_guess()
+                self.setPeakHeightOf(prefix, h)
+        self.plot_interaction_manager.update_guess()
 
     @Slot(str)
     def display_workspace(self, name):

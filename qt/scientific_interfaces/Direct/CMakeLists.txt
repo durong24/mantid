@@ -3,14 +3,16 @@ set(SRC_FILES
     ALFCustomInstrumentView.cpp
     ALFCustomInstrumentPresenter.cpp
     ALFCustomInstrumentModel.cpp)
-    
+
 set(MOC_FILES
     ALFView.h
     ALFCustomInstrumentView.h
     ALFCustomInstrumentPresenter.h)
-    
+
 set(INC_FILES
-    DllConfig.h)
+    DllConfig.h
+    ALFCustomInstrumentModel.h
+    ALFCustomInstrumentMocks.h)
 
 # Target
 mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
@@ -26,7 +28,7 @@ mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
                    SYSTEM_INCLUDE_DIRS
                      ${Boost_INCLUDE_DIRS}
                    LINK_LIBS
-                     ${TCMALLOC_LIBRARIES_LINKTIME}
+                     DataObjects
                      ${CORE_MANTIDLIBS}
                      ${POCO_LIBRARIES}
                      ${Boost_LIBRARIES}
@@ -48,7 +50,6 @@ mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
                    LINUX_INSTALL_RPATH
                      "\$ORIGIN/../../${LIB_DIR};\$ORIGIN/../../plugins/qt4/")
 
-find_package(BoostPython REQUIRED)
 mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
                    QT_VERSION 5
                    SRC
@@ -60,7 +61,7 @@ mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
                    DEFS
                      IN_MANTIDQT_DIRECT
                    LINK_LIBS
-                     ${TCMALLOC_LIBRARIES_LINKTIME}
+                     DataObjects
                      ${CORE_MANTIDLIBS}
                      PythonInterfaceCore
                      ${POCO_LIBRARIES}
@@ -81,6 +82,6 @@ mtd_add_qt_library(TARGET_NAME MantidScientificInterfacesDirect
                      @loader_path/../../Contents/MacOS
                      @loader_path/../../plugins/qt5
                    LINUX_INSTALL_RPATH
-                     "\$ORIGIN/../../${LIB_DIR};\$ORIGIN/../../plugins/qt5/") 
+                     "\$ORIGIN/../../${LIB_DIR};\$ORIGIN/../../plugins/qt5/")
 # Testing target
-# add_subdirectory(test)
+add_subdirectory(test)

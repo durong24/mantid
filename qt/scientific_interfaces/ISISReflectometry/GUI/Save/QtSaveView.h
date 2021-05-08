@@ -21,8 +21,7 @@ namespace ISISReflectometry {
 /** QtSaveView : Provides an interface for the "Save ASCII" tab in the
 ISIS Reflectometry interface.
 */
-class MANTIDQT_ISISREFLECTOMETRY_DLL QtSaveView : public QWidget,
-                                                  public ISaveView {
+class MANTIDQT_ISISREFLECTOMETRY_DLL QtSaveView : public QWidget, public ISaveView {
   Q_OBJECT
 public:
   /// Constructor
@@ -51,7 +50,7 @@ public:
   /// Returns the index of selected file format
   int getFileFormatIndex() const override;
   /// Returns the title check
-  bool getTitleCheck() const override;
+  bool getHeaderCheck() const override;
   /// Returns the Q resolution check
   bool getQResolutionCheck() const override;
   /// Returns the separator type
@@ -62,19 +61,28 @@ public:
   /// Clears the 'List of Logged Parameters' widget
   void clearParametersList() const override;
   /// Sets the 'List of workspaces' widget
-  void
-  setWorkspaceList(const std::vector<std::string> & /*unused*/) const override;
+  void setWorkspaceList(const std::vector<std::string> & /*unused*/) const override;
   /// Sets the 'List of logged parameters' widget
-  void
-  setParametersList(const std::vector<std::string> & /*unused*/) const override;
+  void setParametersList(const std::vector<std::string> & /*unused*/) const override;
 
   void disallowAutosave() override;
 
   void disableAutosaveControls() override;
   void enableAutosaveControls() override;
 
-  void enableFileFormatAndLocationControls() override;
-  void disableFileFormatAndLocationControls() override;
+  void enableFileFormatControls() override;
+  void disableFileFormatControls() override;
+  void enableLocationControls() override;
+  void disableLocationControls() override;
+
+  void enableLogList() override;
+  void disableLogList() override;
+  void enableHeaderCheckBox() override;
+  void disableHeaderCheckBox() override;
+  void enableQResolutionCheckBox() override;
+  void disableQResolutionCheckBox() override;
+  void enableSeparatorButtonGroup() override;
+  void disableSeparatorButtonGroup() override;
 
   void error(const std::string &title, const std::string &prompt);
   void warning(const std::string &title, const std::string &prompt);

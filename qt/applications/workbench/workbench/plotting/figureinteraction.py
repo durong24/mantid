@@ -11,11 +11,13 @@ Defines interaction behaviour for plotting.
 """
 # std imports
 import numpy as np
+from contextlib import contextmanager
 from collections import OrderedDict
 from copy import copy
 from functools import partial
 
 # third party imports
+from matplotlib.axes import Axes
 from matplotlib.container import ErrorbarContainer
 from matplotlib.contour import QuadContourSet
 from qtpy.QtCore import Qt
@@ -27,15 +29,15 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 # mantid imports
 from mantid.api import AnalysisDataService as ads
-from mantid.plots import datafunctions, MantidAxes
-from mantid.plots.utility import zoom, MantidAxType
+from mantid.plots import datafunctions, MantidAxes, axesfunctions
+from mantid.plots.utility import zoom, MantidAxType, legend_set_draggable
 from mantidqt.plotting.figuretype import FigureType, figure_type
 from mantidqt.plotting.markers import SingleMarker
 from mantidqt.widgets.plotconfigdialog.curvestabwidget import curve_has_errors, CurveProperties
 from workbench.plotting.figureerrorsmanager import FigureErrorsManager
 from workbench.plotting.propertiesdialog import (LabelEditor, XAxisEditor, YAxisEditor,
                                                  SingleMarkerEditor, GlobalMarkerEditor,
-                                                 ColorbarAxisEditor, ZAxisEditor)
+                                                 ColorbarAxisEditor, ZAxisEditor, LegendEditor)
 from workbench.plotting.style import VALID_LINE_STYLE, VALID_COLORS
 from workbench.plotting.toolbar import ToolbarStateManager
 
@@ -45,6 +47,16 @@ AXES_SCALE_MENU_OPTS = OrderedDict(
      ("Lin x/Log y", ("linear", "log")), ("Log x/Lin y", ("log", "linear"))])
 COLORBAR_SCALE_MENU_OPTS = OrderedDict(
     [("Linear", Normalize), ("Log", LogNorm)])
+
+
+@contextmanager
+def errorbar_caps_removed(ax):
+    # Error bar caps are considered lines so they are removed before checking the number of lines on the axes so
+    # they aren't confused for "actual" lines.
+    error_bar_caps = datafunctions.remove_and_return_errorbar_cap_lines(ax)
+    yield
+    # Re-add error bar caps
+    ax.lines += error_bar_caps
 
 
 class FigureInteraction(object):
@@ -63,11 +75,12 @@ class FigureInteraction(object):
         :param fig_manager: A reference to the figure manager containing the
         canvas that receives the events
         """
+        self.fig_manager = fig_manager
         # Check it looks like a FigureCanvasQT
-        if not hasattr(fig_manager.canvas, "buttond"):
+        if not hasattr(self.fig_manager.canvas, "buttond"):
             raise RuntimeError("Figure canvas does not look like a Qt canvas.")
 
-        canvas = fig_manager.canvas
+        canvas = self.fig_manager.canvas
         self._cids = []
         self._cids.append(canvas.mpl_connect('button_press_event', self.on_mouse_button_press))
         self._cids.append(canvas.mpl_connect('button_release_event', self.on_mouse_button_release))
@@ -81,7 +94,7 @@ class FigureInteraction(object):
         self.canvas = canvas
         self.toolbar_manager = ToolbarStateManager(self.canvas.toolbar)
         self.toolbar_manager.home_button_connect(self.redraw_annotations)
-        self.fit_browser = fig_manager.fit_browser
+        self.fit_browser = self.fig_manager.fit_browser
         self.errors_manager = FigureErrorsManager(self.canvas)
         self.markers = []
         self.valid_lines = VALID_LINE_STYLE
@@ -106,11 +119,11 @@ class FigureInteraction(object):
         if not getattr(event, 'inaxes', None) or isinstance(event.inaxes, Axes3D) or \
                 len(event.inaxes.images) == 0 and len(event.inaxes.lines) == 0:
             return
-        zoom_factor = 1.05 + abs(event.step)/6
+        zoom_factor = 1.05 + abs(event.step) / 6
         if event.button == 'up':  # zoom in
             zoom(event.inaxes, event.xdata, event.ydata, factor=zoom_factor)
         elif event.button == 'down':  # zoom out
-            zoom(event.inaxes, event.xdata, event.ydata, factor=1/zoom_factor)
+            zoom(event.inaxes, event.xdata, event.ydata, factor=1 / zoom_factor)
         event.canvas.draw()
 
     def on_mouse_button_press(self, event):
@@ -143,7 +156,8 @@ class FigureInteraction(object):
                 self._show_markers_menu(marker_selected, event)
         elif event.dblclick and event.button == canvas.buttond.get(Qt.LeftButton):
             if not marker_selected:
-                self._show_axis_editor(event)
+                if not self._show_axis_editor(event):
+                    self._show_plot_options(event)
             elif len(marker_selected) == 1:
                 self._edit_marker(marker_selected[0])
         elif event.button == canvas.buttond.get(Qt.MiddleButton):
@@ -170,6 +184,9 @@ class FigureInteraction(object):
                     self.canvas.toolbar.release_pan(event)
                 finally:
                     event.button = 3
+        elif event.button == self.canvas.buttond.get(Qt.RightButton) and self.toolbar_manager.is_zoom_active():
+            # Reset the axes limits if you right click while using the zoom tool.
+            self.toolbar_manager.emit_sig_home_clicked()
 
         if self.toolbar_manager.is_tool_active():
             for marker in self.markers:
@@ -208,13 +225,22 @@ class FigureInteraction(object):
             marker.mouse_move_stop()
 
     def _show_axis_editor(self, event):
+        """
+        Decides whether to show a dialog to edit axis information based on the contents of the
+        event. Shows a dialog if necessary.
+        @param event: the object representing the event
+        @return: a flag to denote whether an action was taken e.g. opening a dialog.
+        """
         # We assume this is used for editing axis information e.g. labels
         # which are outside of the axes so event.inaxes is no use.
         canvas = self.canvas
         figure = canvas.figure
         axes = figure.get_axes()
+        action_taken = False
 
         def move_and_show(editor):
+            nonlocal action_taken
+            action_taken = True
             editor.move(QCursor.pos())
             editor.exec_()
 
@@ -230,16 +256,51 @@ class FigureInteraction(object):
                 move_and_show(XAxisEditor(canvas, ax))
             elif (ax.yaxis.contains(event)[0]
                   or any(tick.contains(event)[0] for tick in ax.get_yticklabels())):
-                if ax == axes[0]:
-                    move_and_show(YAxisEditor(canvas, ax))
-                else:
+                if type(ax) == Axes:
                     move_and_show(ColorbarAxisEditor(canvas, ax))
+                else:
+                    move_and_show(YAxisEditor(canvas, ax))
             elif hasattr(ax, 'zaxis'):
                 if ax.zaxis.label.contains(event)[0]:
                     move_and_show(LabelEditor(canvas, ax.zaxis.label))
                 elif (ax.zaxis.contains(event)[0]
                       or any(tick.contains(event)[0] for tick in ax.get_zticklabels())):
                     move_and_show(ZAxisEditor(canvas, ax))
+            elif ax.get_legend() is not None and ax.get_legend().contains(event)[0]:
+                # We have to set the legend as non draggable else we hold onto the legend
+                # until the mouse button is clicked again
+                legend_set_draggable(ax.get_legend(), False)
+                legend_texts = ax.get_legend().get_texts()
+                active_lines = datafunctions.get_legend_handles(ax)
+
+                remove_legend_flag = True  # remove the legend if no curve texts were clicked
+                for legend_text, curve in zip(legend_texts, active_lines):
+                    if legend_text.contains(event)[0]:
+                        remove_legend_flag = False
+                        move_and_show(LegendEditor(canvas, legend_text, curve))
+                legend_set_draggable(ax.get_legend(), True)
+
+                if remove_legend_flag:
+                    action_taken = True
+                    legend = ax.get_legend()
+                    legend.set_visible(False)
+                    canvas.draw()
+
+        return action_taken
+
+    def _show_plot_options(self, event):
+        if not event.inaxes:
+            return
+
+        axes = event.inaxes
+        clicked_curve = None
+        for curve in axes.lines:
+            if curve.contains(event)[0]:
+                clicked_curve = curve
+                break
+
+        # Launch with the first curve that contains the event
+        self.fig_manager.launch_plot_options_on_curves_tab(axes, clicked_curve)
 
     def _show_markers_menu(self, markers, event):
         """
@@ -449,17 +510,11 @@ class FigureInteraction(object):
         menu.addMenu(marker_menu)
 
     def _add_plot_type_option_menu(self, menu, ax):
-        # Error bar caps are considered lines so they are removed before checking the number of lines on the axes so
-        # they aren't confused for "actual" lines.
-        error_bar_caps = datafunctions.remove_and_return_errorbar_cap_lines(ax)
-
-        # Able to change the plot type to waterfall if there is only one axes, it is a MantidAxes, and there is more
-        # than one line on the axes.
-        if len(ax.get_figure().get_axes()) > 1 or not isinstance(ax, MantidAxes) or len(ax.get_lines()) <= 1:
-            return
-
-        # Re-add error bar caps
-        ax.lines += error_bar_caps
+        with errorbar_caps_removed(ax):
+            # Able to change the plot type to waterfall if there is only one axes, it is a MantidAxes, and there is more
+            # than one line on the axes.
+            if len(ax.get_figure().get_axes()) > 1 or not isinstance(ax, MantidAxes) or len(ax.get_lines()) <= 1:
+                return
 
         plot_type_menu = QMenu("Plot Type", menu)
         plot_type_action_group = QActionGroup(plot_type_menu)
@@ -637,7 +692,8 @@ class FigureInteraction(object):
 
     def motion_event(self, event):
         """ Move the marker if the mouse is moving and in range """
-        if self.toolbar_manager.is_tool_active() or event is None:
+        if self.toolbar_manager.is_tool_active() or self.toolbar_manager.is_fit_active() \
+                or event is None:
             return
 
         x = event.xdata
@@ -674,52 +730,64 @@ class FigureInteraction(object):
             return
         self._toggle_normalization(ax)
 
-    def _toggle_normalization(self, ax):
-        waterfall = isinstance(ax, MantidAxes) and ax.is_waterfall()
-        if waterfall:
-            x, y = ax.waterfall_x_offset, ax.waterfall_y_offset
-            has_fill = ax.waterfall_has_fill()
+    def _toggle_normalization(self, selected_ax):
+        if figure_type(self.canvas.figure) == FigureType.Image and len(self.canvas.figure.get_axes()) > 1:
+            axes = datafunctions.get_axes_from_figure(self.canvas.figure)
+        else:
+            axes = [selected_ax]
 
-            if has_fill:
-                line_colour_fill = datafunctions.waterfall_fill_is_line_colour(ax)
-                if line_colour_fill:
-                    fill_colour = None
-                else:
-                    fill_colour = datafunctions.get_waterfall_fills(ax)[0].get_facecolor()
+        for ax in axes:
+            waterfall = isinstance(ax, MantidAxes) and ax.is_waterfall()
+            if waterfall:
+                x, y = ax.waterfall_x_offset, ax.waterfall_y_offset
+                has_fill = ax.waterfall_has_fill()
 
-            ax.update_waterfall(0, 0)
+                if has_fill:
+                    line_colour_fill = datafunctions.waterfall_fill_is_line_colour(ax)
+                    if line_colour_fill:
+                        fill_colour = None
+                    else:
+                        fill_colour = datafunctions.get_waterfall_fills(ax)[0].get_facecolor()
 
-        # The colorbar can get screwed up with ragged workspaces and log scales as they go
-        # through the normalisation toggle.
-        # Set it to Linear and change it back after if necessary, since there's no reason
-        # to duplicate the handling.
-        colorbar_log = False
-        if ax.images:
-            colorbar_log = isinstance(ax.images[-1].norm, LogNorm)
-            if colorbar_log:
-                self._change_colorbar_axes(Normalize)
+                ax.update_waterfall(0, 0)
 
-        self._change_plot_normalization(ax)
+            # The colorbar can get screwed up with ragged workspaces and log scales as they go
+            # through the normalisation toggle.
+            # Set it to Linear and change it back after if necessary, since there's no reason
+            # to duplicate the handling.
+            colorbar_log = False
+            if ax.images:
+                colorbar_log = isinstance(ax.images[-1].norm, LogNorm)
+                if colorbar_log:
+                    self._change_colorbar_axes(Normalize)
 
-        if ax.lines:  # Relim causes issues with colour plots, which have no lines.
-            ax.relim()
+            self._change_plot_normalization(ax)
 
-        if ax.images:  # Colour bar limits are wrong if workspace is ragged. Set them manually.
-            colorbar_min = np.nanmin(ax.images[-1].get_array())
-            colorbar_max = np.nanmax(ax.images[-1].get_array())
-            for image in ax.images:
-                image.set_clim(colorbar_min, colorbar_max)
-            if colorbar_log:  # If it had a log scaled colorbar before, put it back.
-                self._change_colorbar_axes(LogNorm)
+            if ax.lines:  # Relim causes issues with colour plots, which have no lines.
+                ax.relim()
+                ax.autoscale()
 
-        ax.autoscale()
+            if ax.images:  # Colour bar limits are wrong if workspace is ragged. Set them manually.
+                colorbar_min = np.nanmin(ax.images[-1].get_array())
+                colorbar_max = np.nanmax(ax.images[-1].get_array())
+                for image in ax.images:
+                    image.set_clim(colorbar_min, colorbar_max)
 
-        datafunctions.set_initial_dimensions(ax)
-        if waterfall:
-            ax.update_waterfall(x, y)
+                    # Update the colorbar label
+                    cb = image.colorbar
+                    if cb:
+                        datafunctions.add_colorbar_label(cb, ax.get_figure().axes)
+                if colorbar_log:  # If it had a log scaled colorbar before, put it back.
+                    self._change_colorbar_axes(LogNorm)
 
-            if has_fill:
-                ax.set_waterfall_fill(True, fill_colour)
+                axesfunctions.update_colorplot_datalimits(ax, ax.images)
+
+            datafunctions.set_initial_dimensions(ax)
+            if waterfall:
+                ax.update_waterfall(x, y)
+
+                if has_fill:
+                    ax.set_waterfall_fill(True, fill_colour)
 
         self.canvas.draw()
 
@@ -749,7 +817,7 @@ class FigureInteraction(object):
                 if figure_type(self.canvas.figure) in [FigureType.Image, FigureType.Contour]:
                     arg_set_copy.pop('specNum')
                 for ws_artist in ax.tracked_workspaces[workspace.name()]:
-                    if ws_artist.spec_num == arg_set.get('specNum'):
+                    if ws_artist.spec_num == arg_set_copy.get('specNum'):
                         ws_artist.is_normalized = not is_normalized
 
                         # This check is to prevent the contour lines being re-plotted using the colorfill plot args.

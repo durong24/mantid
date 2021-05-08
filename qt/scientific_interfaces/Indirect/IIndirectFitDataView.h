@@ -28,7 +28,6 @@ public:
   virtual bool isMultipleDataTabSelected() const = 0;
   virtual bool isResolutionHidden() const = 0;
   virtual void setResolutionHidden(bool hide) = 0;
-  virtual void setStartAndEndHidden(bool hidden) = 0;
   virtual void disableMultipleDataTab() = 0;
 
   virtual std::string getSelectedSample() const = 0;
@@ -45,13 +44,13 @@ public:
   virtual void setResolutionFBSuffices(QStringList const &suffices) = 0;
 
   virtual bool isSampleWorkspaceSelectorVisible() const = 0;
-  virtual void
-  setSampleWorkspaceSelectorIndex(QString const &workspaceName) = 0;
+  virtual void setSampleWorkspaceSelectorIndex(QString const &workspaceName) = 0;
 
   virtual void readSettings(QSettings const &settings) = 0;
   virtual UserInputValidator &validate(UserInputValidator &validator) = 0;
 
   virtual void setXRange(std::pair<double, double> const &range) = 0;
+  virtual std::pair<double, double> getXRange() const = 0;
 
 public slots:
   virtual void displayWarning(std::string const &warning) = 0;

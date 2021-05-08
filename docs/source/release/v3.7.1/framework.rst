@@ -63,7 +63,7 @@ New
 - :ref:`GetIPTS <algm-GetIPTS>` Returns the IPTS directory of the specified ORNL run.
 - :ref:`GSASIIRefineFitPeaks <algm-GSASIIRefineFitPeaks>` uses the GSAS-II
   software to refine lattice parameters (whole pattern refinement) and fit
-- `ImggAggregateWavelengths <http://docs.mantidproject.org/v3.7.1/algorithms/ImggAggregateWavelengths-v1.html>`_ 
+- `ImggAggregateWavelengths <http://docs.mantidproject.org/v3.7.1/algorithms/ImggAggregateWavelengths-v1.html>`_
   aggregates stacks of images from wavelength dependent imaging into one or more output bands.
 - `ImggTomographicReconstruction <http://docs.mantidproject.org/v3.7.1/algorithms/ImggTomographicReconstruction-v1.html>`_
   implements a method for 3D tomographic reconstruction from projection images.
@@ -138,7 +138,7 @@ Deprecated
 MD Algorithms (VATES CLI)
 #########################
 
--  The algorithm :ref:`SaveMDWorkspaceToVTK <algm-SaveMDWorkspaceToVTK>` is now available. It allows the
+-  The algorithm ``SaveMDWorkspaceToVTK`` is now available. It allows the
    user to save 3D MDHisto or 3D MDEvent workspaces as either a ``.vts`` or
    ``.vtu`` files. These file types can be loaded into a standalone version
    of ParaView.

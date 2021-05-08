@@ -5,6 +5,7 @@ set(SRC_FILES
     src/Algorithms/ConvolutionFit.cpp
     src/Algorithms/ConvolveWorkspaces.cpp
     src/Algorithms/CrystalFieldEnergies.cpp
+    src/Algorithms/DoublePulseFit.cpp
     src/Algorithms/EstimateFitParameters.cpp
     src/Algorithms/EstimatePeakErrors.cpp
     src/Algorithms/EvaluateFunction.cpp
@@ -18,6 +19,7 @@ set(SRC_FILES
     src/Algorithms/PawleyFit.cpp
     src/Algorithms/PlotPeakByLogValue.cpp
     src/Algorithms/PlotPeakByLogValueHelper.cpp
+    src/Algorithms/ProfileChiSquared1D.cpp
     src/Algorithms/QENSFitSequential.cpp
     src/Algorithms/QENSFitSimultaneous.cpp
     src/Algorithms/QENSFitUtilities.cpp
@@ -142,6 +144,7 @@ set(SRC_FILES
     src/Functions/UserFunction1D.cpp
     src/Functions/VesuvioResolution.cpp
     src/Functions/Voigt.cpp
+    src/Functions/ConvTempCorrection.cpp
     src/GSLFunctions.cpp
     src/GSLMatrix.cpp
     src/GSLVector.cpp
@@ -171,6 +174,7 @@ set(INC_FILES
     inc/MantidCurveFitting/Algorithms/ConvolutionFit.h
     inc/MantidCurveFitting/Algorithms/ConvolveWorkspaces.h
     inc/MantidCurveFitting/Algorithms/CrystalFieldEnergies.h
+    inc/MantidCurveFitting/Algorithms/DoublePulseFit.h
     inc/MantidCurveFitting/Algorithms/EstimateFitParameters.h
     inc/MantidCurveFitting/Algorithms/EstimatePeakErrors.h
     inc/MantidCurveFitting/Algorithms/EvaluateFunction.h
@@ -184,6 +188,7 @@ set(INC_FILES
     inc/MantidCurveFitting/Algorithms/PawleyFit.h
     inc/MantidCurveFitting/Algorithms/PlotPeakByLogValue.h
     inc/MantidCurveFitting/Algorithms/PlotPeakByLogValueHelper.h
+    inc/MantidCurveFitting/Algorithms/ProfileChiSquared1D.h
     inc/MantidCurveFitting/Algorithms/QENSFitSequential.h
     inc/MantidCurveFitting/Algorithms/QENSFitSimultaneous.h
     inc/MantidCurveFitting/Algorithms/QENSFitUtilities.h
@@ -306,6 +311,7 @@ set(INC_FILES
     inc/MantidCurveFitting/Functions/UserFunction1D.h
     inc/MantidCurveFitting/Functions/VesuvioResolution.h
     inc/MantidCurveFitting/Functions/Voigt.h
+    inc/MantidCurveFitting/Functions/ConvTempCorrection.h
     inc/MantidCurveFitting/GSLFunctions.h
     inc/MantidCurveFitting/GSLJacobian.h
     inc/MantidCurveFitting/GSLMatrix.h
@@ -335,6 +341,7 @@ set(TEST_FILES
     Algorithms/ConvertToYSpaceTest.h
     Algorithms/ConvolutionFitSequentialTest.h
     Algorithms/ConvolveWorkspacesTest.h
+    Algorithms/DoublePulseFitTest.h
     Algorithms/EstimateFitParametersTest.h
     Algorithms/EstimatePeakErrorsTest.h
     Algorithms/EvaluateFunctionTest.h
@@ -346,6 +353,7 @@ set(TEST_FILES
     Algorithms/PawleyFitTest.h
     Algorithms/PlotPeakByLogValueTest.h
     Algorithms/PlotPeakByLogValueHelperTest.h
+    Algorithms/ProfileChiSquared1DTest.h
     Algorithms/QENSFitSequentialTest.h
     Algorithms/QENSFitSimultaneousTest.h
     Algorithms/RefinePowderInstrumentParameters3Test.h
@@ -460,6 +468,7 @@ set(TEST_FILES
     Functions/UserFunctionTest.h
     Functions/VesuvioResolutionTest.h
     Functions/VoigtTest.h
+    Functions/ConvTempCorrectionTest.h
     GSLMatrixTest.h
     GSLVectorTest.h
     GeneralDomainCreatorTest.h
@@ -516,7 +525,6 @@ include_directories(inc)
 target_include_directories(CurveFitting SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(CurveFitting
                       LINK_PRIVATE
-                      ${TCMALLOC_LIBRARIES_LINKTIME}
                       ${MANTIDLIBS}
                       ${GSL_LIBRARIES})
 

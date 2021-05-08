@@ -4,15 +4,8 @@
 Developer Documentation
 =======================
 
-.. toctree::
-   :hidden:
-
-   DevelopmentTeam
-
 These pages contain the developer documentation for mantid. They are aimed at those who are modifying the
 source code of the project. For user documentation please see :ref:`here <mantid:contents>`.
-
-Meet the :ref:`team <DevelopmentTeam>`.
 
 ======
 Guides
@@ -25,11 +18,9 @@ Guides
    GettingStarted
    BuildingOnOSX
    BuildingWithCMake
-   BuildingVATES
    Standards/index
    Testing/index
    DoxygenSetup
-   Python3
 
 :doc:`DeveloperAccounts`
    Details of the accounts required for developers.
@@ -40,14 +31,11 @@ Guides
 :doc:`Standards <Standards/index>`
    Details of coding and documentation standards for the project. Includes specifics regarding algorithms.
 
-:doc:`Testing <Testing/index>`
-   Details of unscripted and acceptance testing.
+:doc:`Manual Testing <Testing/index>`
+   Details of manual and acceptance/smoke testing.
 
 :doc:`DoxygenSetup`
    Configure a doxygen build locally.
-
-:doc:`Python3`
-   Building with Python 3 (Ubuntu/Windows).
 
 `C++ Introduction <https://www.mantidproject.org/New_Starter_C%2B%2B_introduction>`_
    Exercises for learning C++.
@@ -63,6 +51,7 @@ Development Process
    Communication
    IssueTracking
    UserSupport
+   GitConfig
    GitWorkflow
    AutomatedBuildProcess
    JenkinsConfiguration
@@ -112,6 +101,7 @@ Tools
    :hidden:
 
    ToolsOverview
+   ProfilingOverview
    ProfilingWithValgrind
    FlowchartCreation
    VisualStudioBuildImpact
@@ -122,8 +112,8 @@ Tools
 :doc:`ToolsOverview`
    Describes ``class_maker``, ``valgrind`` and related tools.
 
-:doc:`ProfilingWithValgrind`
-   How to use valgrind to profile your code.
+:doc:`ProfilingOverview`
+   There are a few different ways to profile Mantid code.
 
 :doc:`FlowchartCreation`
    Describes how to create a flow chart with dot.
@@ -240,6 +230,7 @@ Component Overviews
    EventWorkspaceDev
    HandlingXML
    IndexProperty
+   IndirectDataAnalysisFileStructure
    InstrumentViewer
    ISISReflectometryInterface
    ISISSANSReductionBackend
@@ -249,6 +240,7 @@ Component Overviews
    MultiThreadingInAlgorithms
    PythonVSCppAlgorithms
    RemoteJobSubmissionAPI
+   SampleLogsDev
    Widgets/Plotting
    WritingAnAlgorithm
    WritingCustomConvertToMDTransformation

@@ -21,6 +21,8 @@ from Muon.GUI.Common.muon_load_data import MuonLoadData
 from Muon.GUI.Common.pairing_table_widget.pairing_table_widget_presenter import PairingTablePresenter, MuonPair
 from Muon.GUI.Common.pairing_table_widget.pairing_table_widget_view import PairingTableView
 from Muon.GUI.Common.test_helpers.context_setup import setup_context_for_tests
+from Muon.GUI.Common.difference_table_widget.difference_widget_presenter import DifferencePresenter
+from Muon.GUI.Common.muon_period_info_widget import PERIOD_INFO_NOT_FOUND
 
 
 def pair_name():
@@ -30,7 +32,13 @@ def pair_name():
     return name
 
 
-#
+def diff_name():
+    name = []
+    for i in range(21):
+        name.append("diff_" + str(i + 1))
+    return name
+
+
 def perform_musr_file_finder(self):
     ConfigService['default.instrument'] = 'MUSR'
     file_path = FileFinder.findRuns('MUSR00022725.nxs')[0]
@@ -64,16 +72,20 @@ class GroupingTabPresenterTest(unittest.TestCase):
         self.pairing_table_view = PairingTableView()
         self.pairing_table_widget = PairingTablePresenter(self.pairing_table_view, self.model)
 
+        self.diff_widget = DifferencePresenter(self.model)
+        self.diff_widget.group_view.enter_diff_name = mock.Mock(side_effect=diff_name())
+        self.diff_widget.pair_view.enter_diff_name = mock.Mock(side_effect=diff_name())
+
         self.grouping_table_view.warning_popup = mock.MagicMock()
         self.pairing_table_view.warning_popup = mock.MagicMock()
 
         self.add_three_groups()
         self.add_two_pairs()
 
-        self.view = GroupingTabView(self.grouping_table_view, self.pairing_table_view)
+        self.view = GroupingTabView(self.grouping_table_view, self.pairing_table_view, self.diff_widget.view)
         self.presenter = GroupingTabPresenter(self.view, self.model,
                                               self.grouping_table_widget,
-                                              self.pairing_table_widget)
+                                              self.pairing_table_widget, self.diff_widget)
 
         self.presenter.create_update_thread = mock.MagicMock(return_value=mock.MagicMock())
         self.presenter.pairing_table_widget.handle_add_pair_button_clicked = mock.MagicMock()
@@ -94,6 +106,12 @@ class GroupingTabPresenterTest(unittest.TestCase):
         testpair2 = MuonPair(pair_name="long2", forward_group_name="fwd", backward_group_name="top")
         self.pairing_table_widget.add_pair(testpair1)
         self.pairing_table_widget.add_pair(testpair2)
+
+    def add_group_diff(self):
+        self.diff_widget.group_widget.handle_add_diff_button_clicked('fwd', 'top')
+
+    def add_pair_diff(self):
+        self.diff_widget.pair_widget.handle_add_diff_button_clicked('long1', 'long2')
 
     def tearDown(self):
         self.obj = None
@@ -123,7 +141,7 @@ class GroupingTabPresenterTest(unittest.TestCase):
         groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
                   MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
         pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
-        mock_load.return_value = (groups, pairs, 'description', 'pair1')
+        mock_load.return_value = (groups, pairs, [], 'description', 'pair1')
 
         self.view.load_grouping_button.clicked.emit(True)
 
@@ -131,40 +149,71 @@ class GroupingTabPresenterTest(unittest.TestCase):
         self.assertEqual(mock_load.call_args[0][0], "grouping.xml")
 
     def test_that_load_grouping_inserts_loaded_groups_and_pairs_correctly(self):
-        self.view.show_file_browser_and_return_selection = mock.Mock(return_value="grouping.xml")
         groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
                   MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
         pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
 
-        with mock.patch(
-                "Muon.GUI.Common.grouping_tab_widget.grouping_tab_widget_presenter.xml_utils.load_grouping_from_XML") as mock_load:
-            # mock the loading to return set groups/pairs
-            mock_load.return_value = (groups, pairs, 'description', 'pair1')
-            self.view.load_grouping_button.clicked.emit(True)
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='pair1')
 
-            self.assertCountEqual(self.model.group_names, ["grp1", "grp2"])
-            self.assertCountEqual(self.model.pair_names, ["pair1"])
-            self.assertEqual(self.grouping_table_view.num_rows(), 2)
-            self.assertEqual(self.pairing_table_view.num_rows(), 1)
-            self.assertEqual(self.pairing_table_view.pairing_table.cellWidget(0, 2).currentText(), "grp1")
-            self.assertEqual(self.pairing_table_view.pairing_table.cellWidget(0, 3).currentText(), "grp2")
+        self.assertCountEqual(self.model.group_names, ["grp1", "grp2"])
+        self.assertCountEqual(self.model.pair_names, ["pair1"])
+        self.assertEqual(self.grouping_table_view.num_rows(), 2)
+        self.assertEqual(self.pairing_table_view.num_rows(), 1)
+        self.assertEqual(self.pairing_table_view.pairing_table.cellWidget(0, 2).currentText(), "grp1")
+        self.assertEqual(self.pairing_table_view.pairing_table.cellWidget(0, 3).currentText(), "grp2")
 
     def test_loading_does_not_insert_invalid_groups(self):
-        self.view.show_file_browser_and_return_selection = mock.Mock(return_value="grouping.xml")
         groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
                   MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 1000])]
         pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
-        with mock.patch(
-                "Muon.GUI.Common.grouping_tab_widget.grouping_tab_widget_presenter.xml_utils.load_grouping_from_XML") as mock_load:
-            # mock the loading to return set groups/pairs
-            mock_load.return_value = (groups, pairs, 'description', 'pair1')
-            self.view.load_grouping_button.clicked.emit(True)
 
-            self.view.display_warning_box.assert_called_once_with('Invalid detectors in group grp2')
-            self.assertCountEqual(self.model.group_names, ["grp1"])
-            self.assertCountEqual(self.model.pair_names, [])
-            self.assertEqual(self.grouping_table_view.num_rows(), 1)
-            self.assertEqual(self.pairing_table_view.num_rows(), 0)
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='pair1')
+
+        self.view.display_warning_box.assert_called_once_with('Invalid detectors in group grp2')
+        self.assertCountEqual(self.model.group_names, ["grp1"])
+        self.assertCountEqual(self.model.pair_names, [])
+        self.assertEqual(self.grouping_table_view.num_rows(), 1)
+        self.assertEqual(self.pairing_table_view.num_rows(), 0)
+
+    def test_loading_selects_all_pairs_if_any_pairs_exist_and_no_default_set(self):
+        groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
+                  MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
+        pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
+
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='')
+
+        self.assertEqual(self.model.selected_pairs, ["pair1"])
+        self.assertEqual(self.model.selected_groups, [])
+
+    def test_loading_selects_groups_if_no_pairs_exist_and_no_default_set(self):
+        groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
+                  MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
+        pairs = []
+
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='')
+
+        self.assertEqual(self.model.selected_pairs, [])
+        self.assertEqual(self.model.selected_groups, ["grp1", "grp2"])
+
+    def test_loading_selects_default_pairs_and_groups_correctly(self):
+        groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
+                  MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
+        pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
+
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='grp2')
+
+        self.assertEqual(self.model.selected_pairs, [])
+        self.assertEqual(self.model.selected_groups, ["grp2"])
+
+    def test_loading_selects_correctly_when_default_is_invalid(self):
+        groups = [MuonGroup(group_name="grp1", detector_ids=[1, 2, 3, 4, 5]),
+                  MuonGroup(group_name="grp2", detector_ids=[6, 7, 8, 9, 10])]
+        pairs = [MuonPair(pair_name="pair1", forward_group_name="grp1", backward_group_name="grp2")]
+
+        self._run_handle_load_grouping_with_mocked_load(groups, pairs, default='grp3')
+
+        self.assertEqual(self.model.selected_pairs, ["pair1"])
+        self.assertEqual(self.model.selected_groups, [])
 
     def test_that_save_grouping_triggers_the_correct_function(self):
         # Save functionality is tested elsewhere
@@ -185,47 +234,119 @@ class GroupingTabPresenterTest(unittest.TestCase):
                                                                                 self.presenter.error_callback)
         self.presenter.update_thread.start.assert_called_once_with()
 
-    def test_removing_group_removes_linked_pairs(self):
-        self.group_context.clear_pairs()
-        self.group_context.clear_groups()
-        self.add_three_groups()
-        self.add_two_pairs()
-
-        self.presenter.grouping_table_widget.remove_last_row_in_view_and_model()
-
-        self.assertEqual(self.model.pair_names, ['long1'])
-
     def test_that_adding_pair_with_context_menu_allows_for_name_specification(self):
         self.presenter.add_pair_from_grouping_table("first", "second")
         self.pairing_table_widget.handle_add_pair_button_clicked.assert_called_once_with("first", "second")
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # Periods
-    # ------------------------------------------------------------------------------------------------------------------
+    def _run_handle_load_grouping_with_mocked_load(self, groups, pairs, description='description', default=''):
+        self.view.show_file_browser_and_return_selection = mock.Mock(return_value="grouping.xml")
+        with mock.patch(
+                "Muon.GUI.Common.grouping_tab_widget.grouping_tab_widget_presenter.xml_utils.load_grouping_from_XML") as mock_load:
+            # mock the loading to return set groups/pairs
+            mock_load.return_value = (groups, pairs, [], 'description', default)
+            self.presenter.handle_load_grouping_from_file()
 
-    def test_period_changes_are_propogated_to_model(self):
-        perform_musr_file_finder(self)
-        self.model.number_of_periods = mock.MagicMock(return_value=5)
+    def test_default_clicked(self):
+        self.presenter._model.reset_groups_and_pairs_to_default = mock.MagicMock(return_value="success")
+        self.presenter.handle_default_grouping_button_clicked()
+        self.assertEqual(self.view.display_warning_box.call_count, 0)
 
-        self.view.summed_period_edit.setText('1, 3, 5')
-        self.view.subtracted_period_edit.setText('2, 4')
-        self.view.summed_period_edit.editingFinished.emit()
+    def test_default_clicked_no_data(self):
+        self.presenter._model.reset_groups_and_pairs_to_default = mock.MagicMock(return_value="failed")
+        self.presenter.handle_default_grouping_button_clicked()
+        self.assertEqual(self.view.display_warning_box.call_count, 1)
 
-        self.view.display_warning_box.assert_not_called()
-        self.assertEqual(self.model.get_summed_periods(), [1, 3, 5])
-        self.assertEqual(self.model.get_subtracted_periods(), [2, 4])
+    def test_update_description_to_empty_on_clear_all(self):
+        self.presenter.on_clear_requested()
+        self.assertEqual('', self.view.get_description_text())
 
-    def test_invalid_periods_are_removed_and_warning_given(self):
-        perform_musr_file_finder(self)
-        self.model.number_of_periods = mock.MagicMock(return_value=5)
+    def test_cannot_remove_last_row_group_table_if_used_by_pair(self):
+        self.grouping_table_widget.handle_remove_group_button_clicked()
 
-        self.view.summed_period_edit.setText('1, 3, 5')
-        self.view.subtracted_period_edit.setText('2, 4, 6')
-        self.view.summed_period_edit.editingFinished.emit()
+        self.assertEqual(1, self.grouping_table_view.warning_popup.call_count)
+        self.assertEqual('top is used by: long2',
+                         self.grouping_table_view.warning_popup.call_args_list[0][0][0])
 
-        self.view.display_warning_box.assert_called_once_with('The following periods are invalid : 6')
-        self.assertEqual(self.model.get_summed_periods(), [1, 3, 5])
-        self.assertEqual(self.model.get_subtracted_periods(), [2, 4])
+    def test_cannot_remove_last_row_group_table_if_used_by_diff(self):
+        self.add_group_diff()
+        self.grouping_table_widget.handle_remove_group_button_clicked()
+
+        self.assertEqual(1, self.grouping_table_view.warning_popup.call_count)
+        self.assertEqual('top is used by: long2, diff_1',
+                         self.grouping_table_view.warning_popup.call_args_list[0][0][0])
+
+    def test_cannot_remove_a_selected_group_used_by_pair(self):
+        self.grouping_table_view.get_selected_group_names_and_indexes = mock.Mock(return_value=[['fwd',0]])
+        self.grouping_table_widget.handle_remove_group_button_clicked()
+
+        self.assertEqual(1, self.grouping_table_view.warning_popup.call_count)
+        self.assertEqual('fwd is used by: long1, long2\n', self.grouping_table_view.warning_popup.call_args_list[0][0][0])
+
+    def test_cannot_remove_a_selected_group_used_by_diff(self):
+        self.add_group_diff()
+        self.grouping_table_view.get_selected_group_names_and_indexes = mock.Mock(return_value=[['fwd', 0]])
+        self.grouping_table_widget.handle_remove_group_button_clicked()
+
+        self.assertEqual(1, self.grouping_table_view.warning_popup.call_count)
+        self.assertEqual('fwd is used by: long1, long2, diff_1\n', self.grouping_table_view.warning_popup.call_args_list[0][0][0])
+
+    def test_cannot_remove_last_row_pair_table_if_used_by_diff(self):
+        self.add_pair_diff()
+        self.pairing_table_widget.handle_remove_pair_button_clicked()
+
+        self.assertEqual(1, self.pairing_table_view.warning_popup.call_count)
+        self.assertEqual('long2 is used by: diff_1',
+                         self.pairing_table_view.warning_popup.call_args_list[0][0][0])
+
+    def test_cannot_remove_a_selected_pair_used_by_diff(self):
+        self.add_pair_diff()
+        self.pairing_table_view.get_selected_pair_names_and_indexes = mock.Mock(return_value=[['long1', 0]])
+        self.pairing_table_widget.handle_remove_pair_button_clicked()
+
+        self.assertEqual(1, self.pairing_table_view.warning_popup.call_count)
+        self.assertEqual('long1 is used by: diff_1\n',
+                         self.pairing_table_view.warning_popup.call_args_list[0][0][0])
+
+    def test_periods_button_no_data(self):
+        self.presenter._model.is_data_loaded = mock.Mock(return_value=False)
+        self.presenter._add_period_info_to_widget = mock.MagicMock()
+        self.presenter.period_info_widget.show = mock.MagicMock()
+        self.presenter.handle_period_information_button_clicked()
+
+        self.assertEqual(0, self.presenter._add_period_info_to_widget.call_count)
+        self.assertEqual(1, self.presenter.period_info_widget.show.call_count)
+
+    def test_periods_button_data_added_successfully(self):
+        self.presenter._model.is_data_loaded = mock.Mock(return_value=True)
+        self.presenter._add_period_info_to_widget = mock.MagicMock()
+        self.presenter.period_info_widget.show = mock.MagicMock()
+
+        self.presenter.handle_period_information_button_clicked()
+
+        self.assertEqual(1, self.presenter._add_period_info_to_widget.call_count)
+        self.assertEqual(1, self.presenter.period_info_widget.show.call_count)
+
+    def test_periods_button_data_missing_added_successfully(self):
+        self.presenter._model.is_data_loaded = mock.Mock(return_value=True)
+        self.model._data.get_sample_log = mock.Mock(return_value=None)
+        self.presenter._add_period_info_to_widget = mock.MagicMock()
+        self.presenter.period_info_widget.show = mock.MagicMock()
+
+        self.presenter.handle_period_information_button_clicked()
+
+        self.assertEqual(1, self.presenter._add_period_info_to_widget.call_count)
+        self.assertEqual(1, self.presenter.period_info_widget.show.call_count)
+
+    def test_period_info_corrected_as_expected(self):
+        info_list = [["state 1", "state 1 dwell"], [], ["100", "10"], ["1000"], [], ["1"]]
+        expected_result = [["state 1", "state 1 dwell"], [PERIOD_INFO_NOT_FOUND, PERIOD_INFO_NOT_FOUND], ["100", "10"],
+                           ["1000", PERIOD_INFO_NOT_FOUND], [PERIOD_INFO_NOT_FOUND, PERIOD_INFO_NOT_FOUND],
+                           ["1", PERIOD_INFO_NOT_FOUND]]
+
+        names, types, frames, total_frames, counts, tags, count = self.presenter._fix_up_period_info_lists(info_list)
+        actual_result = [names, types, frames, total_frames, counts, tags]
+        self.assertEqual(2, count)
+        self.assertEqual(expected_result, actual_result)
 
 
 if __name__ == '__main__':

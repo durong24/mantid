@@ -49,8 +49,10 @@ InstrumentWidgetEncoder::encode(const InstrumentWidget &obj,
     map.insert(QString("currentTab"), QVariant(obj.getCurrentTab()));
 
     QList<QVariant> energyTransferList;
+
     energyTransferList.append(QVariant(obj.m_xIntegration->getMinimum()));
     energyTransferList.append(QVariant(obj.m_xIntegration->getMaximum()));
+
     map.insert(QString("energyTransfer"), QVariant(energyTransferList));
 
     map.insert(QString("surface"),
@@ -89,7 +91,7 @@ InstrumentWidgetEncoder::encodeTreeTab(const InstrumentWidgetTreeTab *tab) {
 
   QList<QString> list;
   const auto names = tab->m_instrumentTree->findExpandedComponents();
-  for (const auto name : names) {
+  for (const auto &name : names) {
     list.append(name);
   }
   map.insert(QString("expandedItems"), QVariant(list));
@@ -125,6 +127,9 @@ InstrumentWidgetEncoder::encodeRenderTab(const InstrumentWidgetRenderTab *tab) {
   const auto colorBar = encodeColorBar(tab->m_colorBarWidget);
   map.insert(QString("colorBar"), QVariant(colorBar));
 
+  map.insert(QString("freezeRotation"),
+             QVariant(tab->m_freezeRotation->isChecked()));
+
   return map;
 }
 
@@ -158,6 +163,9 @@ InstrumentWidgetEncoder::encodeMaskTab(const InstrumentWidgetMaskTab *tab) {
                      QVariant(tab->m_ring_rectangle->isChecked()));
   activeTools.insert(QString("freeDrawButton"),
                      QVariant(tab->m_free_draw->isChecked()));
+  activeTools.insert(QString("pixelButton"),
+                     QVariant(tab->m_pixel->isChecked()));
+  activeTools.insert(QString("tubeButton"), QVariant(tab->m_tube->isChecked()));
   map.insert(QString("activeTools"), QVariant(activeTools));
 
   activeType.insert(QString("maskingOn"),
@@ -199,8 +207,8 @@ InstrumentWidgetEncoder::encodePickTab(const InstrumentWidgetPickTab *tab) {
   map.insert(QString("freeDraw"), QVariant(tab->m_free_draw->isChecked()));
   map.insert(QString("one"), QVariant(tab->m_one->isChecked()));
   map.insert(QString("tube"), QVariant(tab->m_tube->isChecked()));
-  map.insert(QString("peak"), QVariant(tab->m_peak->isChecked()));
-  map.insert(QString("peakSelect"), QVariant(tab->m_peakSelect->isChecked()));
+  map.insert(QString("peakAdd"), QVariant(tab->m_peakAdd->isChecked()));
+  map.insert(QString("peakErase"), QVariant(tab->m_peakErase->isChecked()));
 
   return map;
 }
@@ -340,6 +348,9 @@ InstrumentWidgetEncoder::encodeShape(const Shape2D *obj) {
   } else if (obj->type() == "ring") {
     subShapeMap = this->encodeRing(static_cast<const Shape2DRing *>(obj));
     map.insert(QString("type"), QVariant(QString("ring")));
+  } else if (obj->type() == "sector") {
+    subShapeMap = this->encodeSector(static_cast<const Shape2DSector *>(obj));
+    map.insert(QString("type"), QVariant(QString("sector")));
   } else if (obj->type() == "free") {
     subShapeMap = this->encodeFree(static_cast<const Shape2DFree *>(obj));
     map.insert(QString("type"), QVariant(QString("free")));
@@ -395,6 +406,26 @@ InstrumentWidgetEncoder::encodeRing(const Shape2DRing *obj) {
   map.insert(QString("xWidth"), QVariant(xWidth));
   map.insert(QString("yWidth"), QVariant(yWidth));
   map.insert(QString("shape"), QVariant(this->encodeShape(baseShape)));
+
+  return map;
+}
+
+QMap<QString, QVariant>
+InstrumentWidgetEncoder::encodeSector(const Shape2DSector *obj) {
+  const auto outerRadius = obj->getDouble("outerRadius");
+  const auto innerRadius = obj->getDouble("innerRadius");
+  const auto startAngle = obj->getDouble("startAngle") * M_PI / 180;
+  const auto endAngle = obj->getDouble("endAngle") * M_PI / 180;
+  const auto centerX = obj->getPoint("center").x();
+  const auto centerY = obj->getPoint("center").y();
+
+  QMap<QString, QVariant> map;
+  map.insert(QString("outerRadius"), QVariant(outerRadius));
+  map.insert(QString("innerRadius"), QVariant(innerRadius));
+  map.insert(QString("startAngle"), QVariant(startAngle));
+  map.insert(QString("endAngle"), QVariant(endAngle));
+  map.insert(QString("centerX"), QVariant(centerX));
+  map.insert(QString("centerY"), QVariant(centerY));
 
   return map;
 }

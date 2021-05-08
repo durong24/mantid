@@ -4,8 +4,7 @@
 #   NScD Oak Ridge National Laboratory, European Spallation Source,
 #   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 # SPDX - License - Identifier: GPL - 3.0 +
-from Muon.GUI.FrequencyDomainAnalysis.frequency_context import FREQUENCY_EXTENSIONS
-from Muon.GUI.Common.ADSHandler.workspace_naming import TF_ASYMMETRY_PREFIX
+from Muon.GUI.Common.utilities.run_string_utils import run_list_to_string
 
 COUNTS_PLOT_TYPE = 'Counts'
 ASYMMETRY_PLOT_TYPE = 'Asymmetry'
@@ -70,17 +69,16 @@ class PlotWidgetModel(object):
         :param plot_type: plotting type, e.g Counts, Frequency Re
         :return: a list of workspace names
         """
-        currently_selected_groups = self.context.group_pair_context.selected_groups
-        currently_selected_pairs = self.context.group_pair_context.selected_pairs
+        currently_selected = self.context.group_pair_context.selected_groups_and_pairs
         workspace_list = []
 
         if FREQ_PLOT_TYPE in plot_type:
-            for grouppair in currently_selected_groups + currently_selected_pairs:
+            for grouppair in currently_selected:
                 workspace_list += self.get_freq_workspaces_to_plot(grouppair, plot_type)
             workspace_list = list(set(workspace_list))
             return workspace_list
         else:
-            for grouppair in currently_selected_groups + currently_selected_pairs:
+            for grouppair in currently_selected:
                 workspace_list += self.get_time_workspaces_to_plot(grouppair, is_raw, plot_type)
             return workspace_list
 
@@ -128,17 +126,14 @@ class PlotWidgetModel(object):
 
     def create_tiled_keys(self, tiled_by):
         if tiled_by == TILED_BY_GROUP_TYPE:
-            keys = self.context.group_pair_context.selected_groups + self.context.group_pair_context.selected_pairs
+            keys = self.context.group_pair_context.selected_groups_and_pairs
         else:
-            keys = [str(item) for sublist in self.context.data_context.current_runs for item in sublist]
+            keys = [run_list_to_string(item) for item in self.context.data_context.current_runs]
         return keys
 
-    def get_plot_types(self):
+    @staticmethod
+    def get_plot_types():
         plot_types = [ASYMMETRY_PLOT_TYPE, COUNTS_PLOT_TYPE]
-        if self.context._frequency_context:
-            for ext in FREQUENCY_EXTENSIONS.keys():
-                plot_types.append(FREQ_PLOT_TYPE + FREQUENCY_EXTENSIONS[ext])
-            plot_types.append(FREQ_PLOT_TYPE + "All")
         return plot_types
 
     @staticmethod
@@ -151,20 +146,20 @@ class PlotWidgetModel(object):
         return indices
 
     @staticmethod
-    def get_fit_workspace_and_indices(fit):
+    def get_fit_workspace_and_indices(fit, with_diff=True):
         if fit is None:
             return [], []
         workspaces = []
         indices = []
         for workspace_name in fit.output_workspace_names:
             first_fit_index = 1  # calc
-            if TF_ASYMMETRY_PREFIX in workspace_name:
+            if fit.tf_asymmetry_fit:
                 first_fit_index = 3
             second_fit_index = 2  # Diff
-
             workspaces.append(workspace_name)
             indices.append(first_fit_index)
-            workspaces.append(workspace_name)
-            indices.append(second_fit_index)
+            if with_diff:
+                workspaces.append(workspace_name)
+                indices.append(second_fit_index)
 
         return workspaces, indices

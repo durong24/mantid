@@ -10,7 +10,7 @@
 from unittest.mock import MagicMock, create_autospec
 
 # 3rd party imports
-from mantid.api import SpecialCoordinateSystem
+from mantid.kernel import SpecialCoordinateSystem
 from mantid.dataobjects import PeaksWorkspace
 
 # local imports
@@ -22,7 +22,9 @@ def draw_peaks(centers, fg_color, slice_value, slice_width, frame=SpecialCoordin
     model = create_peaks_viewer_model(centers, fg_color)
     slice_info = create_slice_info(centers, slice_value, slice_width, frame)
     mock_painter = MagicMock(spec=MplPainter)
-    mock_painter._axes = MagicMock()
+    mock_axes = MagicMock()
+    mock_axes.get_xlim.return_value = (-1, 1)
+    mock_painter.axes = mock_axes
 
     model.draw_peaks(slice_info, mock_painter)
 

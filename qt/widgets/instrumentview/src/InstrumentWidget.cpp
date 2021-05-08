@@ -91,6 +91,7 @@ private:
   WorkspaceReplacementFlagHolder();
   bool &m_worskpaceReplacementFlag;
 };
+
 } // namespace
 
 // Name of the QSettings group to store the InstrumentWindw settings
@@ -125,7 +126,7 @@ InstrumentWidget::InstrumentWidget(const QString &wsName, QWidget *parent,
       m_stateOfTabs(std::vector<std::pair<std::string, bool>>{}),
       m_wsReplace(false), m_help(nullptr) {
   setFocusPolicy(Qt::StrongFocus);
-  QVBoxLayout *mainLayout = new QVBoxLayout(this);
+  m_mainLayout = new QVBoxLayout(this);
   auto *controlPanelLayout = new QSplitter(Qt::Horizontal);
 
   // Add Tab control panel
@@ -137,6 +138,7 @@ InstrumentWidget::InstrumentWidget(const QString &wsName, QWidget *parent,
   // Create the display widget
   m_InstrumentDisplay = new MantidGLWidget(this);
   m_InstrumentDisplay->installEventFilter(this);
+  m_InstrumentDisplay->setMinimumWidth(600);
   connect(this, SIGNAL(enableLighting(bool)), m_InstrumentDisplay,
           SLOT(enableLighting(bool)));
 
@@ -151,10 +153,13 @@ InstrumentWidget::InstrumentWidget(const QString &wsName, QWidget *parent,
 
   controlPanelLayout->addWidget(aWidget);
 
-  mainLayout->addWidget(controlPanelLayout);
+  m_mainLayout->addWidget(controlPanelLayout);
+
+  m_instrumentActor.reset(
+      new InstrumentActor(m_workspaceName, autoscaling, scaleMin, scaleMax));
 
   m_xIntegration = new XIntegrationControl(this);
-  mainLayout->addWidget(m_xIntegration);
+  m_mainLayout->addWidget(m_xIntegration);
   connect(m_xIntegration, SIGNAL(changed(double, double)), this,
           SLOT(setIntegrationRange(double, double)));
 
@@ -168,17 +173,13 @@ InstrumentWidget::InstrumentWidget(const QString &wsName, QWidget *parent,
   infoLayout->addWidget(m_help);
   infoLayout->setStretchFactor(mInteractionInfo, 1);
   infoLayout->setStretchFactor(m_help, 0);
-  mainLayout->addLayout(infoLayout);
-
+  m_mainLayout->addLayout(infoLayout);
   QSettings settings;
   settings.beginGroup(InstrumentWidgetSettingsGroup);
 
   // Background colour
   setBackgroundColor(
       settings.value("BackgroundColor", QColor(0, 0, 0, 1.0)).value<QColor>());
-
-  m_instrumentActor.reset(
-      new InstrumentActor(m_workspaceName, autoscaling, scaleMin, scaleMax));
 
   // Create the b=tabs
   createTabs(settings);
@@ -294,10 +295,9 @@ void InstrumentWidget::init(bool resetGeometry, bool autoscaling,
     m_instrumentActor.reset(
         new InstrumentActor(m_workspaceName, autoscaling, scaleMin, scaleMax));
   }
-  m_xIntegration->setTotalRange(m_instrumentActor->minBinValue(),
-                                m_instrumentActor->maxBinValue());
-  m_xIntegration->setUnits(QString::fromStdString(
-      m_instrumentActor->getWorkspace()->getAxis(0)->unit()->caption()));
+
+  updateIntegrationWidget(true);
+
   auto surface = getSurface();
   if (resetGeometry || !surface) {
     if (setDefaultView) {
@@ -342,6 +342,7 @@ void InstrumentWidget::resetSurface() {
  * Select the tab to be displayed
  */
 void InstrumentWidget::selectTab(int tab) {
+  getSurface()->setCurrentTab(mControlsTab->tabText(tab));
   mControlsTab->setCurrentIndex(tab);
 }
 
@@ -381,6 +382,38 @@ InstrumentWidgetTab *InstrumentWidget::getTab(const Tab tab) const {
 }
 
 /**
+ * @brief Get render tab from user specified tab
+ * @param tab :: render tab index
+ * @return
+ */
+InstrumentWidgetRenderTab *InstrumentWidget::getRenderTab(const Tab tab) const {
+
+  // Call to get Q widget
+  InstrumentWidgetTab *widget_tab = getTab(tab);
+
+  // Cast
+  InstrumentWidgetRenderTab *render_tab =
+      dynamic_cast<InstrumentWidgetRenderTab *>(widget_tab);
+  return render_tab;
+}
+
+/**
+ * @brief Get Pick tab from user specified tab
+ * @param tab :: pick tab index
+ * @return
+ */
+InstrumentWidgetPickTab *InstrumentWidget::getPickTab(const Tab tab) const {
+  // Call to get base class Q widget
+  InstrumentWidgetTab *tab_widget = getTab(tab);
+
+  //
+  // Cast
+  InstrumentWidgetPickTab *pick_tab =
+      dynamic_cast<InstrumentWidgetPickTab *>(tab_widget);
+  return pick_tab;
+}
+
+/**
  * Opens Qt file dialog to select the filename.
  * The dialog opens in the directory used last for saving or the default user
  * directory.
@@ -405,9 +438,30 @@ QString InstrumentWidget::getSaveFileName(const QString &title,
 }
 
 /**
+ * @brief InstrumentWidget::isIntegrable
+ * Returns whether or not the workspace requires an integration bar.
+ */
+bool InstrumentWidget::isIntegrable() {
+  try {
+    size_t blockSize = m_instrumentActor->getWorkspace()->blocksize();
+
+    return (blockSize > 1 ||
+            m_instrumentActor->getWorkspace()->id() == "EventWorkspace");
+  } catch (...) {
+    return true;
+  }
+}
+
+/**
  * Update the info text displayed at the bottom of the window.
  */
-void InstrumentWidget::updateInfoText() { setInfoText(getSurfaceInfoText()); }
+void InstrumentWidget::updateInfoText(const QString &text) {
+  if (text.isEmpty()) {
+    setInfoText(getSurfaceInfoText());
+  } else {
+    setInfoText(text);
+  }
+}
 
 void InstrumentWidget::setSurfaceType(int type) {
   // we cannot do 3D without OpenGL
@@ -466,9 +520,8 @@ void InstrumentWidget::setSurfaceType(int type) {
         if (m_instrumentActor->hasGridBank())
           m_maskTab->setDisabled(true);
 
-        surface = new Projection3D(m_instrumentActor.get(),
-                                   getInstrumentDisplayWidth(),
-                                   getInstrumentDisplayHeight());
+        surface =
+            new Projection3D(m_instrumentActor.get(), glWidgetDimensions());
       } else if (surfaceType <= CYLINDRICAL_Z) {
         m_renderTab->forceLayers(true);
         surface =
@@ -555,6 +608,78 @@ void InstrumentWidget::setSurfaceType(const QString &typeStr) {
 }
 
 /**
+ * @brief InstrumentWidget::replaceWorkspace
+ * Replace the workspace currently linked to the instrument viewer by a new one.
+ * @param newWs the name of the new workspace
+ * @param workspace the new workspace to show
+ * @param newInstrumentWindowName the new title of the window
+ */
+void InstrumentWidget::replaceWorkspace(
+    const std::string &newWs, const std::string &newInstrumentWindowName) {
+  // change inside objects
+  renameWorkspace(newWs);
+  m_instrumentActor.reset(new InstrumentActor(QString::fromStdString(newWs)));
+
+  // update the view and colormap
+  auto surface = getSurface();
+  surface->resetInstrumentActor(m_instrumentActor.get());
+  setScaleType(ColorMap::ScaleType::Linear);
+  setupColorMap();
+
+  // set the view type to the instrument's default view
+  QString defaultView =
+      QString::fromStdString(m_instrumentActor->getDefaultView());
+  if (defaultView == "3D" &&
+      !Mantid::Kernel::ConfigService::Instance()
+           .getValue<bool>("MantidOptions.InstrumentView.UseOpenGL")
+           .get_value_or(true)) {
+    // if OpenGL is switched off we don't open the 3D view
+    defaultView = "CYLINDRICAL_Y";
+  }
+  setSurfaceType(defaultView);
+
+  // update the integration widget
+  updateIntegrationWidget();
+
+  // reset the instrument position
+  m_renderTab->resetView();
+
+  // reset the plot and the info widget in the pick tab
+  m_pickTab->clearWidgets();
+
+  // change the title of the instrument window
+  nativeParentWidget()->setWindowTitle(
+      QString().fromStdString(newInstrumentWindowName));
+}
+
+/**
+ * @brief InstrumentWidget::updateIntegrationWidget
+ * Update the range of the integration widget, and show or hide it is needed
+ * @param init : boolean set to true if the integration widget is still being
+ * initialized
+ */
+void InstrumentWidget::updateIntegrationWidget(bool init) {
+  m_xIntegration->setTotalRange(m_instrumentActor->minBinValue(),
+                                m_instrumentActor->maxBinValue());
+
+  if (!init) {
+    m_xIntegration->setRange(m_instrumentActor->minBinValue(),
+                             m_instrumentActor->maxBinValue());
+  }
+
+  m_xIntegration->setUnits(QString::fromStdString(
+      m_instrumentActor->getWorkspace()->getAxis(0)->unit()->caption()));
+
+  bool integrable = isIntegrable();
+
+  if (integrable) {
+    m_xIntegration->show();
+  } else {
+    m_xIntegration->hide();
+  }
+}
+
+/**
  * Update the colormap on the render tab.
  */
 void InstrumentWidget::setupColorMap() { emit colorMapChanged(); }
@@ -562,7 +687,13 @@ void InstrumentWidget::setupColorMap() { emit colorMapChanged(); }
 /**
  * Connected to QTabWidget::currentChanged signal
  */
-void InstrumentWidget::tabChanged(int /*unused*/) { updateInfoText(); }
+void InstrumentWidget::tabChanged(int /*unused*/) {
+  updateInfoText();
+  auto surface = getSurface();
+  if (surface) {
+    surface->setCurrentTab(mControlsTab->tabText(getCurrentTab()));
+  }
+}
 
 /**
  * Change color map button slot. This provides the file dialog box to select
@@ -573,6 +704,7 @@ void InstrumentWidget::changeColormap(const QString &cmapNameOrPath) {
   if (!m_instrumentActor)
     return;
   const auto currentCMap = m_instrumentActor->getCurrentColorMap();
+
   QString selection;
   if (cmapNameOrPath.isEmpty()) {
     // ask user
@@ -696,6 +828,10 @@ void InstrumentWidget::setExponent(double nth_power) {
 void InstrumentWidget::pickBackgroundColor() {
   QColor color = QColorDialog::getColor(Qt::green, this);
   setBackgroundColor(color);
+}
+
+void InstrumentWidget::freezeRotation(bool freeze) {
+  getSurface()->freezeRotation(freeze);
 }
 
 /**
@@ -1140,24 +1276,24 @@ void InstrumentWidget::setSurface(ProjectionSurface *surface) {
   }
 }
 
-/// Return the width of the instrunemt display
-int InstrumentWidget::getInstrumentDisplayWidth() const {
-  if (m_InstrumentDisplay) {
-    return m_InstrumentDisplay->width();
-  } else if (m_simpleDisplay) {
-    return m_simpleDisplay->width();
-  }
-  return 0;
-}
-
-/// Return the height of the instrunemt display
-int InstrumentWidget::getInstrumentDisplayHeight() const {
-  if (m_InstrumentDisplay) {
-    return m_InstrumentDisplay->height();
-  } else if (m_simpleDisplay) {
-    return m_simpleDisplay->height();
-  }
-  return 0;
+/// Return the size of the OpenGL display widget in logical pixels
+QSize InstrumentWidget::glWidgetDimensions() {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+  auto sizeinLogicalPixels = [](const QWidget *w) -> QSize {
+    return QSize(w->width(), w->height());
+  };
+#else
+  auto sizeinLogicalPixels = [](const QWidget *w) -> QSize {
+    const auto devicePixelRatio = w->window()->devicePixelRatio();
+    return QSize(w->width() * devicePixelRatio, w->height() * devicePixelRatio);
+  };
+#endif
+  if (m_InstrumentDisplay)
+    return sizeinLogicalPixels(m_InstrumentDisplay);
+  else if (m_simpleDisplay)
+    return sizeinLogicalPixels(m_simpleDisplay);
+  else
+    return QSize(0, 0);
 }
 
 /// Redraw the instrument view
@@ -1241,9 +1377,10 @@ void InstrumentWidget::createTabs(QSettings &settings) {
   m_maskTab = new InstrumentWidgetMaskTab(this);
   connect(m_maskTab, SIGNAL(executeAlgorithm(const QString &, const QString &)),
           this, SLOT(executeAlgorithm(const QString &, const QString &)));
+  m_maskTab->loadSettings(settings);
+
   connect(m_xIntegration, SIGNAL(changed(double, double)), m_maskTab,
           SLOT(changedIntegrationRange(double, double)));
-  m_maskTab->loadSettings(settings);
 
   // Instrument tree controls
   m_treeTab = new InstrumentWidgetTreeTab(this);
@@ -1251,10 +1388,10 @@ void InstrumentWidget::createTabs(QSettings &settings) {
 
   connect(mControlsTab, SIGNAL(currentChanged(int)), this,
           SLOT(tabChanged(int)));
-  m_stateOfTabs.emplace_back(std::make_pair(std::string("Render"), true));
-  m_stateOfTabs.emplace_back(std::make_pair(std::string("Pick"), true));
-  m_stateOfTabs.emplace_back(std::make_pair(std::string("Draw"), true));
-  m_stateOfTabs.emplace_back(std::make_pair(std::string("Instrument"), true));
+  m_stateOfTabs.emplace_back(std::string("Render"), true);
+  m_stateOfTabs.emplace_back(std::string("Pick"), true);
+  m_stateOfTabs.emplace_back(std::string("Draw"), true);
+  m_stateOfTabs.emplace_back(std::string("Instrument"), true);
   addSelectedTabs();
   m_tabs << m_renderTab << m_pickTab << m_maskTab << m_treeTab;
 }
@@ -1474,6 +1611,10 @@ int InstrumentWidget::getCurrentTab() const {
   return mControlsTab->currentIndex();
 }
 
+bool InstrumentWidget::isCurrentTab(InstrumentWidgetTab* tab) const {
+  return this->getCurrentTab() == mControlsTab->indexOf(tab);
+}
+
 /**
  * Save the state of the instrument widget to a project file.
  * @return string representing the current state of the instrumet widget.
@@ -1552,8 +1693,11 @@ void InstrumentWidget::loadFromProject(const std::string &lines) {
 
   if (tsv.selectLine("EnergyTransfer")) {
     double min, max;
-    tsv >> min >> max;
-    setBinRange(min, max);
+    bool isIntegrable = true;
+    tsv >> min >> max >> isIntegrable;
+    if (isIntegrable) {
+      setBinRange(min, max);
+    }
   }
 
   if (tsv.selectSection("Surface")) {

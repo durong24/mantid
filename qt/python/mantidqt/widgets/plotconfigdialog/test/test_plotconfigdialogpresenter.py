@@ -7,12 +7,12 @@
 #  This file is part of the mantid workbench.
 
 import unittest
+from unittest.mock import Mock, call, patch
 
 from matplotlib import use as mpl_use
 mpl_use('Agg')  # noqa
-from matplotlib.pyplot import figure
+from matplotlib.pyplot import figure, subplots
 
-from unittest.mock import Mock, patch
 from mantidqt.widgets.plotconfigdialog.presenter import PlotConfigDialogPresenter
 
 
@@ -160,6 +160,102 @@ class PlotConfigDialogPresenterTest(unittest.TestCase):
                               (self.curves_mock.return_value.view, 'Curves')]
         self.assert_called_x_times_with(2, expected_call_args,
                                         mock_view.add_tab_widget)
+
+    def test_tabs_present_updated_properties_from_figure_when_apply_clicked(self):
+        fig = figure()
+        ax = fig.add_subplot(111)
+        ax.plot([0], [0])
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+
+        # use mock manager to ensure all user properties are applied before view update
+        mock_axes_presenter = presenter.tab_widget_presenters[1]
+        mock_curves_presenter = presenter.tab_widget_presenters[2]
+        mock_manager = Mock()
+        mock_manager.attach_mock(mock_axes_presenter, "mock_axes_presenter")
+        mock_manager.attach_mock(mock_curves_presenter, "mock_curves_presenter")
+
+        presenter.apply_properties()
+        mock_manager.assert_has_calls([
+            call.mock_curves_presenter.apply_properties,
+            call.mock_axes_presenter.apply_properties,
+            call.mock_curves_presenter.update_view,
+            call.mock_axes_presenter.update_view
+        ])
+
+    def test_forget_tab_from_presenter_sets_presenter_and_view_to_none(self):
+        fig = figure()
+        ax = fig.add_subplot(111)
+        ax.plot([0], [0])
+        ax.legend()
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+
+        mock_curves_presenter = presenter.tab_widget_presenters[2]
+        mock_curves_view = mock_curves_presenter.view
+
+        self.assertTrue(mock_curves_presenter in presenter.tab_widget_presenters)
+        self.assertTrue((mock_curves_view, 'Curves') in presenter.tab_widget_views)
+
+        presenter.forget_tab_from_presenter(mock_curves_presenter)
+
+        self.assertTrue(mock_curves_presenter not in presenter.tab_widget_presenters)
+        self.assertTrue((mock_curves_view, 'Curves') not in presenter.tab_widget_views)
+
+    def test_configure_curves_tab_fails_silently_when_curves_tab_not_exists(self):
+        fig = figure()
+        ax = fig.add_subplot(111)
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+        self.assertIsNone(presenter.tab_widget_presenters[2])
+
+        presenter.configure_curves_tab(ax, None)
+
+        mock_view.set_current_tab_widget.assert_not_called()
+
+    def test_configure_curves_tab_fails_silently_when_no_curves_on_axes(self):
+        fig, (ax0, ax1) = subplots(2, subplot_kw={'projection': 'mantid'})
+        ax0.plot([0], [0])  # One axes must have a curve for curves tab to exist
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+        mock_curves_presenter = presenter.tab_widget_presenters[2]
+        mock_curves_presenter.set_axes_from_object.side_effect = ValueError("Axes object does not exist in curves tab")
+
+        presenter.configure_curves_tab(ax1, None)
+
+        mock_curves_presenter.set_axes_from_object.assert_called()
+        mock_view.set_current_tab_widget.assert_not_called()
+
+    def test_configure_curves_tab_fails_silently_when_curve_not_found_in_curves_tab(self):
+        fig = figure()
+        ax = fig.add_subplot(111)
+        ax.plot([0], [0])  # Must plot curve for curves tab to exist, hence why we dont use this in the call
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+        mock_curves_presenter = presenter.tab_widget_presenters[2]
+        mock_curves_presenter.set_curve_from_object.side_effect = ValueError("Curve object does not exist in curves tab")
+        mock_curves_view, _ = presenter.tab_widget_views[1]
+
+        presenter.configure_curves_tab(ax, Mock())
+
+        mock_curves_presenter.set_axes_from_object.assert_called()
+        mock_view.set_current_tab_widget.assert_called_with(mock_curves_view)
+        mock_view.set_current_tab_widget.assert_called()
+
+    def test_configure_curves_tab_succeeds_when_curve_and_axes_exist(self):
+        fig = figure()
+        ax = fig.add_subplot(111)
+        curve = ax.plot([0], [0])
+        mock_view = Mock()
+        presenter = PlotConfigDialogPresenter(fig, mock_view)
+        mock_curves_presenter = presenter.tab_widget_presenters[2]
+        mock_curves_view, _ = presenter.tab_widget_views[1]
+
+        presenter.configure_curves_tab(ax, curve)
+
+        mock_curves_presenter.set_axes_from_object.assert_called()
+        mock_view.set_current_tab_widget.assert_called_with(mock_curves_view)
+        mock_view.set_current_tab_widget.assert_called()
 
 
 if __name__ == '__main__':

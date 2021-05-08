@@ -92,6 +92,7 @@ set(
   inc/MantidQtWidgets/InstrumentView/BankRenderingHelpers.h
   inc/MantidQtWidgets/InstrumentView/BankTextureBuilder.h
   inc/MantidQtWidgets/InstrumentView/BaseCustomInstrumentModel.h
+  inc/MantidQtWidgets/InstrumentView/BaseCustomInstrumentMocks.h
   inc/MantidQtWidgets/InstrumentView/BaseCustomInstrumentPresenter.h
   inc/MantidQtWidgets/InstrumentView/BaseCustomInstrumentView.h
   inc/MantidQtWidgets/InstrumentView/BinDialog.h
@@ -121,6 +122,7 @@ set(
   inc/MantidQtWidgets/InstrumentView/PanelsSurface.h
   inc/MantidQtWidgets/InstrumentView/PeakMarker2D.h
   inc/MantidQtWidgets/InstrumentView/PeakOverlay.h
+  inc/MantidQtWidgets/InstrumentView/PlotFitAnalysisPaneMocks.h
   inc/MantidQtWidgets/InstrumentView/PlotFitAnalysisPaneModel.h
   inc/MantidQtWidgets/InstrumentView/PlotFitAnalysisPanePresenter.h
   inc/MantidQtWidgets/InstrumentView/PlotFitAnalysisPaneView.h
@@ -162,11 +164,12 @@ mtd_add_qt_library(TARGET_NAME MantidQtWidgetsInstrumentView
                      IN_MANTIDQT_INSTRUMENTVIEW
                    INCLUDE_DIRS
                      inc
+                     ../../../Framework/DataObjects/inc
                    SYSTEM_INCLUDE_DIRS
                      ${Boost_INCLUDE_DIRS}
                    LINK_LIBS
-                     ${TCMALLOC_LIBRARIES_LINKTIME}
                      ${CORE_MANTIDLIBS}
+                     DataObjects
                      ${POCO_LIBRARIES}
                      ${Boost_LIBRARIES}
                      ${PYTHON_LIBRARIES}
@@ -186,7 +189,6 @@ mtd_add_qt_library(TARGET_NAME MantidQtWidgetsInstrumentView
                    LINUX_INSTALL_RPATH
                      "\$ORIGIN/../${LIB_DIR}")
 
-find_package(BoostPython REQUIRED)
 mtd_add_qt_library(TARGET_NAME MantidQtWidgetsInstrumentView
                    QT_VERSION 5
                    SRC
@@ -206,13 +208,12 @@ mtd_add_qt_library(TARGET_NAME MantidQtWidgetsInstrumentView
                      IN_MANTIDQT_INSTRUMENTVIEW
                    INCLUDE_DIRS
                      inc
+                     ../../../Framework/DataObjects/inc
                    LINK_LIBS
-                     ${TCMALLOC_LIBRARIES_LINKTIME}
+                     DataObjects
                      ${CORE_MANTIDLIBS}
                      PythonInterfaceCore
                      ${POCO_LIBRARIES}
-                     ${Boost_LIBRARIES}
-                     ${PYTHON_LIBRARIES}
                      ${OPENGL_gl_LIBRARY}
                      ${OPENGL_glu_LIBRARY}
                    QT5_LINK_LIBS
@@ -234,6 +235,9 @@ set(
   TEST_FILES
   test/InstrumentWidgetDecoderTest.h
   test/InstrumentWidgetEncoderTest.h
+  test/BaseCustomInstrumentPresenterTest.h
+  test/PlotFitAnalysisPaneModelTest.h
+  test/PlotFitAnalysisPanePresenterTest.h
 )
 
 set(CXXTEST_EXTRA_HEADER_INCLUDE
@@ -264,5 +268,6 @@ mtd_add_qt_tests(
     MantidQtWidgetsCommon
     MantidQtWidgetsInstrumentView
     MantidQtWidgetsMplCpp
+    MantidQtWidgetsPlotting
   PARENT_DEPENDENCIES GUITests
 )

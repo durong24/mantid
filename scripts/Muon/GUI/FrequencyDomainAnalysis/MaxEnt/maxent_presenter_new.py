@@ -42,6 +42,7 @@ class MaxEntPresenter(object):
         self.phase_table_observer = GenericObserver(self.update_phase_table_options)
         self.calculation_finished_notifier = GenericObservable()
         self.calculation_started_notifier = GenericObservable()
+        self.update_phase_table_options()
 
     @property
     def widget(self):
@@ -52,7 +53,7 @@ class MaxEntPresenter(object):
 
     def clear(self):
         self.view.addItems([])
-        self.view.update_phase_table_combo([])
+        self.view.update_phase_table_combo(['Construct'])
 
     # functions
     def getWorkspaceNames(self):
@@ -78,6 +79,8 @@ class MaxEntPresenter(object):
 
     def createThread(self):
         self.maxent_alg = mantid.AlgorithmManager.create("MuonMaxent")
+        self._maxent_output_workspace_name = get_maxent_workspace_name(
+            self.get_parameters_for_maxent_calculation()['InputWorkspace'])
         calculation_function = functools.partial(self.calculate_maxent, self.maxent_alg)
         self._maxent_calculation_model = ThreadModelWrapper(calculation_function)
         return thread_model.ThreadModel(self._maxent_calculation_model)
@@ -95,7 +98,7 @@ class MaxEntPresenter(object):
     # kills the thread at end of execution
     def handleFinished(self):
         self.activate()
-        self.calculation_finished_notifier.notify_subscribers()
+        self.calculation_finished_notifier.notify_subscribers(self._maxent_output_workspace_name)
 
     def handle_error(self, error):
         self.activate()
@@ -113,7 +116,7 @@ class MaxEntPresenter(object):
         inputs = {}
 
         inputs['InputWorkspace'] = self.view.input_workspace
-        run = [float(re.search('[0-9]+', inputs['InputWorkspace']).group())]
+        run = float(re.search('[0-9]+', inputs['InputWorkspace']).group())
 
         if self.view.phase_table != 'Construct':
             inputs['InputPhaseTable'] = self.view.phase_table
@@ -121,9 +124,9 @@ class MaxEntPresenter(object):
         if self.load.dead_time_table(run):
             inputs['InputDeadTimeTable'] = self.load.dead_time_table(run)
 
-        inputs['FirstGoodTime'] = self.load.first_good_data(run)
+        inputs['FirstGoodTime'] = self.load.first_good_data([run])
 
-        inputs['LastGoodTime'] = self.load.last_good_data(run)
+        inputs['LastGoodTime'] = self.load.last_good_data([run])
 
         inputs['Npts'] = self.view.num_points
 
@@ -160,6 +163,10 @@ class MaxEntPresenter(object):
         maxent_output_options = self.get_maxent_output_options()
         self.load._frequency_context.add_maxEnt(run, maxent_workspace)
         self.add_optional_outputs_to_ADS(alg, maxent_output_options, base_name, directory)
+
+        # Storing this on the class so it can be sent as part of the calculation
+        # finished signal.
+        self._maxent_output_workspace_name = base_name
 
     def get_maxent_output_options(self):
         output_options = {}

@@ -13,9 +13,11 @@ from collections.abc import Sequence
 # 3rd party imports
 from matplotlib.gridspec import GridSpec
 from matplotlib.legend import Legend
+import matplotlib as mpl
 
 # local imports
 from mantid.api import AnalysisDataService, MatrixWorkspace
+from mantid.api import IMDHistoWorkspace
 from mantid.kernel import ConfigService
 from mantid.plots import datafunctions, MantidAxes
 
@@ -85,6 +87,29 @@ def figure_title(workspaces, fig_num):
 
 
 @manage_workspace_names
+def plot_md_histo_ws(workspaces, errors=False, overplot=False, fig=None, ax_properties=None, window_title=None):
+    """
+
+    :param workspaces:
+    :param errors:
+    :param overplot:
+    :param fig:
+    :return:
+    """
+    # MDHistoWorkspace
+    # Get figure and Axes
+    num_axes = 1
+    fig, axes = get_plot_fig(overplot, ax_properties, window_title, num_axes, fig)
+    axes = [MantidAxes.from_mpl_axes(ax, ignore_artists=[Legend])
+            if not isinstance(ax, MantidAxes) else ax for ax in axes]
+
+    # Plot MD
+    _do_single_plot_mdhisto_workspace(axes[0], workspaces, errors)
+
+    return _update_show_figure(fig)
+
+
+@manage_workspace_names
 def plot(workspaces, spectrum_nums=None, wksp_indices=None, errors=False,
          overplot=False, fig=None, plot_kwargs=None, ax_properties=None,
          window_title=None, tiled=False, waterfall=False, log_name=None, log_values=None):
@@ -109,6 +134,13 @@ def plot(workspaces, spectrum_nums=None, wksp_indices=None, errors=False,
     :param log_values: An optional list of log values to plot against.
     :return: The figure containing the plots
     """
+    plot_font = ConfigService.getString('plots.font')
+    if plot_font:
+        if len(mpl.rcParams['font.family']) > 1:
+            mpl.rcParams['font.family'][0] = plot_font
+        else:
+            mpl.rcParams['font.family'].insert(0, plot_font)
+
     if plot_kwargs is None:
         plot_kwargs = {}
     _validate_plot_inputs(workspaces, spectrum_nums, wksp_indices, tiled, overplot)
@@ -145,8 +177,13 @@ def plot(workspaces, spectrum_nums=None, wksp_indices=None, errors=False,
         ax.axis('on')
         _do_single_plot(ax, workspaces, errors, show_title, nums, kw, plot_kwargs, log_name, log_values)
 
+    show_legend = "on" == ConfigService.getString("plots.ShowLegend").lower()
+    for ax in axes:
+        if ax.get_legend() is not None:
+            ax.get_legend().set_visible(show_legend)
+
     # Can't have a waterfall plot with only one line.
-    if len(nums)*len(workspaces) == 1 and waterfall:
+    if len(nums) * len(workspaces) == 1 and waterfall:
         waterfall = False
 
     # The plot's initial xlim and ylim are used to offset each curve in a waterfall plot.
@@ -170,6 +207,11 @@ def plot(workspaces, spectrum_nums=None, wksp_indices=None, errors=False,
 
                 ax.lines += errorbar_cap_lines
 
+    # update and show figure
+    return _update_show_figure(fig)
+
+
+def _update_show_figure(fig):
     # This updates the toolbar so the home button now takes you back to this point.
     # The try catch is in case the manager does not have a toolbar attached.
     try:
@@ -279,7 +321,7 @@ def get_plot_fig(overplot=None, ax_properties=None, window_title=None, axes_num=
     else:
         fig, _, _, _ = create_subplots(axes_num)
 
-    if not ax_properties:
+    if not ax_properties and not overplot:
         ax_properties = {}
         if ConfigService.getString("plots.xAxesScale").lower() == 'log':
             ax_properties['xscale'] = 'log'
@@ -295,11 +337,66 @@ def get_plot_fig(overplot=None, ax_properties=None, window_title=None, axes_num=
     if window_title:
         fig.canvas.set_window_title(window_title)
 
+    if not overplot:
+        for ax in fig.axes:
+            ax.tick_params(
+                which='both',
+                left="on" == ConfigService.getString("plots.showTicksLeft").lower(),
+                bottom="on" == ConfigService.getString("plots.showTicksBottom").lower(),
+                right="on" == ConfigService.getString("plots.showTicksRight").lower(),
+                top="on" == ConfigService.getString("plots.showTicksTop").lower(),
+                labelleft="on" == ConfigService.getString("plots.showLabelsLeft").lower(),
+                labelbottom="on" == ConfigService.getString("plots.showLabelsBottom").lower(),
+                labelright="on" == ConfigService.getString("plots.showLabelsRight").lower(),
+                labeltop="on" == ConfigService.getString("plots.showLabelsTop").lower(),
+            )
+            ax.xaxis.set_tick_params(
+                which='major',
+                width=int(ConfigService.getString("plots.ticks.major.width")),
+                length=int(ConfigService.getString("plots.ticks.major.length")),
+                direction=ConfigService.getString("plots.ticks.major.direction").lower()
+            )
+            ax.yaxis.set_tick_params(
+                which='major',
+                width=int(ConfigService.getString("plots.ticks.major.width")),
+                length=int(ConfigService.getString("plots.ticks.major.length")),
+                direction=ConfigService.getString("plots.ticks.major.direction").lower()
+            )
+
+        if ConfigService.getString("plots.ShowMinorTicks").lower() == "on":
+            for ax in fig.axes:
+                ax.minorticks_on()
+
+                ax.xaxis.set_tick_params(
+                    which='minor',
+                    width=int(ConfigService.getString("plots.ticks.minor.width")),
+                    length=int(ConfigService.getString("plots.ticks.minor.length")),
+                    direction=ConfigService.getString("plots.ticks.minor.direction").lower()
+                )
+                ax.yaxis.set_tick_params(
+                    which='minor',
+                    width=int(ConfigService.getString("plots.ticks.minor.width")),
+                    length=int(ConfigService.getString("plots.ticks.minor.length")),
+                    direction=ConfigService.getString("plots.ticks.minor.direction").lower()
+                )
+
+        for ax in fig.axes:
+            ax.show_minor_gridlines = ConfigService.getString("plots.ShowMinorGridlines").lower() == "on"
+            for spine in ['top', 'bottom', 'left', 'right']:
+                ax.spines[spine].set_linewidth(float(ConfigService.getString("plots.axesLineWidth")))
+
+        if ConfigService.getString("plots.enableGrid").lower() == "on":
+            try:
+                fig.canvas.manager.toolbar.toggle_grid(enable=True)
+            except AttributeError:
+                # The canvas has no manager, or the manager has no toolbar
+                pass
+
     return fig, fig.axes
 
 
 # -----------------------------------------------------------------------------
-# Pricate Methods
+# Private Methods
 # -----------------------------------------------------------------------------
 def _validate_plot_inputs(workspaces, spectrum_nums, wksp_indices, tiled=False, overplot=False):
     """Raises a ValueError if any arguments have the incorrect types"""
@@ -323,6 +420,8 @@ def _validate_plot_inputs(workspaces, spectrum_nums, wksp_indices, tiled=False, 
 def _add_default_plot_kwargs_from_settings(plot_kwargs, errors):
     if 'linestyle' not in plot_kwargs:
         plot_kwargs['linestyle'] = ConfigService.getString("plots.line.Style")
+    if 'drawstyle' not in plot_kwargs:
+        plot_kwargs['drawstyle'] = ConfigService.getString("plots.line.DrawStyle")
     if 'linewidth' not in plot_kwargs:
         plot_kwargs['linewidth'] = float(ConfigService.getString("plots.line.Width"))
     if 'marker' not in plot_kwargs:
@@ -354,6 +453,35 @@ def _validate_workspace_names(workspaces):
         return workspaces
     else:
         return AnalysisDataService.Instance().retrieveWorkspaces(workspaces, unrollGroups=True)
+
+
+def _do_single_plot_mdhisto_workspace(ax, workspaces, errors=False):
+    """Plot IMDHistoWorkspace
+    :param ax:
+    :param workspaces: list of 1D MDHistoWorkspaces
+    :return:
+    """
+    # Define plot function
+    plot_fn = ax.errorbar if errors else ax.plot
+
+    for ws in workspaces:
+        # Check inputs from non-integral dimension
+        if not isinstance(ws, IMDHistoWorkspace):
+            raise RuntimeError(f'Workspace {str(ws)} must be an IMDHistoWorkspace but not {type(ws)}')
+        num_dim = 0
+        for d in range(ws.getNumDims()):
+            if ws.getDimension(d).getNBins() > 1:
+                num_dim += 1
+        if num_dim != 1:
+            raise RuntimeError(f'Workspace {str(ws)} is an IMDHistoWorkspace with number of non-integral dimension '
+                               f'equal to {num_dim} but not 1.')
+
+        # Plot
+        plot_fn(ws, label=str(ws))
+        # set label is not implemented
+
+    # Legend
+    ax.make_legend()
 
 
 def _do_single_plot(ax, workspaces, errors, set_title, nums, kw, plot_kwargs, log_name=None, log_values=None):

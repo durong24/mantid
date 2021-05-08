@@ -12,7 +12,7 @@ namespace MantidQt {
 namespace CustomInterfaces {
 namespace IDA {
 
-class DLLExport IqtFitModel : public IndirectFittingModel {
+class MANTIDQT_INDIRECT_DLL IqtFitModel : public IndirectFittingModel {
 public:
   IqtFitModel();
   void setFitFunction(Mantid::API::MultiDomainFunction_sptr function) override;
@@ -20,8 +20,7 @@ public:
 private:
   Mantid::API::IAlgorithm_sptr sequentialFitAlgorithm() const override;
   Mantid::API::IAlgorithm_sptr simultaneousFitAlgorithm() const override;
-  std::unordered_map<std::string, ParameterValue>
-  createDefaultParameters(TableDatasetIndex index) const override;
+  std::unordered_map<std::string, ParameterValue> createDefaultParameters(TableDatasetIndex index) const override;
 
   bool m_constrainIntensities;
 };

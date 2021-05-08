@@ -14,9 +14,7 @@ namespace API {
 /**
  * Constructor - sets properties
  */
-EqualBinSizesValidator::EqualBinSizesValidator(const double errorLevel,
-                                               const double warningLevel)
-    : m_errorLevel(errorLevel), m_warningLevel(warningLevel) {}
+EqualBinSizesValidator::EqualBinSizesValidator(const double errorLevel) : m_errorLevel(errorLevel) {}
 
 /// Clone the current state
 Kernel::IValidator_sptr EqualBinSizesValidator::clone() const {
@@ -27,8 +25,7 @@ Kernel::IValidator_sptr EqualBinSizesValidator::clone() const {
  * @param value :: [input] The workspace to test
  * @return :: An error message (empty if no error)
  */
-std::string
-EqualBinSizesValidator::checkValidity(const MatrixWorkspace_sptr &value) const {
+std::string EqualBinSizesValidator::checkValidity(const MatrixWorkspace_sptr &value) const {
   if (!value)
     return "Enter an existing workspace";
   if (!value->isCommonBins())
@@ -36,8 +33,7 @@ EqualBinSizesValidator::checkValidity(const MatrixWorkspace_sptr &value) const {
   if (value->getNumberHistograms() == 0 || value->blocksize() == 0)
     return "Enter a workspace with some data in it";
 
-  Kernel::EqualBinsChecker checker(value->readX(0), m_errorLevel,
-                                   m_warningLevel);
+  Kernel::EqualBinsChecker checker(value->readX(0), m_errorLevel, -1);
   return checker.validate();
 }
 

@@ -33,7 +33,6 @@ class FFTPresenter(object):
         # connect
         self.view.tableClickSignal.connect(self.tableClicked)
         self.view.buttonSignal.connect(self.handleButton)
-        self.view.phaseCheckSignal.connect(self.phaseCheck)
         self.calculation_finished_notifier = GenericObservable()
         self.view.setup_raw_checkbox_changed(self.handle_use_raw_data_changed)
 
@@ -64,8 +63,6 @@ class FFTPresenter(object):
 
         # update view
         self.view.addItems(final_options)
-        self.view.removeRe('PhaseQuad')
-        self.removePhaseFromIM(final_options)
 
         # make intelligent guess of what user wants
         current_group_pair = self.load.group_pair_context[self.load.group_pair_context.selected]
@@ -97,20 +94,8 @@ class FFTPresenter(object):
 
         self.getWorkspaceNames()
 
-    def removePhaseFromIM(self, final_options):
-        for option in final_options:
-            if "PhaseQuad" in option:
-                self.view.removeIm(option)
-
-    # functions
-    def phaseCheck(self):
-        self.view.phaseQuadChanged()
-        # check if a phase table exists
-        if mantid.AnalysisDataService.doesExist("PhaseTable"):
-            self.view.setPhaseBox()
-
     def tableClicked(self, row, col):
-        if row == self.view.getImBoxRow() and col == 1 and "PhaseQuad" not in self.view.workspace:
+        if row == self.view.getImBoxRow() and col == 1:
             self.view.changedHideUnTick(
                 self.view.getImBox(),
                 self.view.getImBoxRow() + 1)
@@ -179,7 +164,7 @@ class FFTPresenter(object):
     # kills the thread at end of execution
     def handleFinished(self):
         self.activate()
-        self.calculation_finished_notifier.notify_subscribers()
+        self.calculation_finished_notifier.notify_subscribers(self._output_workspace_name)
 
     def calculate_FFT(self):
         imaginary_workspace_index = 0
@@ -189,13 +174,7 @@ class FFTPresenter(object):
         real_workspace_input = run_PaddingAndApodization(real_workspace_padding_parameters, '__real')
 
         if self.view.imaginary_data:
-            if 'PhaseQuad' in self.view.workspace:
-                imaginary_workspace_input = real_workspace_input
-                imaginary_workspace_padding_parameters['InputWorkspace'] = real_workspace_padding_parameters[
-                    'InputWorkspace']
-                imaginary_workspace_index = 1
-            else:
-                imaginary_workspace_input = run_PaddingAndApodization(imaginary_workspace_padding_parameters, '__Imag')
+            imaginary_workspace_input = run_PaddingAndApodization(imaginary_workspace_padding_parameters, '__Imag')
         else:
             imaginary_workspace_input = None
             imaginary_workspace_padding_parameters['InputWorkspace'] = ""
@@ -221,17 +200,18 @@ class FFTPresenter(object):
         shift = 3 if fft_workspace.getNumberHistograms() == 6 else 0
         spectra = {"_" + FREQUENCY_EXTENSIONS["RE"]: 0 + shift, "_" + FREQUENCY_EXTENSIONS["IM"]: 1 + shift,
                    "_" + FREQUENCY_EXTENSIONS["MOD"]: 2 + shift}
+
         for spec_type in list(spectra.keys()):
             extracted_ws = extract_single_spec(fft_workspace, spectra[spec_type], fft_workspace_name + spec_type)
 
-            if 'PhaseQuad' in self.view.workspace:
-                self.load._frequency_context.add_FFT(fft_workspace_name + spec_type, run, Re, Im_run, Im,
-                                                     phasequad=True)
-            else:
-                self.load._frequency_context.add_FFT(fft_workspace_name + spec_type, run, Re, Im_run, Im)
+            self.load._frequency_context.add_FFT(fft_workspace_name + spec_type, run, Re, Im_run, Im)
 
             muon_workspace_wrapper = MuonWorkspaceWrapper(extracted_ws)
             muon_workspace_wrapper.show(directory + fft_workspace_name + spec_type)
+
+        # This is a small hack to get the output name to a location where it can be part of the calculation finished
+        # signal.
+        self._output_workspace_name = fft_workspace_name + '_mod'
 
     def update_view_from_model(self):
         self.getWorkspaceNames()

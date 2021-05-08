@@ -25,3 +25,21 @@ class CalibrationObserver(Observer):
 
     def update(self, observable, calibration):
         self.outer.update_calibration(calibration)
+
+
+class SavedirObserver(Observer):
+    def __init__(self, outer):
+        Observer.__init__(self)
+        self.outer = outer
+
+    def update(self, observable, savedir):
+        self.outer.update_savedir(savedir)
+
+
+class FitObserver(Observer):
+    def __init__(self, outer):
+        Observer.__init__(self)
+        self.outer = outer
+
+    def update(self, observable, fitres):
+        self.outer.update_fitres(fitres)

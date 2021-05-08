@@ -94,11 +94,24 @@ class PlotWidgetModelTest(unittest.TestCase):
     def test_get_fit_workspaces_to_plot_returns_correctly_for_tf_fit(self):
         fit = FitInformation(mock.MagicMock(), 'GaussOsc',
                              ['MUSR62260; Group; bottom; Asymmetry; MA'],
-                             ['MUSR62260; Group; bottom; Asymmetry; MA; Fitted' + TF_ASYMMETRY_PREFIX])
+                             ['MUSR62260; Group; bottom; Asymmetry; MA; Fitted' + TF_ASYMMETRY_PREFIX],
+                             tf_asymmetry_fit=True)
         expected_workspaces = ['MUSR62260; Group; bottom; Asymmetry; MA; Fitted' + TF_ASYMMETRY_PREFIX] * 2
         expected_indices = [3, 2]
 
         workspaces, indices = self.model.get_fit_workspace_and_indices(fit)
+
+        self.assertEqual(workspaces, expected_workspaces)
+        self.assertEqual(expected_indices, indices)
+
+    def test_get_fit_workspaces_to_plot_returns_correctly_when_plot_diff_is_False(self):
+        fit = FitInformation(mock.MagicMock(), 'GaussOsc',
+                             ['MUSR62260; Group; bottom; Asymmetry; MA'],
+                             ['MUSR62260; Group; bottom; Asymmetry; MA; Fitted'])
+        expected_workspaces = ['MUSR62260; Group; bottom; Asymmetry; MA; Fitted']
+        expected_indices = [1]
+
+        workspaces, indices = self.model.get_fit_workspace_and_indices(fit,False)
 
         self.assertEqual(workspaces, expected_workspaces)
         self.assertEqual(expected_indices, indices)
@@ -137,6 +150,14 @@ class PlotWidgetModelTest(unittest.TestCase):
         keys = self.model.create_tiled_keys(TILED_BY_RUN_TYPE)
 
         self.assertEqual(keys, ['62260', '62261'])
+
+    def test_create_tiled_keys_returns_correctly_for_summed_runs_tiled_by_run(self):
+        self.context.group_pair_context._selected_groups = ["fwd", "bwd", "top"]
+        runs = [[62260, 62261]]
+        self.context.data_context.current_runs = runs
+        keys = self.model.create_tiled_keys(TILED_BY_RUN_TYPE)
+
+        self.assertEqual(keys, ['62260-62261'])
 
 
 if __name__ == '__main__':

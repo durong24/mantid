@@ -5,17 +5,23 @@
 //   Institut Laue - Langevin & CSNS, Institute of High Energy Physics, CAS
 // SPDX - License - Identifier: GPL - 3.0 +
 #include "MantidDataHandling/LoadMuonNexusV2.h"
+#include "MantidAPI/Axis.h"
 #include "MantidAPI/FileProperty.h"
 #include "MantidAPI/RegisterFileLoader.h"
+#include "MantidAPI/TableRow.h"
 #include "MantidAPI/WorkspaceFactory.h"
 #include "MantidAPI/WorkspaceGroup.h"
 #include "MantidDataHandling/LoadISISNexus2.h"
-#include "MantidDataHandling/LoadMuonNexusV2Helper.h"
+#include "MantidDataHandling/MultiPeriodLoadMuonStrategy.h"
 #include "MantidDataHandling/SinglePeriodLoadMuonStrategy.h"
+#include "MantidDataObjects/TableWorkspace.h"
 #include "MantidDataObjects/Workspace2D.h"
 #include "MantidKernel/ArrayProperty.h"
 #include "MantidKernel/BoundedValidator.h"
 #include "MantidKernel/ListValidator.h"
+#include "MantidKernel/Unit.h"
+#include "MantidKernel/UnitFactory.h"
+#include "MantidKernel/UnitLabelTypes.h"
 
 #include <vector>
 
@@ -34,14 +40,12 @@ using namespace DataObjects;
 namespace NeXusEntry {
 const std::string RAWDATA{"/raw_data_1"};
 const std::string DEFINITION{"/raw_data_1/definition"};
-const std::string PERIOD{"/periods"};
 const std::string BEAMLINE{"/raw_data_1/beamline"};
 } // namespace NeXusEntry
 
 /// Empty default constructor
 LoadMuonNexusV2::LoadMuonNexusV2()
-    : m_filename(), m_entrynumber(0), m_isFileMultiPeriod(false),
-      m_multiPeriodsLoaded(false) {}
+    : m_filename(), m_entrynumber(0), m_isFileMultiPeriod(false), m_multiPeriodsLoaded(false) {}
 
 /**
  * Return the confidence criteria for this algorithm can load the file
@@ -78,23 +82,18 @@ int LoadMuonNexusV2::confidence(NexusHDF5Descriptor &descriptor) const {
 void LoadMuonNexusV2::init() {
 
   std::vector<std::string> extensions{".nxs", ".nxs_v2"};
-  declareProperty(std::make_unique<FileProperty>(
-                      "Filename", "", FileProperty::Load, extensions),
+  declareProperty(std::make_unique<FileProperty>("Filename", "", FileProperty::Load, extensions),
                   "The name of the Nexus file to load");
 
-  declareProperty(
-      std::make_unique<WorkspaceProperty<Workspace>>("OutputWorkspace", "",
-                                                     Direction::Output),
-      "The name of the workspace to be created as the output of the\n"
-      "algorithm. For multiperiod files, one workspace will be\n"
-      "generated for each period");
+  declareProperty(std::make_unique<WorkspaceProperty<Workspace>>("OutputWorkspace", "", Direction::Output),
+                  "The name of the workspace to be created as the output of the\n"
+                  "algorithm. For multiperiod files, one workspace will be\n"
+                  "generated for each period");
 
   auto mustBePositiveSpectra = std::make_shared<BoundedValidator<specnum_t>>();
   mustBePositiveSpectra->setLower(0);
-  declareProperty("SpectrumMin", static_cast<specnum_t>(0),
-                  mustBePositiveSpectra);
-  declareProperty("SpectrumMax", static_cast<specnum_t>(EMPTY_INT()),
-                  mustBePositiveSpectra);
+  declareProperty("SpectrumMin", static_cast<specnum_t>(0), mustBePositiveSpectra);
+  declareProperty("SpectrumMax", static_cast<specnum_t>(EMPTY_INT()), mustBePositiveSpectra);
   declareProperty(std::make_unique<ArrayProperty<specnum_t>>("SpectrumList"));
   auto mustBePositive = std::make_shared<BoundedValidator<int64_t>>();
   mustBePositive->setLower(0);
@@ -105,27 +104,31 @@ void LoadMuonNexusV2::init() {
                   "one workspace");
 
   std::vector<std::string> FieldOptions{"Transverse", "Longitudinal"};
-  declareProperty("MainFieldDirection", "Transverse",
-                  std::make_shared<StringListValidator>(FieldOptions),
+  declareProperty("MainFieldDirection", "Transverse", std::make_shared<StringListValidator>(FieldOptions),
                   "Output the main field direction if specified in Nexus file "
                   "(default longitudinal).",
                   Direction::Output);
 
-  declareProperty("TimeZero", 0.0,
-                  "Time zero in units of micro-seconds (default to 0.0)",
+  declareProperty("TimeZero", 0.0, "Time zero in units of micro-seconds (default to 0.0)", Direction::Output);
+  declareProperty("FirstGoodData", 0.0, "First good data in units of micro-seconds (default to 0.0)",
                   Direction::Output);
-  declareProperty("FirstGoodData", 0.0,
-                  "First good data in units of micro-seconds (default to 0.0)",
-                  Direction::Output);
+
+  declareProperty(std::make_unique<ArrayProperty<double>>("TimeZeroList", Direction::Output),
+                  "A vector of time zero values");
 
   declareProperty(
-      std::make_unique<WorkspaceProperty<Workspace>>(
-          "DeadTimeTable", "", Direction::Output, PropertyMode::Optional),
+      std::make_unique<WorkspaceProperty<Workspace>>("TimeZeroTable", "", Direction::Output, PropertyMode::Optional),
+      "TableWorkspace containing time zero values per spectra.");
+
+  declareProperty("CorrectTime", true, "Boolean flag controlling whether time should be corrected by timezero.",
+                  Direction::Input);
+
+  declareProperty(
+      std::make_unique<WorkspaceProperty<Workspace>>("DeadTimeTable", "", Direction::Output, PropertyMode::Optional),
       "Table or a group of tables containing detector dead times.");
 
-  declareProperty(std::make_unique<WorkspaceProperty<Workspace>>(
-                      "DetectorGroupingTable", "", Direction::Output,
-                      PropertyMode::Optional),
+  declareProperty(std::make_unique<WorkspaceProperty<Workspace>>("DetectorGroupingTable", "", Direction::Output,
+                                                                 PropertyMode::Optional),
                   "Table or a group of tables with information about the "
                   "detector grouping.");
 }
@@ -135,33 +138,20 @@ void LoadMuonNexusV2::execLoader() {
   m_filename = getPropertyValue("Filename");
   NXRoot root(m_filename);
   NXEntry entry = root.openEntry(NeXusEntry::RAWDATA);
-  isEntryMultiPeriod(entry);
-  if (m_isFileMultiPeriod) {
-    throw std::invalid_argument(
-        "Multiperiod nexus files not yet supported by LoadMuonNexusV2");
-  }
+  // Create MuonNexusV2 nexus loader
+  m_nexusLoader = std::make_unique<LoadMuonNexusV2NexusHelper>(entry);
+  isEntryMultiPeriod();
 
-  // Execute child algorithm LoadISISNexus2 and load Muon specific properties
+  // Execute child algorithm LoadISISNexus2
   auto outWS = runLoadISISNexus();
-  loadMuonProperties(entry);
-
-  // Check if single or multi period file and create appropriate loading
-  // strategy
-  if (m_multiPeriodsLoaded) {
-    // Currently not implemented
-    throw std::invalid_argument(
-        "Multiperiod nexus files not yet supported by LoadMuonNexusV2");
-  } else {
-    // we just have a single workspace
-    Workspace2D_sptr workspace2D =
-        std::dynamic_pointer_cast<Workspace2D>(outWS);
-    m_loadMuonStrategy = std::make_unique<SinglePeriodLoadMuonStrategy>(
-        g_log, m_filename, entry, workspace2D, static_cast<int>(m_entrynumber),
-        m_isFileMultiPeriod);
-  }
+  // Create appropriate loading strategy
+  chooseLoaderStrategy(outWS);
   m_loadMuonStrategy->loadMuonLogData();
   m_loadMuonStrategy->loadGoodFrames();
-  m_loadMuonStrategy->applyTimeZeroCorrection();
+  auto correctTime = getProperty("CorrectTime");
+  if (correctTime) {
+    m_loadMuonStrategy->applyTimeZeroCorrection();
+  }
   // Grouping info should be returned if user has set the property
   if (!getPropertyValue("DetectorGroupingTable").empty()) {
     auto loadedGrouping = m_loadMuonStrategy->loadDetectorGrouping();
@@ -172,15 +162,21 @@ void LoadMuonNexusV2::execLoader() {
   if (!getPropertyValue("DeadTimeTable").empty()) {
     setProperty("DeadTimeTable", deadtimeTable);
   }
+
+  // Time Zero table should be returned if found
+  if (!getPropertyValue("TimeZerotable").empty()) {
+    // Create table and set property
+    auto timeZeroTable = m_loadMuonStrategy->getTimeZeroTable();
+    setProperty("TimeZeroTable", timeZeroTable);
+  }
 }
 
 /**
  * Determines whether the file is multi period
  * If multi period the function determines whether multi periods are loaded
  */
-void LoadMuonNexusV2::isEntryMultiPeriod(const NXEntry &entry) {
-  NXClass periodClass = entry.openNXGroup(NeXusEntry::PERIOD);
-  int numberOfPeriods = periodClass.getInt("number");
+void LoadMuonNexusV2::isEntryMultiPeriod() {
+  int numberOfPeriods = m_nexusLoader->getNumberOfPeriods();
   if (numberOfPeriods > 1) {
     m_isFileMultiPeriod = true;
     if (m_entrynumber == 0) {
@@ -211,37 +207,80 @@ Workspace_sptr LoadMuonNexusV2::runLoadISISNexus() {
       globalNumberOfThreads = PARALLEL_GET_MAX_THREADS;
       PARALLEL_SET_NUM_THREADS(numThreads);
     }
-    ~ScopedNumThreadsSetter() {
-      PARALLEL_SET_NUM_THREADS(globalNumberOfThreads);
-    }
+    ~ScopedNumThreadsSetter() { PARALLEL_SET_NUM_THREADS(globalNumberOfThreads); }
     int globalNumberOfThreads;
   };
   ScopedNumThreadsSetter restoreDefaultThreadsOnExit(1);
-  IAlgorithm_sptr childAlg =
-      createChildAlgorithm("LoadISISNexus", 0, 1, true, 2);
+  IAlgorithm_sptr childAlg = createChildAlgorithm("LoadISISNexus", 0, 1, true, 2);
   declareProperty("LoadMonitors", "Exclude"); // we need to set this property
   auto ISISLoader = std::dynamic_pointer_cast<API::Algorithm>(childAlg);
   ISISLoader->copyPropertiesFrom(*this);
   ISISLoader->execute();
   this->copyPropertiesFrom(*ISISLoader);
   Workspace_sptr outWS = getProperty("OutputWorkspace");
+  applyTimeAxisUnitCorrection(*outWS);
   return outWS;
+}
+/**
+ * Determines the loading strategy used by the Algorithm
+ */
+void LoadMuonNexusV2::chooseLoaderStrategy(const Workspace_sptr &workspace) {
+  // Check if single or multi period file and create appropriate loading
+  // strategy
+  if (m_multiPeriodsLoaded) {
+    WorkspaceGroup_sptr workspaceGroup = std::dynamic_pointer_cast<WorkspaceGroup>(workspace);
+    assert(workspaceGroup);
+    auto numberHistograms = std::dynamic_pointer_cast<Workspace2D>(workspaceGroup->getItem(0))->getNumberHistograms();
+    loadMuonProperties(numberHistograms);
+    m_loadMuonStrategy =
+        std::make_unique<MultiPeriodLoadMuonStrategy>(g_log, m_filename, *m_nexusLoader, *workspaceGroup);
+
+  } else {
+    // we just have a single workspace
+    Workspace2D_sptr workspace2D = std::dynamic_pointer_cast<Workspace2D>(workspace);
+    assert(workspace2D);
+    // Load Muon specific properties
+    loadMuonProperties(workspace2D->getNumberHistograms());
+    m_loadMuonStrategy = std::make_unique<SinglePeriodLoadMuonStrategy>(
+        g_log, m_filename, *m_nexusLoader, *workspace2D, static_cast<int>(m_entrynumber), m_isFileMultiPeriod);
+  }
 }
 /**
  * Loads Muon specific data from the nexus entry
  * and sets the appropriate output properties
  */
-void LoadMuonNexusV2::loadMuonProperties(const NXEntry &entry) {
+void LoadMuonNexusV2::loadMuonProperties(size_t numSpectra) {
 
-  std::string mainFieldDirection =
-      LoadMuonNexusV2Helper::loadMainFieldDirectionFromNexus(entry);
+  std::string mainFieldDirection = m_nexusLoader->loadMainFieldDirectionFromNexus();
   setProperty("MainFieldDirection", mainFieldDirection);
 
-  double timeZero = LoadMuonNexusV2Helper::loadTimeZeroFromNexusFile(entry);
+  double timeZero = m_nexusLoader->loadTimeZeroFromNexusFile();
   setProperty("timeZero", timeZero);
 
-  auto firstGoodData = LoadMuonNexusV2Helper::loadFirstGoodDataFromNexus(entry);
+  auto firstGoodData = m_nexusLoader->loadFirstGoodDataFromNexus();
   setProperty("FirstGoodData", firstGoodData);
+
+  auto timeZeroVector = m_nexusLoader->loadTimeZeroListFromNexusFile(numSpectra);
+  setProperty("TimeZeroList", timeZeroVector);
+}
+
+/*
+Changes the unit of the time axis, which is incorrect due to being loaded using
+LoadISISNexus
+*/
+void LoadMuonNexusV2::applyTimeAxisUnitCorrection(Workspace &workspace) {
+  auto newUnit = std::dynamic_pointer_cast<Kernel::Units::Label>(Kernel::UnitFactory::Instance().create("Label"));
+  newUnit->setLabel("Time", Kernel::Units::Symbol::Microsecond);
+  auto workspaceGroup = dynamic_cast<WorkspaceGroup *>(&workspace);
+  if (workspaceGroup) {
+    for (int i = 0; i < workspaceGroup->getNumberOfEntries(); ++i) {
+      auto workspace2D = std::dynamic_pointer_cast<Workspace2D>(workspaceGroup->getItem(i));
+      workspace2D->getAxis(0)->unit() = newUnit;
+    }
+  } else {
+    auto &workspace2D = dynamic_cast<Workspace2D &>(workspace);
+    workspace2D.getAxis(0)->unit() = newUnit;
+  }
 }
 } // namespace DataHandling
 } // namespace Mantid

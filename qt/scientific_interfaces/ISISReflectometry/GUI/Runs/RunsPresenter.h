@@ -47,18 +47,15 @@ enum class TransferMatch {
 RunsPresenter is a presenter class for the Reflectometry Interface. It
 handles any interface functionality and model manipulation.
 */
-class MANTIDQT_ISISREFLECTOMETRY_DLL RunsPresenter
-    : public IRunsPresenter,
-      public RunsViewSubscriber,
-      public RunNotifierSubscriber,
-      public SearcherSubscriber,
-      public Mantid::API::AlgorithmObserver {
+class MANTIDQT_ISISREFLECTOMETRY_DLL RunsPresenter : public IRunsPresenter,
+                                                     public RunsViewSubscriber,
+                                                     public RunNotifierSubscriber,
+                                                     public SearcherSubscriber,
+                                                     public Mantid::API::AlgorithmObserver {
 public:
   RunsPresenter(IRunsView *mainView, ProgressableView *progressView,
-                const RunsTablePresenterFactory &makeRunsTablePresenter,
-                double thetaTolerance,
-                std::vector<std::string> const &instruments,
-                IMessageHandler *messageHandler);
+                const RunsTablePresenterFactory &makeRunsTablePresenter, double thetaTolerance,
+                std::vector<std::string> const &instruments, IMessageHandler *messageHandler);
   RunsPresenter(RunsPresenter const &) = delete;
   ~RunsPresenter() override;
   RunsPresenter const &operator=(RunsPresenter const &) = delete;
@@ -76,8 +73,8 @@ public:
   int percentComplete() const override;
   void setRoundPrecision(int &precision) override;
   void resetRoundPrecision() override;
-  void
-  notifyChangeInstrumentRequested(std::string const &instrumentName) override;
+  std::string instrumentName() const override;
+  bool notifyChangeInstrumentRequested(std::string const &instrumentName) override;
   void notifyResumeReductionRequested() override;
   void notifyPauseReductionRequested() override;
   void notifyRowStateChanged() override;
@@ -98,11 +95,11 @@ public:
   void notifyInstrumentChanged(std::string const &instrumentName) override;
   void notifyTableChanged() override;
   void settingsChanged() override;
+  void notifyChangesSaved() override;
+  bool hasUnsavedChanges() const override;
 
   bool isAnyBatchProcessing() const override;
   bool isAnyBatchAutoreducing() const override;
-  bool isOverwritingTablePrevented() const override;
-  bool isOverwriteBatchPrevented() const override;
 
   // RunsViewSubscriber overrides
   void notifySearch() override;
@@ -147,33 +144,34 @@ private:
   std::vector<std::string> m_instruments;
   /// The tolerance used when looking up settings by theta
   double m_thetaTolerance;
+  /// Flag to indicate we have unsaved changes in the runs table
+  bool m_tableUnsaved;
+  /// Cache last-used autoreduction search criteria
+  std::optional<SearchCriteria> m_lastAutoreductionSearch;
 
   /// searching
-  bool search(ISearcher::SearchType searchType);
+  bool search();
+  void resizeSearchResultsColumns();
   bool searchInProgress() const;
+  SearchCriteria searchCriteria() const;
+  bool newSearchCriteria() const;
+  bool newAutoreductionCriteria() const;
   /// autoreduction
   bool requireNewAutoreduction() const;
   void checkForNewRuns();
   void autoreduceNewRuns();
 
   ProgressPresenter setupProgressBar(const std::set<int> &rowsToTransfer);
-  void transfer(const std::set<int> &rowsToTransfer,
-                const TransferMatch matchType = TransferMatch::Any);
+  void transfer(const std::set<int> &rowsToTransfer, const TransferMatch matchType = TransferMatch::Any);
   void updateWidgetEnabledState() const;
   /// Check that a given set of row indices are valid to transfer
   bool validateRowsToTransfer(const std::set<int> &rowsToTransfer);
-  /// Get runs to transfer from row indices
-  std::vector<SearchResult>
-  getSearchResultRunDetails(const std::set<int> &rowsToTransfer);
-  /// Get the data for a cell in the search results table as a string
-  std::string searchModelData(const int row, const int column);
   /// Start the live data monitor
   void startMonitor();
   void stopMonitor();
   void startMonitorComplete();
   std::string liveDataReductionAlgorithm();
-  std::string liveDataReductionOptions(const std::string &inputWorkspace,
-                                       const std::string &instrument);
+  std::string liveDataReductionOptions(const std::string &inputWorkspace, const std::string &instrument);
 
   Mantid::API::IAlgorithm_sptr setupLiveDataMonitorAlgorithm();
 
@@ -181,11 +179,16 @@ private:
   void handleError(const std::string &message);
 
   void finishHandle(const Mantid::API::IAlgorithm *alg) override;
-  void errorHandle(const Mantid::API::IAlgorithm *alg,
-                   const std::string &what) override;
+  void errorHandle(const Mantid::API::IAlgorithm *alg, const std::string &what) override;
   void updateViewWhenMonitorStarting();
   void updateViewWhenMonitorStarted();
   void updateViewWhenMonitorStopped();
+
+  bool changeInstrumentPrevented(std::string const &newName) const;
+  bool autoreductionPrevented() const;
+  bool overwriteSearchResultsAndTablePrevented() const;
+  bool overwriteTablePrevented() const;
+  bool overwriteSearchResultsPrevented() const;
 
   friend class Encoder;
   friend class Decoder;
